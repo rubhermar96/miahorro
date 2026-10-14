@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Node
+node_modules/
+dist/
+dev-dist/
+coverage/
+playwright-report/
+test-results/
+blob-report/
+*.tsbuildinfo
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Bank statements and backups must never be committed (anonymised fixtures live in backend/tests/fixtures)
+*.dump
+*.dump.gpg
+/extractos/
+
+# Editors and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

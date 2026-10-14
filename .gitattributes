@@ -1,0 +1,7 @@
+# Normalise line endings to LF in the repository; scripts run on Linux.
+* text=auto eol=lf
+
+*.png binary
+*.ico binary
+*.jpg binary
+*.xlsx binary

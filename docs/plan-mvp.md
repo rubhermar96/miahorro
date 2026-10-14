@@ -73,7 +73,7 @@ Las iteraciones 5–9 dependen sobre todo de la 2. Si alguna te corre más prisa
 **Entregables**
 - Repositorio Git con esta estructura:
   - `backend/`: API con FastAPI.
-  - `backend/finanzas/`: paquete de cálculos financieros, sin dependencias de FastAPI.
+  - `backend/finance/`: paquete de cálculos financieros, sin dependencias de FastAPI.
   - `frontend/`: React + TypeScript + Vite.
   - `deploy/`: Docker Compose, configuración del proxy y scripts de copias.
   - `docs/`.
@@ -258,7 +258,7 @@ Las iteraciones 5–9 dependen sobre todo de la 2. Si alguna te corre más prisa
 - Cuadro de amortización francés, lineal y con carencia, recalculado en cada revisión.
 - Simulación y registro de amortizaciones anticipadas con la comisión de la Ley 5/2019.
 - Deuda pendiente, intereses pagados y por pagar.
-- El motor de amortización vive en el paquete `finanzas` y lo reutilizan las calculadoras.
+- El motor de amortización vive en el paquete `finance` y lo reutilizan las calculadoras.
 
 **Requisitos:** RF-PRE-01, 02, 03, 05, 07, 09.
 

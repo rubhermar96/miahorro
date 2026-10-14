@@ -1,9 +1,0 @@
-# MiAhorro behind a Caddy running directly on the VPS: add this block to its Caddyfile and run
-#   caddy validate --config /etc/caddy/Caddyfile && sudo systemctl reload caddy
-# Caddy obtains the HTTPS certificate on its own.
-miahorro.octogas.es {
-	request_body {
-		max_size 10MB
-	}
-	reverse_proxy 127.0.0.1:8090
-}

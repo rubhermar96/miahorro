@@ -27,6 +27,7 @@ def test_reads_configuration_from_environment(monkeypatch: pytest.MonkeyPatch) -
     monkeypatch.setenv("MIAHORRO_DATABASE_URL", UNREACHABLE_DATABASE_URL)
     monkeypatch.setenv("MIAHORRO_SECRET_KEY", "x" * 40)
     monkeypatch.setenv("MIAHORRO_ENVIRONMENT", "production")
+    monkeypatch.setenv("MIAHORRO_PUBLIC_URL", "https://miahorro.example.com")
 
     settings = Settings(_env_file=None)
 
@@ -35,7 +36,13 @@ def test_reads_configuration_from_environment(monkeypatch: pytest.MonkeyPatch) -
 
 
 def test_production_hides_api_docs() -> None:
-    app = create_app(make_settings(environment="production", database_url=UNREACHABLE_DATABASE_URL))
+    app = create_app(
+        make_settings(
+            environment="production",
+            database_url=UNREACHABLE_DATABASE_URL,
+            public_url="https://miahorro.example.com",
+        )
+    )
     with TestClient(app) as client:
         assert client.get("/api/docs").status_code == 404
         assert client.get("/api/openapi.json").status_code == 404
@@ -43,3 +50,23 @@ def test_production_hides_api_docs() -> None:
 
 def test_development_exposes_api_docs(client_without_db: TestClient) -> None:
     assert client_without_db.get("/api/openapi.json").status_code == 200
+
+
+def test_production_requires_https_public_url() -> None:
+    with pytest.raises(ValidationError, match="https"):
+        make_settings(environment="production", public_url="http://miahorro.example.com")
+
+
+def test_passkey_settings_follow_the_public_url() -> None:
+    settings = make_settings(environment="production", public_url="https://miahorro.octogas.es")
+
+    assert settings.webauthn_rp_id == "miahorro.octogas.es"
+    assert settings.webauthn_origins == ["https://miahorro.octogas.es"]
+    assert settings.session_cookie_name == "__Host-miahorro_session"
+
+
+def test_development_also_accepts_the_vite_dev_server() -> None:
+    settings = make_settings(public_url="http://localhost:8080")
+
+    assert settings.webauthn_origins == ["http://localhost:8080", "http://localhost:5173"]
+    assert settings.session_cookie_name == "miahorro_session"

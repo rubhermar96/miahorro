@@ -2,11 +2,13 @@ from fastapi import FastAPI
 from sqlalchemy.orm import sessionmaker
 
 from app import __version__
+from app.admin import mount_admin
+from app.auth.csrf import register_csrf_protection
 from app.config import Settings, get_settings
 from app.db import create_db_engine
 from app.errors import register_error_handlers
 from app.logging_setup import configure_logging, register_access_log
-from app.routers import health
+from app.routers import auth, health, me
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -25,11 +27,16 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     engine = create_db_engine(str(settings.database_url))
     app.state.settings = settings
     app.state.engine = engine
-    app.state.session_factory = sessionmaker(engine, expire_on_commit=False)
+    session_factory = sessionmaker(engine, expire_on_commit=False)
+    app.state.session_factory = session_factory
 
     register_error_handlers(app)
+    register_csrf_protection(app)
     register_access_log(app)
     app.include_router(health.router)
+    app.include_router(auth.router)
+    app.include_router(me.router)
+    mount_admin(app, engine, session_factory, settings)
     return app
 
 

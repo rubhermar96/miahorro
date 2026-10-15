@@ -1,0 +1,346 @@
+"""Sign-in and account security (RF-USR-01).
+
+Rules:
+- A password always needs a second factor (TOTP). After the password, the session is
+  "mfa_pending" (enter the code) or "mfa_setup" (no authenticator app yet: set it up now).
+- A passkey (Face ID) is enough on its own: it already proves possession and identity.
+- Wrong passwords and codes count towards a temporary lockout.
+- The session token changes whenever the session gains privileges.
+"""
+
+import uuid
+from typing import Annotated
+
+from fastapi import APIRouter, Header, HTTPException, Response, status
+from sqlalchemy import select
+
+from app import clock
+from app.auth import lockout, passkeys, sessions
+from app.auth.deps import (
+    AppSettings,
+    CurrentAuthSession,
+    CurrentUser,
+    DbSession,
+    FullAuthSession,
+)
+from app.config import Settings
+from app.models.auth import (
+    LEVEL_FULL,
+    LEVEL_MFA_PENDING,
+    LEVEL_MFA_SETUP,
+    AuthSession,
+    PasskeyCredential,
+    RecoveryCode,
+)
+from app.models.user import User
+from app.ownership import get_owned_or_404, owned
+from app.routers.schemas import (
+    CodeRequest,
+    LoginRequest,
+    LoginResult,
+    MfaRequest,
+    PasskeyAssertion,
+    PasskeyOptions,
+    PasskeyOut,
+    PasskeyRegistration,
+    RecoveryCodes,
+    SessionOut,
+    TotpSetup,
+    UserOut,
+)
+from app.security import encryption, passwords, recovery, totp
+
+router = APIRouter(prefix="/api/auth", tags=["auth"])
+
+UserAgent = Annotated[str | None, Header()]
+
+_BAD_CREDENTIALS = "Email o contraseña incorrectos."
+_BAD_CODE = "El código no es correcto."
+_BAD_PASSKEY = "No se ha podido verificar la passkey."
+
+
+def _start_session(
+    db: DbSession,
+    response: Response,
+    user: User,
+    level: str,
+    settings: Settings,
+    user_agent: str | None,
+    replaces: AuthSession | None = None,
+) -> None:
+    if replaces is not None:
+        sessions.revoke(db, replaces)
+    token = sessions.create(db, user, level, settings, user_agent)
+    db.commit()
+    sessions.set_cookie(response, token, settings)
+
+
+def _issue_recovery_codes(db: DbSession, user: User, settings: Settings) -> list[str]:
+    secret_key = settings.secret_key.get_secret_value()
+    for existing in db.scalars(owned(RecoveryCode, user)):
+        db.delete(existing)
+    codes = recovery.new_codes()
+    for code in codes:
+        db.add(RecoveryCode(user_id=user.id, code_hash=recovery.hash_code(secret_key, code)))
+    return codes
+
+
+# --- Password and second factor -------------------------------------------------------------
+
+
+@router.post("/login")
+def login(
+    body: LoginRequest,
+    response: Response,
+    db: DbSession,
+    settings: AppSettings,
+    user_agent: UserAgent = None,
+) -> LoginResult:
+    user = db.scalar(select(User).where(User.email == body.email))
+    if user is not None:
+        lockout.ensure_not_locked(user)
+
+    valid, new_hash = passwords.verify_password(body.password, user.password_hash if user else None)
+    if user is None or not user.is_active or not valid:
+        if user is not None:
+            lockout.register_failure(user, settings)
+            db.commit()
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, _BAD_CREDENTIALS)
+
+    if new_hash:
+        user.password_hash = new_hash
+    lockout.register_success(user)
+    level = LEVEL_MFA_PENDING if user.has_totp else LEVEL_MFA_SETUP
+    _start_session(db, response, user, level, settings, user_agent)
+    return LoginResult(status="mfa_required" if user.has_totp else "mfa_setup_required")
+
+
+@router.post("/mfa")
+def verify_second_factor(
+    body: MfaRequest,
+    response: Response,
+    auth: CurrentAuthSession,
+    db: DbSession,
+    settings: AppSettings,
+    user_agent: UserAgent = None,
+) -> LoginResult:
+    if auth.level != LEVEL_MFA_PENDING:
+        raise HTTPException(status.HTTP_409_CONFLICT, "No hay ningún código pendiente.")
+    user = auth.user
+    lockout.ensure_not_locked(user)
+
+    if body.code:
+        ok = _accept_totp(user, body.code, settings)
+    elif body.recovery_code:
+        ok = _accept_recovery_code(db, user, body.recovery_code, settings)
+    else:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "Introduce un código.")
+
+    if not ok:
+        lockout.register_failure(user, settings)
+        db.commit()
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, _BAD_CODE)
+
+    lockout.register_success(user)
+    _start_session(db, response, user, LEVEL_FULL, settings, user_agent, replaces=auth)
+    return LoginResult(status="authenticated")
+
+
+def _accept_totp(user: User, code: str, settings: Settings) -> bool:
+    if user.totp_secret_encrypted is None:
+        return False
+    secret = encryption.decrypt(settings.secret_key.get_secret_value(), user.totp_secret_encrypted)
+    step = totp.verify(secret, code, clock.now(), user.totp_last_used_step)
+    if step is None:
+        return False
+    user.totp_last_used_step = step
+    return True
+
+
+def _accept_recovery_code(db: DbSession, user: User, code: str, settings: Settings) -> bool:
+    code_hash = recovery.hash_code(settings.secret_key.get_secret_value(), code)
+    match = db.scalar(
+        owned(RecoveryCode, user).where(
+            RecoveryCode.code_hash == code_hash, RecoveryCode.used_at.is_(None)
+        )
+    )
+    if match is None:
+        return False
+    match.used_at = clock.now()
+    return True
+
+
+@router.post("/totp/setup")
+def start_totp_setup(auth: CurrentAuthSession, db: DbSession, settings: AppSettings) -> TotpSetup:
+    """Generate a new authenticator secret. It only takes effect once a code confirms it."""
+    user = auth.user
+    if auth.level == LEVEL_MFA_PENDING or user.has_totp:
+        raise HTTPException(
+            status.HTTP_409_CONFLICT, "La verificación en dos pasos ya está activa."
+        )
+    secret = totp.new_secret()
+    user.totp_secret_encrypted = encryption.encrypt(settings.secret_key.get_secret_value(), secret)
+    db.commit()
+    uri = totp.provisioning_uri(secret, user.email)
+    return TotpSetup(secret=secret, otpauth_uri=uri, qr_code=totp.qr_data_uri(uri))
+
+
+@router.post("/totp/confirm")
+def confirm_totp_setup(
+    body: CodeRequest,
+    response: Response,
+    auth: CurrentAuthSession,
+    db: DbSession,
+    settings: AppSettings,
+    user_agent: UserAgent = None,
+) -> RecoveryCodes:
+    user = auth.user
+    if auth.level == LEVEL_MFA_PENDING or user.has_totp or user.totp_secret_encrypted is None:
+        raise HTTPException(status.HTTP_409_CONFLICT, "No hay ninguna configuración pendiente.")
+    lockout.ensure_not_locked(user)
+    if not _accept_totp(user, body.code, settings):
+        lockout.register_failure(user, settings)
+        db.commit()
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, _BAD_CODE)
+
+    user.totp_enabled_at = clock.now()
+    lockout.register_success(user)
+    codes = _issue_recovery_codes(db, user, settings)
+    if auth.level == LEVEL_MFA_SETUP:
+        _start_session(db, response, user, LEVEL_FULL, settings, user_agent, replaces=auth)
+    else:
+        db.commit()
+    return RecoveryCodes(codes=codes)
+
+
+@router.post("/recovery-codes")
+def regenerate_recovery_codes(
+    user: CurrentUser, db: DbSession, settings: AppSettings
+) -> RecoveryCodes:
+    if not user.has_totp:
+        raise HTTPException(status.HTTP_409_CONFLICT, "Activa antes la verificación en dos pasos.")
+    codes = _issue_recovery_codes(db, user, settings)
+    db.commit()
+    return RecoveryCodes(codes=codes)
+
+
+# --- Session ----------------------------------------------------------------------------------
+
+
+@router.get("/session")
+def current_session(auth: CurrentAuthSession) -> SessionOut:
+    return SessionOut.model_validate({"level": auth.level, "user": UserOut.from_user(auth.user)})
+
+
+@router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
+def logout(auth: CurrentAuthSession, db: DbSession, settings: AppSettings) -> Response:
+    sessions.revoke(db, auth)
+    db.commit()
+    response = Response(status_code=status.HTTP_204_NO_CONTENT)
+    sessions.clear_cookie(response, settings)
+    return response
+
+
+@router.post("/logout-all", status_code=status.HTTP_204_NO_CONTENT)
+def logout_everywhere(auth: FullAuthSession, db: DbSession, settings: AppSettings) -> Response:
+    sessions.revoke_all(db, auth.user_id)
+    db.commit()
+    response = Response(status_code=status.HTTP_204_NO_CONTENT)
+    sessions.clear_cookie(response, settings)
+    return response
+
+
+# --- Passkeys ---------------------------------------------------------------------------------
+
+
+@router.get("/passkeys")
+def list_passkeys(user: CurrentUser, db: DbSession) -> list[PasskeyOut]:
+    rows = db.scalars(owned(PasskeyCredential, user).order_by(PasskeyCredential.created_at))
+    return [PasskeyOut.from_model(row) for row in rows]
+
+
+@router.post("/passkeys/register/options")
+def passkey_registration_options(
+    user: CurrentUser, db: DbSession, settings: AppSettings
+) -> PasskeyOptions:
+    existing = list(db.scalars(owned(PasskeyCredential, user)))
+    challenge_id, options = passkeys.registration_options(db, user, existing, settings)
+    db.commit()
+    return PasskeyOptions(challenge_id=challenge_id, options=options)
+
+
+@router.post("/passkeys/register", status_code=status.HTTP_201_CREATED)
+def register_passkey(
+    body: PasskeyRegistration, user: CurrentUser, db: DbSession, settings: AppSettings
+) -> PasskeyOut:
+    try:
+        challenge = passkeys.take_challenge(db, body.challenge_id, passkeys.PURPOSE_REGISTER, user)
+        credential_id, public_key, sign_count, transports = passkeys.verify_registration(
+            challenge, body.credential, settings
+        )
+    except passkeys.PasskeyError as exc:
+        db.commit()  # the challenge is consumed either way
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, _BAD_PASSKEY) from exc
+
+    passkey = PasskeyCredential(
+        user_id=user.id,
+        credential_id=credential_id,
+        public_key=public_key,
+        sign_count=sign_count,
+        transports=transports,
+        name=body.name.strip(),
+        created_at=clock.now(),
+    )
+    db.add(passkey)
+    db.commit()
+    return PasskeyOut.from_model(passkey)
+
+
+@router.delete("/passkeys/{passkey_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_passkey(passkey_id: uuid.UUID, user: CurrentUser, db: DbSession) -> Response:
+    passkey = get_owned_or_404(db, PasskeyCredential, passkey_id, user)
+    db.delete(passkey)
+    db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.post("/passkeys/login/options")
+def passkey_login_options(db: DbSession, settings: AppSettings) -> PasskeyOptions:
+    challenge_id, options = passkeys.authentication_options(db, settings)
+    db.commit()
+    return PasskeyOptions(challenge_id=challenge_id, options=options)
+
+
+@router.post("/passkeys/login")
+def login_with_passkey(
+    body: PasskeyAssertion,
+    response: Response,
+    db: DbSession,
+    settings: AppSettings,
+    user_agent: UserAgent = None,
+) -> LoginResult:
+    try:
+        challenge = passkeys.take_challenge(db, body.challenge_id, passkeys.PURPOSE_LOGIN, None)
+        credential_id = passkeys.credential_id_of(body.credential)
+        passkey = db.scalar(
+            select(PasskeyCredential).where(PasskeyCredential.credential_id == credential_id)
+        )
+        if passkey is None:
+            raise passkeys.PasskeyError("unknown credential")
+        new_sign_count = passkeys.verify_authentication(
+            challenge, body.credential, passkey, settings
+        )
+    except passkeys.PasskeyError as exc:
+        db.commit()
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, _BAD_PASSKEY) from exc
+
+    user = db.get(User, passkey.user_id)
+    if user is None or not user.is_active:
+        db.commit()
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, _BAD_PASSKEY)
+
+    passkey.sign_count = new_sign_count
+    passkey.last_used_at = clock.now()
+    lockout.register_success(user)
+    _start_session(db, response, user, LEVEL_FULL, settings, user_agent)
+    return LoginResult(status="authenticated")

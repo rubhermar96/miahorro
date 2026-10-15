@@ -36,10 +36,571 @@
           }
         }
       }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Login",
+        "operationId": "login_api_auth_login_post",
+        "parameters": [
+          {
+            "name": "user-agent",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "User-Agent"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/mfa": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Verify Second Factor",
+        "operationId": "verify_second_factor_api_auth_mfa_post",
+        "parameters": [
+          {
+            "name": "user-agent",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "User-Agent"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MfaRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/totp/setup": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Start Totp Setup",
+        "description": "Generate a new authenticator secret. It only takes effect once a code confirms it.",
+        "operationId": "start_totp_setup_api_auth_totp_setup_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TotpSetup"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/totp/confirm": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Confirm Totp Setup",
+        "operationId": "confirm_totp_setup_api_auth_totp_confirm_post",
+        "parameters": [
+          {
+            "name": "user-agent",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "User-Agent"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CodeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecoveryCodes"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/recovery-codes": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Regenerate Recovery Codes",
+        "operationId": "regenerate_recovery_codes_api_auth_recovery_codes_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecoveryCodes"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/session": {
+      "get": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Current Session",
+        "operationId": "current_session_api_auth_session_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Logout",
+        "operationId": "logout_api_auth_logout_post",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          }
+        }
+      }
+    },
+    "/api/auth/logout-all": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Logout Everywhere",
+        "operationId": "logout_everywhere_api_auth_logout_all_post",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          }
+        }
+      }
+    },
+    "/api/auth/passkeys": {
+      "get": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "List Passkeys",
+        "operationId": "list_passkeys_api_auth_passkeys_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PasskeyOut"
+                  },
+                  "type": "array",
+                  "title": "Response List Passkeys Api Auth Passkeys Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/passkeys/register/options": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Passkey Registration Options",
+        "operationId": "passkey_registration_options_api_auth_passkeys_register_options_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PasskeyOptions"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/passkeys/register": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Register Passkey",
+        "operationId": "register_passkey_api_auth_passkeys_register_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasskeyRegistration"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PasskeyOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/passkeys/{passkey_id}": {
+      "delete": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Delete Passkey",
+        "operationId": "delete_passkey_api_auth_passkeys__passkey_id__delete",
+        "parameters": [
+          {
+            "name": "passkey_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Passkey Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/passkeys/login/options": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Passkey Login Options",
+        "operationId": "passkey_login_options_api_auth_passkeys_login_options_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PasskeyOptions"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/passkeys/login": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Login With Passkey",
+        "operationId": "login_with_passkey_api_auth_passkeys_login_post",
+        "parameters": [
+          {
+            "name": "user-agent",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "User-Agent"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasskeyAssertion"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/me": {
+      "get": {
+        "tags": [
+          "me"
+        ],
+        "summary": "Read Me",
+        "operationId": "read_me_api_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/me/preferences": {
+      "patch": {
+        "tags": [
+          "me"
+        ],
+        "summary": "Update Preferences",
+        "operationId": "update_preferences_api_me_preferences_patch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreferencesUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "CodeRequest": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "maxLength": 16,
+            "title": "Code"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code"
+        ],
+        "title": "CodeRequest"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
       "HealthResponse": {
         "properties": {
           "status": {
@@ -70,6 +631,425 @@
           "database"
         ],
         "title": "HealthResponse"
+      },
+      "LoginRequest": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "maxLength": 254,
+            "title": "Email"
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 1024,
+            "title": "Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "title": "LoginRequest"
+      },
+      "LoginResult": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "authenticated",
+              "mfa_required",
+              "mfa_setup_required"
+            ],
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "title": "LoginResult"
+      },
+      "MfaRequest": {
+        "properties": {
+          "code": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 16
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Code"
+          },
+          "recovery_code": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 32
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recovery Code"
+          }
+        },
+        "type": "object",
+        "title": "MfaRequest"
+      },
+      "PasskeyAssertion": {
+        "properties": {
+          "challenge_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Challenge Id"
+          },
+          "credential": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Credential"
+          }
+        },
+        "type": "object",
+        "required": [
+          "challenge_id",
+          "credential"
+        ],
+        "title": "PasskeyAssertion"
+      },
+      "PasskeyOptions": {
+        "properties": {
+          "challenge_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Challenge Id"
+          },
+          "options": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Options"
+          }
+        },
+        "type": "object",
+        "required": [
+          "challenge_id",
+          "options"
+        ],
+        "title": "PasskeyOptions"
+      },
+      "PasskeyOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "last_used_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Used At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "created_at",
+          "last_used_at"
+        ],
+        "title": "PasskeyOut"
+      },
+      "PasskeyRegistration": {
+        "properties": {
+          "challenge_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Challenge Id"
+          },
+          "credential": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Credential"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 60,
+            "minLength": 1,
+            "title": "Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "challenge_id",
+          "credential",
+          "name"
+        ],
+        "title": "PasskeyRegistration"
+      },
+      "Preferences": {
+        "properties": {
+          "currency": {
+            "type": "string",
+            "enum": [
+              "EUR",
+              "USD",
+              "GBP",
+              "CHF"
+            ],
+            "title": "Currency"
+          },
+          "month_start_day": {
+            "type": "integer",
+            "maximum": 28.0,
+            "minimum": 1.0,
+            "title": "Month Start Day"
+          },
+          "theme": {
+            "type": "string",
+            "enum": [
+              "system",
+              "light",
+              "dark"
+            ],
+            "title": "Theme"
+          },
+          "language": {
+            "type": "string",
+            "const": "es",
+            "title": "Language"
+          }
+        },
+        "type": "object",
+        "required": [
+          "currency",
+          "month_start_day",
+          "theme",
+          "language"
+        ],
+        "title": "Preferences"
+      },
+      "PreferencesUpdate": {
+        "properties": {
+          "currency": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "EUR",
+                  "USD",
+                  "GBP",
+                  "CHF"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency"
+          },
+          "month_start_day": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 28.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Month Start Day"
+          },
+          "theme": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "system",
+                  "light",
+                  "dark"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Theme"
+          },
+          "language": {
+            "anyOf": [
+              {
+                "type": "string",
+                "const": "es"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Language"
+          }
+        },
+        "type": "object",
+        "title": "PreferencesUpdate"
+      },
+      "RecoveryCodes": {
+        "properties": {
+          "codes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Codes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "codes"
+        ],
+        "title": "RecoveryCodes"
+      },
+      "SessionOut": {
+        "properties": {
+          "level": {
+            "type": "string",
+            "enum": [
+              "full",
+              "mfa_pending",
+              "mfa_setup"
+            ],
+            "title": "Level"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserOut"
+          }
+        },
+        "type": "object",
+        "required": [
+          "level",
+          "user"
+        ],
+        "title": "SessionOut"
+      },
+      "TotpSetup": {
+        "properties": {
+          "secret": {
+            "type": "string",
+            "title": "Secret"
+          },
+          "otpauth_uri": {
+            "type": "string",
+            "title": "Otpauth Uri"
+          },
+          "qr_code": {
+            "type": "string",
+            "title": "Qr Code",
+            "description": "SVG QR code as a data: URI"
+          }
+        },
+        "type": "object",
+        "required": [
+          "secret",
+          "otpauth_uri",
+          "qr_code"
+        ],
+        "title": "TotpSetup"
+      },
+      "UserOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "display_name": {
+            "type": "string",
+            "title": "Display Name"
+          },
+          "is_admin": {
+            "type": "boolean",
+            "title": "Is Admin"
+          },
+          "has_totp": {
+            "type": "boolean",
+            "title": "Has Totp"
+          },
+          "preferences": {
+            "$ref": "#/components/schemas/Preferences"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "email",
+          "display_name",
+          "is_admin",
+          "has_totp",
+          "preferences"
+        ],
+        "title": "UserOut"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
       }
     }
   }

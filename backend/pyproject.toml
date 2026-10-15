@@ -5,11 +5,20 @@ description = "API de MiAhorro"
 requires-python = ">=3.14"
 dependencies = [
     "alembic>=1.20.0",
+    "cryptography>=50.0.2",
     "fastapi>=0.143.1",
+    "greenlet>=3.5.6",
+    "itsdangerous>=2.2.0",
     "psycopg[binary]>=3.3.6",
+    "pwdlib[argon2]>=0.3.1",
     "pydantic-settings>=2.16.0",
+    "pyotp>=2.10.0",
+    "segno>=1.6.6",
+    "sqladmin>=0.32.0",
     "sqlalchemy>=2",
+    "typer>=0.27.3",
     "uvicorn[standard]>=0.54.0",
+    "webauthn>=3.0.1",
 ]
 
 [tool.uv]
@@ -23,8 +32,10 @@ target-version = "py314"
 select = ["E", "F", "W", "I", "N", "UP", "B", "S", "DTZ", "RUF", "SIM", "PT"]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["S101", "S106"]
+"tests/**" = ["S101", "S105", "S106"]
 "migrations/**" = ["N999"]
+# SQLAdmin views are configured through mutable class attributes.
+"app/admin.py" = ["RUF012"]
 
 [tool.mypy]
 strict = true

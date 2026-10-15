@@ -1,7 +1,9 @@
 from collections.abc import Iterator
+from datetime import datetime
+from typing import Any, ClassVar
 
 from fastapi import Request
-from sqlalchemy import Engine, MetaData, create_engine
+from sqlalchemy import DateTime, Engine, MetaData, create_engine
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 # Stable constraint names so Alembic migrations are reproducible.
@@ -16,6 +18,8 @@ NAMING_CONVENTION = {
 
 class Base(DeclarativeBase):
     metadata = MetaData(naming_convention=NAMING_CONVENTION)
+    # Every timestamp is stored with its time zone (all of them in UTC).
+    type_annotation_map: ClassVar[dict[Any, Any]] = {datetime: DateTime(timezone=True)}
 
 
 def create_db_engine(database_url: str) -> Engine:

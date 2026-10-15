@@ -22,7 +22,7 @@ Requisitos: Docker Desktop, Python 3.14 con [uv](https://docs.astral.sh/uv/) y N
 
 ```bash
 # Base de datos (incluye la de tests)
-docker compose up -d db
+docker compose up -d db          # escucha en 127.0.0.1:15432
 
 # API en http://localhost:8000 (documentación en /api/docs)
 cd backend

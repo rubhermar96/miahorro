@@ -13,7 +13,7 @@ from app.main import create_app
 
 TEST_DATABASE_URL = os.environ.get(
     "MIAHORRO_TEST_DATABASE_URL",
-    "postgresql+psycopg://miahorro:miahorro@localhost:5432/miahorro_test",
+    "postgresql+psycopg://miahorro:miahorro@127.0.0.1:15432/miahorro_test",
 )
 # Nothing listens on port 1; the short timeout keeps tests fast.
 UNREACHABLE_DATABASE_URL = "postgresql+psycopg://nobody:nothing@127.0.0.1:1/none?connect_timeout=1"

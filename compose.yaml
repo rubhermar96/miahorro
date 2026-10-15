@@ -1,6 +1,7 @@
 # Local development and end-to-end tests. Mirrors production (deploy/compose.prod.yaml)
 # with throwaway credentials. Start everything:  docker compose up -d --build --wait
 # Only the database (to run the API or tests outside Docker):  docker compose up -d db
+# It listens on 127.0.0.1:15432 (not 5432, which a native PostgreSQL may already use).
 name: miahorro-dev
 
 services:
@@ -14,7 +15,7 @@ services:
       - db-data:/var/lib/postgresql
       - ./deploy/local/create-test-db.sql:/docker-entrypoint-initdb.d/create-test-db.sql:ro
     ports:
-      - "127.0.0.1:5432:5432"
+      - "127.0.0.1:${MIAHORRO_DB_PORT:-15432}:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U miahorro -d miahorro"]
       interval: 5s

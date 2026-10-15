@@ -29,6 +29,7 @@ cd backend
 cp .env.example .env
 uv sync
 uv run alembic upgrade head
+uv run python -m app.cli create-user --email tu@email.com --name "Tu nombre" --admin
 uv run uvicorn app.main:app_factory --factory --reload
 
 # App en http://localhost:5173 (redirige /api a la API)
@@ -59,4 +60,6 @@ Antes de cada commit se ejecutan formateadores y linters (`cd backend && uv run 
 - **Importes siempre en `Decimal`**, nunca en coma flotante. En la API viajan como texto (`"1234.56"`).
 - **Redondeo al céntimo con `ROUND_HALF_UP`**, el redondeo comercial habitual. Se redondea solo al guardar o mostrar (ver `backend/finance/money.py`).
 - **Ningún log contiene datos financieros.**
+- **Datos de cada usuario siempre filtrados por su dueño.** Las consultas a modelos con `OwnedMixin` pasan por `app/ownership.py`, y un test comprueba que todo endpoint que no sea público exige sesión.
+- **Escrituras con cabecera anti-CSRF.** El cliente de la API la añade solo (`X-MiAhorro-CSRF: 1`).
 - **Cliente de la API generado.** Si cambia la API, ejecuta `uv run python -m app.export_openapi` en `backend` y `npm run api:generate` en `frontend`. Un test avisa si se olvida.

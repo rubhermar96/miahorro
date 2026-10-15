@@ -294,3 +294,210 @@ button {
   justify-content: flex-end;
   gap: 8px;
 }
+
+/* Text */
+h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.brand {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.greeting {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.stack--tight {
+  gap: 8px;
+}
+
+/* Full-screen pages (sign-in, loading, offline) */
+.screen-center {
+  display: grid;
+  place-items: center;
+  min-height: 100dvh;
+  padding: calc(env(safe-area-inset-top) + 24px) 16px calc(env(safe-area-inset-bottom) + 24px);
+  text-align: center;
+}
+
+.login {
+  width: 100%;
+  max-width: 400px;
+  text-align: left;
+}
+
+.login__header {
+  justify-items: center;
+  text-align: center;
+}
+
+.login__logo {
+  border-radius: 16px;
+}
+
+/* Forms */
+.field {
+  display: grid;
+  gap: 6px;
+  font-weight: 500;
+}
+
+.field small {
+  font-weight: 400;
+}
+
+input,
+select {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 1rem; /* 16px or more: Safari does not zoom in on focus */
+}
+
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 0;
+  border-color: var(--primary);
+}
+
+select:disabled {
+  color: var(--text-muted);
+}
+
+.alert {
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+  color: var(--danger);
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+.divider::before,
+.divider::after {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+  content: '';
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.actions--spread {
+  justify-content: space-between;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.button--secondary {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.button--danger {
+  color: var(--danger);
+}
+
+/* Second factor setup and recovery codes */
+.steps {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding-left: 20px;
+}
+
+.totp {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+}
+
+.totp__qr {
+  width: 200px;
+  height: 200px;
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  background: #ffffff; /* QR codes need a light background, also in dark mode */
+}
+
+.totp__secret {
+  display: block;
+  margin-top: 8px;
+  font-size: 0.9375rem;
+  word-break: break-all;
+}
+
+.codes {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px 16px;
+  margin: 0;
+  padding-left: 24px;
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+}
+
+/* Lists */
+.list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.list__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.card--link {
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* Native selects look like the other fields (Safari otherwise draws a grey gradient). */
+select {
+  -webkit-appearance: none;
+  appearance: none;
+  padding-right: 36px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%235a6b68' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+}

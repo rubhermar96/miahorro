@@ -6,3 +6,4 @@ test-results
 package-lock.json
 src/api/openapi.json
 src/api/schema.d.ts
+e2e/.auth

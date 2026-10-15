@@ -1,14 +1,27 @@
 import { expect, test } from '@playwright/test'
 
+// These tests run signed in (see auth.setup.ts).
+
 test('la app carga, conecta con el servidor y navega', async ({ page }) => {
   await page.goto('/')
 
   await expect(page.getByRole('heading', { level: 1, name: 'Inicio' })).toBeVisible()
+  await expect(page.getByText('Hola, Prueba')).toBeVisible()
   await expect(page.getByText(/Conectado · versión \d+\.\d+\.\d+/)).toBeVisible()
 
   await page.getByRole('link', { name: 'Más' }).click()
   await expect(page).toHaveURL(/\/mas$/)
   await expect(page.getByRole('heading', { level: 1, name: 'Más' })).toBeVisible()
+})
+
+test('las preferencias se guardan en el servidor', async ({ page }) => {
+  await page.goto('/mas')
+  await page.getByLabel('El mes empieza el día').selectOption('25')
+  await expect(page.getByText('Guardado')).toBeVisible()
+
+  await page.reload()
+
+  await expect(page.getByLabel('El mes empieza el día')).toHaveValue('25')
 })
 
 test('las direcciones de la app funcionan al abrirlas directamente', async ({ page }) => {

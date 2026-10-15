@@ -38,6 +38,7 @@ services:
       MIAHORRO_ENVIRONMENT: production
       MIAHORRO_DATABASE_URL: postgresql+psycopg://miahorro:${POSTGRES_PASSWORD}@db:5432/miahorro
       MIAHORRO_SECRET_KEY: ${MIAHORRO_SECRET_KEY:?Falta MIAHORRO_SECRET_KEY en deploy/.env}
+      MIAHORRO_PUBLIC_URL: ${MIAHORRO_PUBLIC_URL:-https://miahorro.octogas.es}
       MIAHORRO_LOG_LEVEL: INFO
     depends_on:
       db:

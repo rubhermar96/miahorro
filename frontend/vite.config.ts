@@ -49,7 +49,7 @@ export default defineConfig({
     }),
   ],
   server: {
-    proxy: { '/api': 'http://localhost:8000' },
+    proxy: { '/api': 'http://localhost:8000', '/admin': 'http://localhost:8000' },
   },
   test: {
     environment: 'jsdom',

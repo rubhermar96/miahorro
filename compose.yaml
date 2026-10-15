@@ -25,10 +25,12 @@ services:
   api:
     build: ./backend
     environment:
-      MIAHORRO_ENVIRONMENT: development
+      # Both can be overridden to try the app from a phone through an HTTPS tunnel
+      # (see "Probar en el iPhone" in README.md).
+      MIAHORRO_ENVIRONMENT: ${MIAHORRO_ENVIRONMENT:-development}
+      MIAHORRO_PUBLIC_URL: ${MIAHORRO_PUBLIC_URL:-http://localhost:8080}
       MIAHORRO_DATABASE_URL: postgresql+psycopg://miahorro:miahorro@db:5432/miahorro
       MIAHORRO_SECRET_KEY: local-development-secret-key-not-for-production
-      MIAHORRO_PUBLIC_URL: http://localhost:8080
     depends_on:
       db:
         condition: service_healthy

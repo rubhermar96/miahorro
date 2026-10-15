@@ -44,6 +44,29 @@ La plataforma completa, como en producción, en http://localhost:8080:
 docker compose up -d --build --wait
 ```
 
+## Probar en el iPhone desde local
+
+Safari solo permite Face ID (passkeys) y el modo sin conexión con HTTPS. Para probar la plataforma local desde el iPhone se abre un túnel temporal de Cloudflare: es gratuito, no pide cuenta y se instala con `winget install Cloudflare.cloudflared`.
+
+1. Con la plataforma en marcha (`docker compose up -d --build --wait`), abre el túnel y deja la ventana abierta:
+
+   ```powershell
+   & 'C:\Program Files (x86)\cloudflared\cloudflared.exe' tunnel --no-autoupdate --url http://localhost:8080
+   ```
+
+2. Copia la dirección `https://….trycloudflare.com` que aparece y reinicia la API con ella, en modo producción:
+
+   ```powershell
+   $env:MIAHORRO_ENVIRONMENT='production'; $env:MIAHORRO_PUBLIC_URL='https://….trycloudflare.com'; docker compose up -d --wait api
+   ```
+
+3. Abre esa dirección en Safari en el iPhone.
+
+Al terminar, pulsa Ctrl+C en el túnel y ejecuta `docker compose up -d --wait api` en una terminal nueva para volver a la configuración local.
+
+- La dirección cambia cada vez que abres el túnel, y las passkeys quedan ligadas a ella. Bórralas después en Ajustes → Contraseñas del iPhone.
+- Mientras el túnel está abierto, la app es accesible desde internet, aunque sigue pidiendo inicio de sesión. Úsalo solo con datos de prueba.
+
 ## Pruebas
 
 ```bash

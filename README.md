@@ -47,26 +47,25 @@ docker compose up -d --build --wait
 
 ## Probar en el iPhone desde local
 
-Safari solo permite Face ID (passkeys) y el modo sin conexión con HTTPS. Para probar la plataforma local desde el iPhone se abre un túnel temporal de Cloudflare: es gratuito, no pide cuenta y se instala con `winget install Cloudflare.cloudflared`.
+Safari solo permite Face ID (passkeys) y el modo sin conexión con HTTPS. Para probar la plataforma local desde el iPhone se abre un túnel temporal de Cloudflare: es gratuito, no pide cuenta y se instala con `winget install Cloudflare.cloudflared`. Todo se hace con un script:
 
-1. Con la plataforma en marcha (`docker compose up -d --build --wait`), abre el túnel y deja la ventana abierta:
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\probar-en-iphone.ps1
+```
 
-   ```powershell
-   & 'C:\Program Files (x86)\cloudflared\cloudflared.exe' tunnel --no-autoupdate --url http://localhost:8080
-   ```
+El script hace lo siguiente:
 
-2. Copia la dirección `https://….trycloudflare.com` que aparece y reinicia la API con ella, en modo producción:
+1. Si Docker no responde, reinicia Docker Desktop.
+2. Arranca la plataforma.
+3. Abre el túnel y pone la API en modo producción con esa dirección.
+4. Muestra la dirección `https://….trycloudflare.com` para abrirla en el iPhone.
 
-   ```powershell
-   $env:MIAHORRO_ENVIRONMENT='production'; $env:MIAHORRO_PUBLIC_URL='https://….trycloudflare.com'; docker compose up -d --wait api
-   ```
+Deja la ventana abierta mientras pruebas. Al pulsar Ctrl+C se cierra el túnel y todo vuelve a la configuración local.
 
-3. Abre esa dirección en Safari en el iPhone.
-
-Al terminar, pulsa Ctrl+C en el túnel y ejecuta `docker compose up -d --wait api` en una terminal nueva para volver a la configuración local.
-
-- La dirección cambia cada vez que abres el túnel, y las passkeys quedan ligadas a ella. Bórralas después en Ajustes → Contraseñas del iPhone.
+- La dirección cambia cada vez que se abre el túnel, y las passkeys quedan ligadas a ella. Bórralas después en Ajustes → Contraseñas del iPhone.
 - Mientras el túnel está abierto, la app es accesible desde internet, aunque sigue pidiendo inicio de sesión. Úsalo solo con datos de prueba.
+- Si una dirección antigua da el error 1033 de Cloudflare, es que su túnel ya está cerrado: vuelve a ejecutar el script.
+- Docker Desktop tiene un fallo en Windows: tras reiniciarse a veces no arranca porque no puede borrar sus sockets antiguos. El script lo resuelve renombrando sus carpetas `run` y `docker-secrets-engine`; las antiguas quedan como `*.old-<fecha>` y se pueden borrar.
 
 ## Pruebas
 

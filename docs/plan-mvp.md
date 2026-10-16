@@ -164,7 +164,7 @@ Las iteraciones 5–9 dependen sobre todo de la 2. Si alguna te corre más prisa
   - Detecta la codificación, el separador y los formatos españoles de fecha e importe (`1.234,56`).
   - Asistente de mapeo de columnas y vista previa antes de confirmar.
   - Lo configurado se guarda como plantilla compartida.
-- Plantillas de **Bankinter y Cajamar**.
+- Plantillas de **Bankinter y Cajamar**: en PDF, el extracto mensual que genera el banco, con lector propio que comprueba los saldos línea a línea (D24). Hecho Bankinter; **Cajamar queda pendiente** (se hará cuando haya un extracto de ejemplo, sin bloquear las siguientes iteraciones).
 - Reimportar un fichero repetido o que se solapa con otro no crea duplicados.
 - Deshacer una importación completa.
 - Reglas de categorización aplicadas al importar y al apuntar a mano. Al corregir una categoría, la app propone crear la regla.
@@ -325,7 +325,7 @@ Las iteraciones 5–9 dependen sobre todo de la 2. Si alguna te corre más prisa
 **Entregables**
 - Panel principal: patrimonio neto, liquidez, gasto del mes frente a presupuesto, objetivos, próximos cargos y vencimientos.
 - Evolución del patrimonio neto (cuentas + inversiones − préstamos), con desglose.
-- Ingresos frente a gastos por mes y tasa de ahorro.
+- Ingresos frente a gastos y tasa de ahorro, por mes, por año o entre fechas a elegir.
 - Gasto por categoría, comercio y etiqueta, comparado con el mes anterior y con el mismo mes del año anterior.
 - Exportación de todos tus datos en CSV/JSON.
 
@@ -400,4 +400,4 @@ Fuera de este plan; se detallará al terminar el MVP. Incluirá:
 | A3 | Qué servidor web o proxy usa octogas.es y si corre en Docker. | Final de la iteración 0 |
 | A4 | Almacenamiento externo gratuito para las copias, por ejemplo un Google Drive u OneDrive que ya tengas (se sube con rclone). | Final de la iteración 0 |
 | A5 | Registro DNS de `miahorro.octogas.es` en DonDominio. | Final de la iteración 0 |
-| A6 | Extractos de ejemplo de Bankinter y Cajamar. | Iteración 3 |
+| A6 | Extractos de ejemplo de Bankinter (recibido) y Cajamar (pendiente). | Iteración 3 |

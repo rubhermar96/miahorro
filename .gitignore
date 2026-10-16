@@ -38,3 +38,6 @@ Thumbs.db
 
 # Playwright session saved by e2e/auth.setup.ts
 frontend/e2e/.auth/
+
+# Real bank statements: never committed (anonymised copies go to backend/tests/fixtures)
+/muestras/

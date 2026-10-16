@@ -6,11 +6,13 @@ import { AccountPage } from './pages/AccountPage'
 import { ArchivedAccountsPage } from './pages/ArchivedAccountsPage'
 import { CategoriesPage } from './pages/CategoriesPage'
 import { HomePage } from './pages/HomePage'
+import { ImportPage } from './pages/ImportPage'
 import { LoginPage } from './pages/LoginPage'
 import { MorePage } from './pages/MorePage'
 import { NotFoundPage } from './pages/NotFoundPage'
 import { PlanPage } from './pages/PlaceholderPages'
 import { QuickAddPage } from './pages/QuickAddPage'
+import { RulesPage } from './pages/RulesPage'
 import { TransactionPage } from './pages/TransactionPage'
 import { TransactionsPage } from './pages/TransactionsPage'
 
@@ -33,6 +35,8 @@ export const routes: RouteObject[] = [
       { path: 'planificar', element: <PlanPage /> },
       { path: 'mas', element: <MorePage /> },
       { path: 'mas/categorias', element: <CategoriesPage /> },
+      { path: 'mas/reglas', element: <RulesPage /> },
+      { path: 'importar', element: <ImportPage /> },
       { path: '*', element: <NotFoundPage /> },
     ],
   },

@@ -300,3 +300,35 @@ def test_nobody_reaches_another_users_transactions(
     )
     assert response.status_code == 404
     assert ana.get(url).json()["amount"] == "-9.99"
+
+
+def test_movements_before_the_opening_date_do_not_change_the_balance(ana: TestClient) -> None:
+    account = str(new_account(ana, opening_date="2026-10-10", opening_balance="100")["id"])
+    add(ana, account, "expense", "30", date="2026-10-09")  # already inside the 100
+    add(ana, account, "expense", "5", date="2026-10-10")  # from the opening date on, it counts
+
+    assert balance(ana, account) == "95.00"
+
+
+def test_each_movement_shows_the_balance_right_after_it(ana: TestClient) -> None:
+    account = str(new_account(ana, opening_date="2026-10-10", opening_balance="100")["id"])
+    other = str(new_account(ana, name="Otra", opening_balance="0")["id"])
+    add(ana, account, "expense", "30", date="2026-10-01", description="historial")
+    add(ana, account, "income", "50", date="2026-10-11", description="cobro")
+    add(ana, account, "expense", "5", date="2026-10-11", description="cafe")
+    transfer(ana, account, other, "20", date="2026-10-12")
+    add(ana, other, "expense", "1", date="2026-10-13", description="en la otra")
+
+    def balances(**filters: str) -> list[tuple[str, str]]:
+        items = ana.get("/api/transactions", params=filters).json()["items"]
+        return [(item["description"], item["balance_after"]) for item in items]
+
+    assert balances(account_id=account) == [
+        ("Transferencia a Otra", "125.00"),
+        ("cafe", "145.00"),  # same day: the later one first
+        ("cobro", "150.00"),
+        ("historial", "100.00"),  # before the anchor: the opening balance already had it
+    ]
+    # Filters do not change the balances: they come from the whole account.
+    assert balances(account_id=account, q="cobro") == [("cobro", "150.00")]
+    assert ("en la otra", "19.00") in balances()

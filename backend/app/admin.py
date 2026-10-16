@@ -17,6 +17,7 @@ from starlette.responses import PlainTextResponse, RedirectResponse, Response
 from app.auth import sessions
 from app.config import Settings
 from app.models.auth import LEVEL_FULL
+from app.models.imports import ImportTemplate
 from app.models.user import User
 
 
@@ -90,6 +91,24 @@ class UserAdmin(ModelView, model=User):
     form_columns = [User.display_name, User.is_admin, User.is_active]
 
 
+class ImportTemplateAdmin(ModelView, model=ImportTemplate):
+    """Statement templates are shared by every user (RF-IMP-01): rename or remove bad ones."""
+
+    name = "Plantilla de importación"
+    name_plural = "Plantillas de importación"
+    icon = "fa-solid fa-file-import"
+    can_create = False  # created from the import screen, with a file to try them on
+    column_list = [ImportTemplate.name, ImportTemplate.created_at]
+    column_details_list = [ImportTemplate.name, ImportTemplate.mapping, ImportTemplate.created_at]
+    column_searchable_list = [ImportTemplate.name]
+    column_labels = {
+        ImportTemplate.name: "Nombre",
+        ImportTemplate.mapping: "Columnas",
+        ImportTemplate.created_at: "Creada",
+    }
+    form_columns = [ImportTemplate.name]
+
+
 def mount_admin(
     app: FastAPI, engine: Engine, session_factory: sessionmaker[Session], settings: Settings
 ) -> None:
@@ -102,3 +121,4 @@ def mount_admin(
         authentication_backend=_AdminAuth(settings, session_factory),
     )
     admin.add_view(UserAdmin)
+    admin.add_view(ImportTemplateAdmin)

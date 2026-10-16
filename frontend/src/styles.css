@@ -763,3 +763,62 @@ fieldset.card legend {
 details.card {
   display: block;
 }
+
+/* Rows that are picked with a checkbox (import review, bulk edit). */
+label.row {
+  cursor: pointer;
+}
+
+.row__check {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  min-height: 0;
+}
+
+.row__amounts {
+  display: grid;
+  flex-shrink: 0;
+  justify-items: end;
+  text-align: right;
+}
+
+.row__amounts small {
+  font-size: 0.75rem;
+}
+
+.row__actions {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.row__actions .button {
+  min-width: 40px;
+  padding: 0 8px;
+}
+
+/* The first rows of an imported file, to tell which column is which. */
+.table-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.sample {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.sample th,
+.sample td {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.sample th {
+  background: var(--surface-2);
+}

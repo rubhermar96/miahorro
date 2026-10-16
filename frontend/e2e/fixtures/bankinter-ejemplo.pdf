@@ -1,0 +1,92 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+2 0 obj
+<< /Length 609 >>
+stream
+BT /F1 9 Tf 11 TL 40 800 Td
+(Movimientos y saldo de su cuenta) Tj T*
+(Fecha Oficina Moneda Hoja) Tj T*
+(30-09-26 0001 - OFICINA DE PRUEBA EUR 1) Tj T*
+(Titulares) Tj T*
+(ANA EJEMPLO EJEMPLO) Tj T*
+(Fecha Referencia Fecha valor Descripción Cargos\(-\) Abonos\(+\) Saldo) Tj T*
+(**SALDO ANTERIOR EN EUROS** 1.000,00) Tj T*
+(01-09-26 11 01-09-26 TRANSF NOMI /EMPRESA EJEMPLO SL 1.500,00 2.500,00) Tj T*
+(03-09-26 12 02-09-26 CAJERO BANCO OF.0001 100,00 2.400,00) Tj T*
+(05-09-26 13 05-09-26 PAGO BIZUM DE Persona Ejemplo 25,50 2.425,50) Tj T*
+(Nº IBAN BIC) Tj T*
+(ES00 0000 0000 0000 0000 0000 BKBKESMM) Tj T*
+ET
+endstream
+endobj
+3 0 obj
+<< /Type /Page /Parent 8 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R >> >> /Contents 2 0 R >>
+endobj
+4 0 obj
+<< /Length 501 >>
+stream
+BT /F1 9 Tf 11 TL 40 800 Td
+(Movimientos y saldo de su cuenta) Tj T*
+(Fecha Oficina Moneda Hoja) Tj T*
+(30-09-26 0001 - OFICINA DE PRUEBA EUR 1) Tj T*
+(Titulares) Tj T*
+(ANA EJEMPLO EJEMPLO) Tj T*
+(Fecha Referencia Fecha valor Descripción Cargos\(-\) Abonos\(+\) Saldo) Tj T*
+(S A L D O  A N T E R\( E U R \) 2.425,50) Tj T*
+(30-09-26 14 30-09-26 RECIBO VISA CLASICA 425,50 2.000,00) Tj T*
+(**SALDO FINAL EN EUROS** 2.000,00) Tj T*
+(Nº IBAN BIC) Tj T*
+(ES00 0000 0000 0000 0000 0000 BKBKESMM) Tj T*
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Page /Parent 8 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R >> >> /Contents 4 0 R >>
+endobj
+6 0 obj
+<< /Length 567 >>
+stream
+BT /F1 9 Tf 11 TL 40 800 Td
+(Movimientos y saldo de su cuenta) Tj T*
+(Fecha Oficina Moneda Hoja) Tj T*
+(30-09-26 0001 - OFICINA DE PRUEBA EUR 1) Tj T*
+(Titulares) Tj T*
+(ANA EJEMPLO EJEMPLO) Tj T*
+(Fecha Referencia Fecha valor Descripción Cargos\(-\) Abonos\(+\) Saldo) Tj T*
+(**SALDO ANTERIOR EN EUROS** 1.200,00) Tj T*
+(04-08-26 21 04-08-26 RECIBO /COMUNIDAD EJEMPLO 12,24 1.187,76) Tj T*
+(31-08-26 22 31-08-26 RECIBO VISA CLASICA 187,76 1.000,00) Tj T*
+(**SALDO FINAL EN EUROS** 1.000,00) Tj T*
+(Nº IBAN BIC) Tj T*
+(ES00 0000 0000 0000 0000 0000 BKBKESMM) Tj T*
+ET
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 8 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R >> >> /Contents 6 0 R >>
+endobj
+8 0 obj
+<< /Type /Pages /Kids [3 0 R 5 0 R 7 0 R] /Count 3 >>
+endobj
+9 0 obj
+<< /Type /Catalog /Pages 8 0 R >>
+endobj
+xref
+0 10
+0000000000 65535 f 
+0000000009 00000 n 
+0000000106 00000 n 
+0000000766 00000 n 
+0000000892 00000 n 
+0000001444 00000 n 
+0000001570 00000 n 
+0000002188 00000 n 
+0000002314 00000 n 
+0000002383 00000 n 
+trailer
+<< /Size 10 /Root 9 0 R >>
+startxref
+2432
+%%EOF

@@ -17,7 +17,11 @@ test('crear una cuenta, apuntar un gasto en tres toques y verlo reflejado', asyn
   await page.getByLabel('Cuenta').selectOption({ label: name })
   await page.getByLabel('Importe').fill('12,50')
   await page.getByRole('button', { name: 'Más categorías' }).click()
-  await page.getByRole('button', { name: /Supermercado/ }).click()
+  // Other tests share the user: if it is already among the most used it appears twice.
+  await page
+    .getByRole('button', { name: /Supermercado/ })
+    .first()
+    .click()
   await page.getByRole('button', { name: 'Guardar' }).click()
   await expect(page.getByText('Gasto de 12,50 € guardado.')).toBeVisible()
 

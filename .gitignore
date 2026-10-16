@@ -35,3 +35,6 @@ blob-report/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Playwright session saved by e2e/auth.setup.ts
+frontend/e2e/.auth/

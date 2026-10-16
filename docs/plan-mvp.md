@@ -73,7 +73,7 @@ Las iteraciones 5–9 dependen sobre todo de la 2. Si alguna te corre más prisa
 **Entregables**
 - Repositorio Git con esta estructura:
   - `backend/`: API con FastAPI.
-  - `backend/finanzas/`: paquete de cálculos financieros, sin dependencias de FastAPI.
+  - `backend/finance/`: paquete de cálculos financieros, sin dependencias de FastAPI.
   - `frontend/`: React + TypeScript + Vite.
   - `deploy/`: Docker Compose, configuración del proxy y scripts de copias.
   - `docs/`.
@@ -111,12 +111,12 @@ Las iteraciones 5–9 dependen sobre todo de la 2. Si alguna te corre más prisa
 **Entregables**
 - Contraseña con Argon2, segundo factor TOTP con códigos de recuperación y passkeys (Face ID).
 - Sesión en cookie `__Host-`, `HttpOnly`, `Secure` y `SameSite`; protección CSRF; bloqueo tras intentos fallidos; cerrar sesión en todos los dispositivos.
-- Comando para crear el primer administrador (no hay registro abierto; las invitaciones llegan en el hito Familia).
+- Pantalla de registro abierta (D22): el primer usuario registrado es el administrador; tope de usuarios e interruptor para cerrar el registro. Comandos de consola para gestionar usuarios.
 - Patrón de aislamiento: cada dato pertenece a un usuario y el filtro se aplica en una única capa. Incluye un test genérico que intenta acceder con otro usuario a cada endpoint.
 - Panel `/admin` (SQLAdmin) solo para administradores, con la gestión de usuarios y la estructura de las tablas de referencia.
 - Preferencias: divisa, día de inicio del mes financiero, tema e idioma.
 
-**Requisitos:** RF-USR-01, RF-USR-04, RF-PLT-01, RF-PLT-02 (estructura) · RNF-05.
+**Requisitos:** RF-USR-01, RF-USR-04, RF-PLT-01, RF-PLT-02 (estructura), RF-PLT-03 · RNF-05.
 
 **Cómo probarlo**
 - *Automático:* contraseña, TOTP, passkey con autenticador simulado, bloqueo, caducidad de sesión, atributos de la cookie, CSRF y aislamiento.
@@ -258,7 +258,7 @@ Las iteraciones 5–9 dependen sobre todo de la 2. Si alguna te corre más prisa
 - Cuadro de amortización francés, lineal y con carencia, recalculado en cada revisión.
 - Simulación y registro de amortizaciones anticipadas con la comisión de la Ley 5/2019.
 - Deuda pendiente, intereses pagados y por pagar.
-- El motor de amortización vive en el paquete `finanzas` y lo reutilizan las calculadoras.
+- El motor de amortización vive en el paquete `finance` y lo reutilizan las calculadoras.
 
 **Requisitos:** RF-PRE-01, 02, 03, 05, 07, 09.
 
@@ -364,7 +364,7 @@ Las iteraciones 5–9 dependen sobre todo de la 2. Si alguna te corre más prisa
 ## 6. Después del MVP: hito Familia
 
 Fuera de este plan; se detallará al terminar el MVP. Incluirá:
-- Invitaciones y recuperación por email, bienvenida, baja con borrado, texto de privacidad y panel de administración ampliado (RF-PLT-03 a 08).
+- Recuperación de acceso por email, bienvenida, baja con borrado, texto de privacidad y panel de administración ampliado (RF-PLT-04 a 08).
 - Plantillas de los bancos de tus familiares (RF-IMP-07).
 - Receta de captura para Android, validada con un móvil real (RF-MOV-17).
 - Las funcionalidades F2 que más hayas echado en falta usando el MVP.

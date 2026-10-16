@@ -1,0 +1,88 @@
+# MiAhorro
+
+Plataforma de finanzas personales para España: cuentas, ingresos y gastos, préstamos, inversiones, objetivos de ahorro, presupuestos y calculadoras. Web instalable en el iPhone (PWA).
+
+- Qué hace y por qué: [docs/requisitos.md](docs/requisitos.md)
+- Orden de desarrollo: [docs/plan-mvp.md](docs/plan-mvp.md)
+- Despliegue en la VPS: [deploy/README.md](deploy/README.md)
+
+## Estructura
+
+| Carpeta | Contenido |
+|---|---|
+| `backend/app` | API con FastAPI, SQLAlchemy 2 y Alembic (`backend/migrations`) |
+| `backend/finance` | Cálculos financieros, independientes del framework |
+| `frontend` | React + TypeScript + Vite, como PWA |
+| `deploy` | Docker Compose de producción, plantillas del proxy, copias y restauración |
+| `docs` | Requisitos y plan |
+
+## Desarrollo local
+
+Requisitos: Docker Desktop, Python 3.14 con [uv](https://docs.astral.sh/uv/) y Node 22.
+
+```bash
+# Base de datos (incluye la de tests)
+docker compose up -d db          # escucha en 127.0.0.1:15432
+
+# API en http://localhost:8000 (documentación en /api/docs)
+cd backend
+cp .env.example .env
+uv sync
+uv run alembic upgrade head
+uv run uvicorn app.main:app_factory --factory --reload
+
+# App en http://localhost:5173 (redirige /api a la API)
+cd frontend
+npm ci
+npm run dev
+```
+
+La primera cuenta que registres en la app será la de administrador.
+
+La plataforma completa, como en producción, en http://localhost:8080:
+
+```bash
+docker compose up -d --build --wait
+```
+
+## Probar en el iPhone desde local
+
+Safari solo permite Face ID (passkeys) y el modo sin conexión con HTTPS. Para probar la plataforma local desde el iPhone se abre un túnel temporal de Cloudflare: es gratuito, no pide cuenta y se instala con `winget install Cloudflare.cloudflared`. Todo se hace con un script:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\probar-en-iphone.ps1
+```
+
+El script hace lo siguiente:
+
+1. Si Docker no responde, reinicia Docker Desktop.
+2. Arranca la plataforma.
+3. Abre el túnel y pone la API en modo producción con esa dirección.
+4. Muestra la dirección `https://….trycloudflare.com` para abrirla en el iPhone.
+
+Deja la ventana abierta mientras pruebas. Al pulsar Ctrl+C se cierra el túnel y todo vuelve a la configuración local.
+
+- La dirección cambia cada vez que se abre el túnel, y las passkeys quedan ligadas a ella. Bórralas después en Ajustes → Contraseñas del iPhone.
+- Mientras el túnel está abierto, la app es accesible desde internet, aunque sigue pidiendo inicio de sesión. Úsalo solo con datos de prueba.
+- Si una dirección antigua da el error 1033 de Cloudflare, es que su túnel ya está cerrado: vuelve a ejecutar el script.
+- Docker Desktop tiene un fallo en Windows: tras reiniciarse a veces no arranca porque no puede borrar sus sockets antiguos. El script lo resuelve renombrando sus carpetas `run` y `docker-secrets-engine`; las antiguas quedan como `*.old-<fecha>` y se pueden borrar.
+
+## Pruebas
+
+```bash
+cd backend  && uv run pytest                     # con la base de datos de Docker en marcha
+cd frontend && npm test
+cd frontend && npx playwright install webkit && npm run e2e   # con la plataforma completa en marcha
+```
+
+Antes de cada commit se ejecutan formateadores y linters (`cd backend && uv run pre-commit install` para activarlos). La integración continua de GitHub Actions ejecuta todo lo anterior en cada push.
+
+## Convenciones
+
+- **Código en inglés; textos para el usuario en español.** Los términos sin traducción clara (ITP, AJD, Euribor, IRPF) se mantienen tal cual.
+- **Importes siempre en `Decimal`**, nunca en coma flotante. En la API viajan como texto (`"1234.56"`).
+- **Redondeo al céntimo con `ROUND_HALF_UP`**, el redondeo comercial habitual. Se redondea solo al guardar o mostrar (ver `backend/finance/money.py`).
+- **Ningún log contiene datos financieros.**
+- **Datos de cada usuario siempre filtrados por su dueño.** Las consultas a modelos con `OwnedMixin` pasan por `app/ownership.py`, y un test comprueba que todo endpoint que no sea público exige sesión.
+- **Escrituras con cabecera anti-CSRF.** El cliente de la API la añade solo (`X-MiAhorro-CSRF: 1`).
+- **Cliente de la API generado.** Si cambia la API, ejecuta `uv run python -m app.export_openapi` en `backend` y `npm run api:generate` en `frontend`. Un test avisa si se olvida.

@@ -232,7 +232,7 @@ Orientativo: no sustituye a un asesor fiscal.
 |---|---|---|
 | RF-IMP-01 | Importador genérico de CSV/XLSX con asistente de mapeo de columnas, capaz de leer el extracto de cualquier banco. La configuración se guarda como plantilla reutilizable y compartida entre todos los usuarios. | MVP |
 | RF-IMP-02 | Importar **Norma 43** (formato estándar de extractos de la banca española; un único lector sirve para todos los bancos que lo ofrecen) y OFX/QIF. | F2 |
-| RF-IMP-03 | Importar extractos PDF de bancos o brókers que no exportan en otro formato. | MVP: extractos PDF de Bankinter y Cajamar, con lector propio de cada banco que comprueba los saldos (D24) · resto aplazado (sin IA) |
+| RF-IMP-03 | Importar extractos PDF de bancos o brókers que no exportan en otro formato. | MVP: extractos PDF de Bankinter (hecho) y Cajamar (pendiente de un extracto de ejemplo), con lector propio de cada banco que comprueba los saldos (D24) · resto aplazado (sin IA) |
 | RF-IMP-04 | Exportar todos los datos (CSV/JSON). | MVP |
 | RF-IMP-05 | Copias de seguridad automáticas cifradas y restauración probada. | MVP |
 | RF-IMP-06 | Migrar histórico desde otras herramientas (Excel propio, Fintonic…). | Descartado (D14) |
@@ -500,4 +500,4 @@ Con este volumen, PostgreSQL, la API y Caddy juntos deberían quedarse por debaj
 | 0.4 | 14/10/2026 | D17: backend con FastAPI en lugar de Django. §10 rehecho: autenticación propia (pwdlib, pyotp, webauthn), SQLAdmin, SQLAlchemy 2 + Alembic, cálculos financieros en un único paquete Python y cliente React generado desde OpenAPI. |
 | 1.0 | 14/10/2026 | Definición cerrada. D18–D21: subdominio `miahorro.octogas.es` en la VPS compartida con octogas.es (RNF-18), familia mixta iPhone/Android (RF-MOV-17), sin open banking, MVP aprobado. |
 | 1.1 | 16/10/2026 | D22: registro abierto con salvaguardas (RF-PLT-03 pasa al MVP; RF-PLT-10 actualizado). D23: Face ID como método principal (RF-USR-01). |
-| 1.2 | 16/10/2026 | D24: extractos PDF de Bankinter y Cajamar en el MVP (RF-IMP-03), con comprobación de saldos. D25: el saldo inicial es un ancla en su fecha. Saldo tras cada movimiento (RF-MOV-15) e informes por mes, año o fechas a elegir (RF-INF-03). |
+| 1.2 | 16/10/2026 | D24: extractos PDF de Bankinter y Cajamar en el MVP (RF-IMP-03), con comprobación de saldos. D25: el saldo inicial es un ancla en su fecha. Saldo tras cada movimiento (RF-MOV-15) e informes por mes, año o fechas a elegir (RF-INF-03). El lector de Cajamar queda pendiente hasta tener un extracto de ejemplo. |

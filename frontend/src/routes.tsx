@@ -10,6 +10,7 @@ import { AddPage, PlanPage, TransactionsPage } from './pages/PlaceholderPages'
 // URLs are in Spanish: they are visible to the user.
 export const routes: RouteObject[] = [
   { path: 'entrar', element: <LoginPage /> },
+  { path: 'registro', element: <LoginPage mode="register" /> },
   {
     // Everything else needs a signed-in user.
     element: <RequireSession />,

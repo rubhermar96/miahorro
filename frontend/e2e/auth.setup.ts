@@ -1,5 +1,3 @@
-import { execFileSync } from 'node:child_process'
-
 import { expect, test as setup } from '@playwright/test'
 
 import { totp } from './totp'
@@ -7,38 +5,21 @@ import { totp } from './totp'
 export const AUTH_FILE = 'e2e/.auth/user.json'
 
 /**
- * Real onboarding of a new user, as on the phone: the admin creates the account with the CLI,
- * then the user signs in, sets up the authenticator app and keeps the recovery codes.
- * The resulting session is reused by the other tests.
+ * Real onboarding of a new user, as on the phone: register, set up the authenticator app and
+ * keep the recovery codes. The resulting session is reused by the other tests.
  */
-setup('alta de un usuario y primer inicio de sesión', async ({ page }) => {
+setup('registro de un usuario y configuración del segundo factor', async ({ page }) => {
   const email = `e2e-${Date.now()}@miahorro.test`
-  const password = 'contraseña-de-pruebas-extremo-a-extremo'
-  execFileSync(
-    'docker',
-    [
-      'compose',
-      'exec',
-      '-T',
-      'api',
-      'python',
-      '-m',
-      'app.cli',
-      'create-user',
-      '--email',
-      email,
-      '--name',
-      'Prueba',
-      '--password-stdin',
-    ],
-    { input: `${password}\n`, cwd: '..', stdio: ['pipe', 'inherit', 'inherit'] },
-  )
 
   await page.goto('/')
   await expect(page).toHaveURL(/\/entrar/)
+  await page.getByRole('link', { name: 'Crear una' }).click()
+  await expect(page).toHaveURL(/\/registro/)
+
+  await page.getByLabel('Nombre').fill('Prueba')
   await page.getByLabel('Email').fill(email)
-  await page.getByLabel('Contraseña').fill(password)
-  await page.getByRole('button', { name: 'Entrar', exact: true }).click()
+  await page.getByLabel('Contraseña').fill('contraseña-de-pruebas-extremo-a-extremo')
+  await page.getByRole('button', { name: 'Crear cuenta' }).click()
 
   await expect(page.getByRole('heading', { name: 'Protege tu cuenta' })).toBeVisible()
   await page.getByText('Clave para añadirla a mano').click()

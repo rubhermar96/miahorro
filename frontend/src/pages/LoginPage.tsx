@@ -2,20 +2,27 @@ import { browserSupportsWebAuthn } from '@simplewebauthn/browser'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { type FormEvent, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useSearchParams } from 'react-router'
+import { Link, useNavigate, useSearchParams } from 'react-router'
 
-import { authApi, isPasskeyCancelled, SESSION_KEY, useSession } from '../api/auth'
+import {
+  authApi,
+  isPasskeyCancelled,
+  SESSION_KEY,
+  useRegistrationOpen,
+  useSession,
+} from '../api/auth'
 import { FullScreenMessage } from '../components/RequireSession'
 import { RecoveryCodes } from '../components/RecoveryCodes'
 import { isServerPage, safeNextPath } from '../lib/navigation'
 
 /**
- * Sign-in in steps, driven by the session level the API reports:
- *   no session -> email + password (or a passkey, which signs in on its own)
+ * Sign-in and registration in steps, driven by the session level the API reports:
+ *   no session -> email + password (or a passkey, which signs in on its own),
+ *                 or the registration form at /registro
  *   mfa_pending -> 6-digit code (or a recovery code)
  *   mfa_setup   -> first time: set up the authenticator app, then show recovery codes
  */
-export function LoginPage() {
+export function LoginPage({ mode = 'login' }: { mode?: 'login' | 'register' }) {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
@@ -39,8 +46,9 @@ export function LoginPage() {
   }, [finished, next, navigate])
 
   useEffect(() => {
-    document.title = `${t('login.title')} · ${t('app.name')}`
-  }, [t])
+    const title = mode === 'register' ? t('register.title') : t('login.title')
+    document.title = `${title} · ${t('app.name')}`
+  }, [mode, t])
 
   if (isPending || finished) {
     return <FullScreenMessage title={t('app.name')} body={t('app.loading')} />
@@ -60,8 +68,10 @@ export function LoginPage() {
         }}
       />
     )
+  } else if (mode === 'register') {
+    step = <RegisterStep onDone={refreshSession} query={params.toString()} />
   } else {
-    step = <CredentialsStep onDone={refreshSession} />
+    step = <CredentialsStep onDone={refreshSession} query={params.toString()} />
   }
 
   return (
@@ -90,9 +100,106 @@ function messageOf(error: unknown, fallback: string): string {
   return error instanceof Error && error.message ? error.message : fallback
 }
 
-function CredentialsStep({ onDone }: { onDone: () => Promise<unknown> }) {
+type StepProps = { onDone: () => Promise<unknown>; query: string }
+
+/** Keeps ?siguiente=… when switching between sign-in and registration. */
+function withQuery(path: string, query: string): string {
+  return query ? `${path}?${query}` : path
+}
+
+function RegisterStep({ onDone, query }: StepProps) {
+  const { t } = useTranslation()
+  const registration = useRegistrationOpen()
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
+
+  const submit = async (event: FormEvent) => {
+    event.preventDefault()
+    setBusy(true)
+    setError(null)
+    try {
+      await authApi.register(name, email, password)
+      await onDone()
+    } catch (err) {
+      setError(messageOf(err, t('errors.generic')))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const signInLink = (
+    <p className="switch">
+      {t('register.haveAccount')}{' '}
+      <Link to={withQuery('/entrar', query)}>{t('register.signIn')}</Link>
+    </p>
+  )
+
+  if (registration.data === false) {
+    return (
+      <section className="card stack">
+        <p>{t('register.closed')}</p>
+        {signInLink}
+      </section>
+    )
+  }
+
+  return (
+    <section className="card">
+      <form className="stack" onSubmit={(event) => void submit(event)}>
+        <h2>{t('register.title')}</h2>
+        <label className="field">
+          <span>{t('register.name')}</span>
+          <input
+            autoComplete="name"
+            required
+            maxLength={100}
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+          />
+        </label>
+        <label className="field">
+          <span>{t('login.email')}</span>
+          <input
+            type="email"
+            autoComplete="username"
+            required
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+          />
+        </label>
+        <div className="field">
+          <label htmlFor="new-password">{t('login.password')}</label>
+          <input
+            id="new-password"
+            type="password"
+            autoComplete="new-password"
+            aria-describedby="new-password-help"
+            required
+            minLength={12}
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+          />
+          <small id="new-password-help" className="muted">
+            {t('register.passwordHelp')}
+          </small>
+        </div>
+        <ErrorMessage message={error} />
+        <button type="submit" className="button" disabled={busy}>
+          {t('register.submit')}
+        </button>
+        {signInLink}
+      </form>
+    </section>
+  )
+}
+
+function CredentialsStep({ onDone, query }: StepProps) {
   const { t } = useTranslation()
   const passkeysSupported = browserSupportsWebAuthn()
+  const registration = useRegistrationOpen()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -163,6 +270,12 @@ function CredentialsStep({ onDone }: { onDone: () => Promise<unknown> }) {
           {t('login.submit')}
         </button>
       </form>
+      {registration.data && (
+        <p className="switch">
+          {t('login.noAccount')}{' '}
+          <Link to={withQuery('/registro', query)}>{t('login.createAccount')}</Link>
+        </p>
+      )}
     </section>
   )
 }

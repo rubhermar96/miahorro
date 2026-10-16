@@ -1,5 +1,6 @@
 """Request and response bodies shared by the account endpoints."""
 
+import re
 import uuid
 from datetime import datetime
 from typing import Any, Literal
@@ -67,6 +68,35 @@ class LoginRequest(BaseModel):
     @classmethod
     def _normalise_email(cls, value: str) -> str:
         return value.strip().lower()
+
+
+_EMAIL_PATTERN = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+
+
+class RegisterRequest(BaseModel):
+    display_name: str = Field(min_length=1, max_length=100)
+    email: str = Field(max_length=254)
+    password: str = Field(max_length=1024)
+
+    @field_validator("display_name")
+    @classmethod
+    def _clean_name(cls, value: str) -> str:
+        value = value.strip()
+        if not value:
+            raise ValueError("Escribe tu nombre.")
+        return value
+
+    @field_validator("email")
+    @classmethod
+    def _check_email(cls, value: str) -> str:
+        value = value.strip().lower()
+        if not _EMAIL_PATTERN.match(value):
+            raise ValueError("El email no es válido.")
+        return value
+
+
+class RegistrationStatus(BaseModel):
+    open: bool
 
 
 class LoginResult(BaseModel):

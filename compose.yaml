@@ -31,6 +31,8 @@ services:
       MIAHORRO_PUBLIC_URL: ${MIAHORRO_PUBLIC_URL:-http://localhost:8080}
       MIAHORRO_DATABASE_URL: postgresql+psycopg://miahorro:miahorro@db:5432/miahorro
       MIAHORRO_SECRET_KEY: local-development-secret-key-not-for-production
+      # End-to-end runs register a new user each time.
+      MIAHORRO_MAX_USERS: "1000"
     depends_on:
       db:
         condition: service_healthy

@@ -55,7 +55,16 @@ async def _validation_exception_handler(_: Request, exc: Exception) -> JSONRespo
         raise exc
     # Keep location and message only: "input" would echo the submitted (possibly financial) data.
     details = [{"loc": list(err["loc"]), "msg": err["msg"]} for err in exc.errors()]
-    return JSONResponse(error_body(422, details=details), status_code=422)
+    # Our own validators raise ValueError with a Spanish message meant for the user: show it.
+    own_message = next(
+        (
+            str(err["msg"]).removeprefix("Value error, ")
+            for err in exc.errors()
+            if err.get("type") == "value_error"
+        ),
+        None,
+    )
+    return JSONResponse(error_body(422, own_message, details=details), status_code=422)
 
 
 async def _unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:

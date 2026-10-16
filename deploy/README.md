@@ -68,11 +68,7 @@ Si el puerto `8090` ya está ocupado en la VPS, cambia `MIAHORRO_HTTP_PORT` en `
 curl -s http://127.0.0.1:8090/api/health   # {"status":"ok",...}
 ```
 
-Crea tu usuario de administrador; te pedirá la contraseña (mínimo 12 caracteres):
-
-```bash
-docker compose -f compose.prod.yaml exec api python -m app.cli create-user --email tu@email.com --name "Tu nombre" --admin
-```
+**Importante:** la primera cuenta que se registra es la de administrador. Regístrate tú en cuanto la app esté accesible (paso 7).
 
 ## 6. nginx y HTTPS
 
@@ -104,7 +100,7 @@ diff /tmp/octogas-antes.txt /tmp/octogas-despues.txt   # solo debe aparecer la l
 Después, en el iPhone:
 
 1. Abre `https://miahorro.octogas.es` en Safari → Compartir → **Añadir a pantalla de inicio**.
-2. Abre la app desde el icono y entra con tu email y contraseña.
+2. Abre la app desde el icono y pulsa **Crear una** para registrarte; serás el administrador.
 3. Configura la verificación en dos pasos. Si pulsas **Añadir en este dispositivo**, el código se guarda en la app Contraseñas del iPhone.
 4. Guarda los códigos de recuperación en tu gestor de contraseñas.
 5. En **Más → Seguridad**, añade una passkey para entrar a partir de ahora solo con Face ID.
@@ -115,12 +111,14 @@ Después, en el iPhone:
 cd /opt/miahorro/deploy
 alias miahorro='docker compose -f compose.prod.yaml exec api python -m app.cli'
 miahorro list-users
-miahorro create-user --email familiar@email.com --name "Nombre"   # alta de un familiar
+miahorro create-user --email familiar@email.com --name "Nombre"   # alta manual (opcional: también pueden registrarse en la app)
 miahorro reset-mfa --email tu@email.com      # móvil perdido sin códigos: quita 2FA y passkeys
 miahorro set-password --email tu@email.com   # contraseña olvidada
 ```
 
 El panel `https://miahorro.octogas.es/admin` (solo administradores) permite ver los usuarios y desactivarlos.
+
+**Registro abierto.** Cualquiera que tenga la dirección puede crearse una cuenta, hasta un máximo de 20 (`MIAHORRO_MAX_USERS`). Para cerrarlo, pon `MIAHORRO_REGISTRATION_ENABLED=false` en `deploy/.env` y ejecuta `./deploy.sh`. Las cuentas existentes siguen funcionando.
 
 ## 8. Copias de seguridad
 

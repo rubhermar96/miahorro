@@ -38,7 +38,26 @@ export function useSession() {
 
 type Json = Record<string, unknown>
 
+export const REGISTRATION_KEY = ['registration'] as const
+
+export function useRegistrationOpen() {
+  return useQuery({
+    queryKey: REGISTRATION_KEY,
+    queryFn: async () => (await unwrap(api.GET('/api/auth/registration'))).open,
+    staleTime: 60_000,
+  })
+}
+
 export const authApi = {
+  async register(displayName: string, email: string, password: string): Promise<LoginStatus> {
+    const result = await unwrap(
+      api.POST('/api/auth/register', {
+        body: { display_name: displayName, email, password },
+      }),
+    )
+    return result.status
+  },
+
   async login(email: string, password: string): Promise<LoginStatus> {
     const result = await unwrap(api.POST('/api/auth/login', { body: { email, password } }))
     return result.status

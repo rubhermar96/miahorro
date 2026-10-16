@@ -13,6 +13,8 @@ from tests.helpers import create_user, sign_in
 # the test below fails if it does not require a session.
 PUBLIC_ENDPOINTS = {
     ("GET", "/api/health"),
+    ("GET", "/api/auth/registration"),
+    ("POST", "/api/auth/register"),
     ("POST", "/api/auth/login"),
     ("POST", "/api/auth/passkeys/login/options"),
     ("POST", "/api/auth/passkeys/login"),

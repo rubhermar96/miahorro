@@ -39,6 +39,18 @@ export const es = {
     useApp: 'Usar el código de la app',
     recoveryCode: 'Código de recuperación',
     cancel: 'Cancelar',
+    noAccount: '¿No tienes cuenta?',
+    createAccount: 'Crear una',
+  },
+  register: {
+    title: 'Crear cuenta',
+    name: 'Nombre',
+    passwordHelp:
+      'Al menos 12 caracteres. Si aceptas la contraseña segura que te propone el iPhone, se guardará sola.',
+    submit: 'Crear cuenta',
+    haveAccount: '¿Ya tienes cuenta?',
+    signIn: 'Entrar',
+    closed: 'El registro de cuentas está cerrado. Si ya tienes cuenta, entra con ella.',
   },
   setup: {
     title: 'Protege tu cuenta',

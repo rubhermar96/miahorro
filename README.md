@@ -29,7 +29,6 @@ cd backend
 cp .env.example .env
 uv sync
 uv run alembic upgrade head
-uv run python -m app.cli create-user --email tu@email.com --name "Tu nombre" --admin
 uv run uvicorn app.main:app_factory --factory --reload
 
 # App en http://localhost:5173 (redirige /api a la API)
@@ -37,6 +36,8 @@ cd frontend
 npm ci
 npm run dev
 ```
+
+La primera cuenta que registres en la app será la de administrador.
 
 La plataforma completa, como en producción, en http://localhost:8080:
 

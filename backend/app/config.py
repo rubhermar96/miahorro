@@ -29,6 +29,11 @@ class Settings(BaseSettings):
     # Address users open the app at; passkeys are bound to its host name.
     public_url: AnyHttpUrl = AnyHttpUrl("http://localhost:8080")
 
+    # Open sign-up (D22). The first account becomes the administrator; the cap protects the
+    # shared VPS, and registration can be closed at any time without touching anything else.
+    registration_enabled: bool = True
+    max_users: int = Field(default=20, ge=1)
+
     session_idle_days: int = Field(default=30, ge=1)
     session_max_days: int = Field(default=90, ge=1)
     login_max_attempts: int = Field(default=5, ge=1)

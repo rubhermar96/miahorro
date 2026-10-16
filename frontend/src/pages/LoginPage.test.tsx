@@ -178,3 +178,79 @@ describe('sign-in', () => {
     expect(router.state.location.pathname).toBe('/')
   })
 })
+
+describe('registration', () => {
+  it('creates an account and continues with the authenticator setup', async () => {
+    const user = userEvent.setup()
+    api.on('GET /api/auth/registration', { status: 200, body: { open: true } })
+    api.on('POST /api/auth/register', () => {
+      api.on('GET /api/auth/session', session('mfa_setup'))
+      return { status: 201, body: { status: 'mfa_setup_required' } }
+    })
+    api.on('POST /api/auth/totp/setup', {
+      status: 200,
+      body: { secret: 'JBSWY3DPEHPK3PXP', otpauth_uri: 'otpauth://totp/x', qr_code: 'data:,' },
+    })
+    renderApp('/registro')
+
+    await user.type(await screen.findByLabelText('Nombre'), 'Ana')
+    await user.type(screen.getByLabelText('Email'), 'ana@example.com')
+    await user.type(screen.getByLabelText('Contraseña'), 'una-contraseña-larga')
+    await user.click(screen.getByRole('button', { name: 'Crear cuenta' }))
+
+    expect(await screen.findByRole('heading', { name: 'Protege tu cuenta' })).toBeInTheDocument()
+    expect(api.callsTo('POST /api/auth/register')[0]?.body).toEqual({
+      display_name: 'Ana',
+      email: 'ana@example.com',
+      password: 'una-contraseña-larga',
+    })
+  })
+
+  it('shows why the account could not be created', async () => {
+    const user = userEvent.setup()
+    api.on('GET /api/auth/registration', { status: 200, body: { open: true } })
+    api.on('POST /api/auth/register', {
+      status: 409,
+      body: { error: { code: 'conflict', message: 'Ya existe una cuenta con ese email.' } },
+    })
+    renderApp('/registro')
+
+    await user.type(await screen.findByLabelText('Nombre'), 'Ana')
+    await user.type(screen.getByLabelText('Email'), 'ana@example.com')
+    await user.type(screen.getByLabelText('Contraseña'), 'una-contraseña-larga')
+    await user.click(screen.getByRole('button', { name: 'Crear cuenta' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Ya existe una cuenta con ese email.',
+    )
+  })
+
+  it('explains when registration is closed', async () => {
+    api.on('GET /api/auth/registration', { status: 200, body: { open: false } })
+    renderApp('/registro')
+
+    expect(await screen.findByText(/El registro de cuentas está cerrado/)).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Crear cuenta' })).not.toBeInTheDocument()
+  })
+
+  it('links sign-in and registration, keeping where the user was going', async () => {
+    const user = userEvent.setup()
+    api.on('GET /api/auth/registration', { status: 200, body: { open: true } })
+    const { router } = renderApp('/entrar?siguiente=%2Fmas')
+
+    await user.click(await screen.findByRole('link', { name: 'Crear una' }))
+    expect(router.state.location.pathname).toBe('/registro')
+    expect(router.state.location.search).toBe('?siguiente=%2Fmas')
+
+    await user.click(screen.getByRole('link', { name: 'Entrar' }))
+    expect(router.state.location.pathname).toBe('/entrar')
+  })
+
+  it('hides the registration link when registration is closed', async () => {
+    api.on('GET /api/auth/registration', { status: 200, body: { open: false } })
+    renderApp('/entrar')
+
+    await screen.findByRole('button', { name: 'Entrar' })
+    expect(screen.queryByRole('link', { name: 'Crear una' })).not.toBeInTheDocument()
+  })
+})

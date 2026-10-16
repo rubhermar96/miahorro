@@ -1,4 +1,4 @@
-"""Sign-in and account security (RF-USR-01).
+"""Registration, sign-in and account security (RF-USR-01, RF-PLT-03).
 
 Rules:
 - A password always needs a second factor (TOTP). After the password, the session is
@@ -12,7 +12,7 @@ import uuid
 from typing import Annotated
 
 from fastapi import APIRouter, Header, HTTPException, Response, status
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from app import clock
 from app.auth import lockout, passkeys, sessions
@@ -44,6 +44,8 @@ from app.routers.schemas import (
     PasskeyOut,
     PasskeyRegistration,
     RecoveryCodes,
+    RegisterRequest,
+    RegistrationStatus,
     SessionOut,
     TotpSetup,
     UserOut,
@@ -83,6 +85,52 @@ def _issue_recovery_codes(db: DbSession, user: User, settings: Settings) -> list
     for code in codes:
         db.add(RecoveryCode(user_id=user.id, code_hash=recovery.hash_code(secret_key, code)))
     return codes
+
+
+# --- Registration (D22) -----------------------------------------------------------------------
+
+
+def _registration_open(db: DbSession, settings: Settings) -> bool:
+    if not settings.registration_enabled:
+        return False
+    users = db.scalar(select(func.count()).select_from(User)) or 0
+    return users < settings.max_users
+
+
+@router.get("/registration")
+def registration_status(db: DbSession, settings: AppSettings) -> RegistrationStatus:
+    return RegistrationStatus(open=_registration_open(db, settings))
+
+
+@router.post("/register", status_code=status.HTTP_201_CREATED)
+def register(
+    body: RegisterRequest,
+    response: Response,
+    db: DbSession,
+    settings: AppSettings,
+    user_agent: UserAgent = None,
+) -> LoginResult:
+    """Create an account. The second factor is set up straight away, as on a first sign-in."""
+    if not _registration_open(db, settings):
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "El registro de cuentas está cerrado.")
+    try:
+        passwords.validate_new_password(body.password)
+    except ValueError as exc:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, str(exc)) from exc
+    if db.scalar(select(User.id).where(User.email == body.email)) is not None:
+        raise HTTPException(status.HTTP_409_CONFLICT, "Ya existe una cuenta con ese email.")
+
+    is_first_user = db.scalar(select(User.id).limit(1)) is None
+    user = User(
+        email=body.email,
+        display_name=body.display_name,
+        password_hash=passwords.hash_password(body.password),
+        is_admin=is_first_user,
+    )
+    db.add(user)
+    db.flush()
+    _start_session(db, response, user, LEVEL_MFA_SETUP, settings, user_agent)
+    return LoginResult(status="mfa_setup_required")
 
 
 # --- Password and second factor -------------------------------------------------------------

@@ -21,6 +21,7 @@ RUN uv sync --frozen --no-dev --no-install-project
 
 COPY app ./app
 COPY finance ./finance
+COPY importers ./importers
 COPY migrations ./migrations
 COPY alembic.ini docker-entrypoint.sh ./
 

@@ -52,6 +52,7 @@ class Transaction(OwnedMixin, TimestampMixin, Base):
             "(kind = 'transfer') = (transfer_id IS NOT NULL)", name="transfer_has_pair"
         ),
         Index("ix_transactions_user_id_date", "user_id", "date"),
+        Index("ix_transactions_account_id_import_key", "account_id", "import_key"),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
@@ -69,3 +70,9 @@ class Transaction(OwnedMixin, TimestampMixin, Base):
     kind: Mapped[str] = mapped_column(String(12))
     transfer_id: Mapped[uuid.UUID | None] = mapped_column(index=True)
     source: Mapped[str] = mapped_column(String(12), default="manual")
+    # Imported rows: the file they came from (to undo it) and a fingerprint of the bank's
+    # row (date, amount, concept) to recognise it when a later file repeats it.
+    import_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("imports.id", ondelete="SET NULL"), index=True
+    )
+    import_key: Mapped[str | None] = mapped_column(String(64))

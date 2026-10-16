@@ -6,9 +6,11 @@ requires-python = ">=3.14"
 dependencies = [
     "alembic>=1.20.0",
     "cryptography>=50.0.2",
+    "defusedxml>=0.7.1",
     "fastapi>=0.143.1",
     "greenlet>=3.5.6",
     "itsdangerous>=2.2.0",
+    "openpyxl>=3.1.5",
     "psycopg[binary]>=3.3.6",
     "pwdlib[argon2]>=0.3.1",
     "pydantic-settings>=2.16.0",
@@ -41,7 +43,7 @@ select = ["E", "F", "W", "I", "N", "UP", "B", "S", "DTZ", "RUF", "SIM", "PT"]
 [tool.mypy]
 strict = true
 plugins = ["pydantic.mypy"]
-files = ["app", "finance", "tests"]
+files = ["app", "finance", "importers", "tests"]
 
 [[tool.mypy.overrides]]
 module = ["alembic.*"]
@@ -53,7 +55,7 @@ addopts = "-ra --strict-markers"
 markers = ["db: test that needs a PostgreSQL database"]
 
 [tool.coverage.run]
-source = ["app", "finance"]
+source = ["app", "finance", "importers"]
 branch = true
 
 [dependency-groups]
@@ -65,4 +67,6 @@ dev = [
     "pytest>=9.1.1",
     "pytest-cov>=7.1.0",
     "ruff>=0.17.0",
+    "types-defusedxml>=0.7.0.20260504",
+    "types-openpyxl>=3.1.5.20260827",
 ]

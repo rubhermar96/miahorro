@@ -1,0 +1,280 @@
+"""Importing statements: preview, duplicates, templates and undo (RF-IMP-01)."""
+
+import json
+from typing import Any
+
+import pytest
+from fastapi.testclient import TestClient
+
+from tests.conftest import FakeClock
+from tests.importers.samples import DEBIT_CREDIT_CSV, SEMICOLON_CSV, xlsx_statement
+from tests.test_accounts import new_account
+from tests.test_transactions import add, balance, category_id
+
+CSV = "text/csv"
+
+
+@pytest.fixture
+def account(ana: TestClient) -> str:
+    return str(new_account(ana, opening_date="2026-10-01", opening_balance="0")["id"])
+
+
+def preview(client: TestClient, account: str, content: bytes, **form: str) -> Any:
+    response = client.post(
+        "/api/imports/preview",
+        data={"account_id": account, **form},
+        files={"file": ("extracto.csv", content, CSV)},
+    )
+    assert response.status_code == 200, response.text
+    return response.json()
+
+
+def do_import(
+    client: TestClient,
+    account: str,
+    content: bytes,
+    rows: list[int] | None = None,
+    **form: str,
+) -> Any:
+    shown = preview(client, account, content)
+    chosen = (
+        rows
+        if rows is not None
+        else [row["number"] for row in shown["rows"] if row["status"] == "new"]
+    )
+    response = client.post(
+        "/api/imports",
+        data={
+            "account_id": account,
+            "mapping": json.dumps(shown["mapping"]),
+            "rows": json.dumps(chosen),
+            **form,
+        },
+        files={"file": ("extracto.csv", content, CSV)},
+    )
+    assert response.status_code == 201, response.text
+    return response.json()
+
+
+def movements(client: TestClient, account: str) -> list[tuple[str, str, str, str | None]]:
+    items = client.get("/api/transactions", params={"account_id": account}).json()["items"]
+    return [(t["date"], t["description"], t["amount"], t["category_id"]) for t in items]
+
+
+def test_preview_detects_columns_and_stores_nothing(ana: TestClient, account: str) -> None:
+    shown = preview(ana, account, SEMICOLON_CSV)
+
+    assert shown["columns"] == ["Fecha operación", "Fecha valor", "Concepto", "Importe", "Saldo"]
+    assert shown["mapping"]["date"] == "Fecha operación"
+    assert shown["mapping"]["decimal_comma"] is True
+    assert [(r["number"], r["amount"], r["status"]) for r in shown["rows"]] == [
+        (5, "-45.20", "new"),
+        (6, "2000.00", "new"),
+    ]
+    assert shown["skipped"] == [{"number": 7, "reason": "Sin fecha.", "text": "Total · 1.954,80"}]
+    assert (shown["bank_balance"], shown["bank_balance_date"]) == ("1954.80", "2026-10-15")
+    assert shown["balance_then"] == "1954.80"  # it would match the bank
+    assert movements(ana, account) == []
+
+
+def test_import_creates_the_movements_with_their_kind(ana: TestClient, account: str) -> None:
+    batch = do_import(ana, account, SEMICOLON_CSV)
+
+    assert (batch["imported"], batch["skipped"]) == (2, 0)
+    assert (batch["date_from"], batch["date_to"]) == ("2026-10-14", "2026-10-15")
+    rows = ana.get("/api/transactions", params={"account_id": account}).json()["items"]
+    assert [(r["kind"], r["source"], r["amount"]) for r in rows] == [
+        ("expense", "import", "-45.20"),
+        ("income", "import", "2000.00"),
+    ]
+    assert balance(ana, account) == "1954.80"
+
+
+def test_same_day_movements_keep_the_bank_order(ana: TestClient, account: str) -> None:
+    content = b"Fecha;Concepto;Importe\n02/10/2026;SEGUNDO;-2\n02/10/2026;PRIMERO;-1\n"
+    do_import(ana, account, content)
+
+    # Newest first, as in the file (both on the same day).
+    assert [m[1] for m in movements(ana, account)] == ["SEGUNDO", "PRIMERO"]
+
+
+def test_reimporting_an_overlapping_file_adds_only_what_is_new(
+    ana: TestClient, account: str
+) -> None:
+    do_import(ana, account, SEMICOLON_CSV)
+    header = "Fecha operación;Fecha valor;Concepto;Importe;Saldo\r\n".encode("cp1252")
+    newer = SEMICOLON_CSV.replace(
+        header, header + b"16/10/2026;16/10/2026;BAR PEPE;-3,50;1.951,30\r\n"
+    )
+
+    shown = preview(ana, account, newer)
+
+    assert [(r["description"], r["status"]) for r in shown["rows"]] == [
+        ("BAR PEPE", "new"),
+        ("COMPRA TARJ. 1234 MERCADONA VALENCIA", "duplicate"),
+        ("NÓMINA OCTUBRE", "duplicate"),
+    ]
+    do_import(ana, account, newer)
+    assert len(movements(ana, account)) == 3
+
+
+def test_the_same_purchase_twice_in_a_day_is_not_a_duplicate(ana: TestClient, account: str) -> None:
+    once = b"Fecha;Concepto;Importe\n01/10/2026;CAFE;-1,50\n"
+    do_import(ana, account, once)
+
+    shown = preview(ana, account, once + b"01/10/2026;CAFE;-1,50\n")
+
+    assert [r["status"] for r in shown["rows"]] == ["duplicate", "new"]
+
+
+def test_flags_movements_already_entered_by_hand(ana: TestClient, account: str) -> None:
+    add(ana, account, "expense", "45.20", date="2026-10-13", description="Mercadona")
+
+    shown = preview(ana, account, SEMICOLON_CSV)
+
+    first = shown["rows"][0]
+    assert (first["status"], first["match_id"] is not None) == ("possible_duplicate", True)
+    assert shown["rows"][1]["status"] == "new"
+
+
+def test_a_hand_mapping_for_unknown_columns(ana: TestClient, account: str) -> None:
+    content = b"Dia;Que;Cuanto\n01/10/2026;Cine;-9,50\n"
+    shown = preview(ana, account, content)
+    assert shown["mapping"] is None
+    assert shown["error"] == "Indica qué columna es la fecha, el concepto y el importe."
+    assert shown["sample"] == [["01/10/2026", "Cine", "-9,50"]]
+
+    mapping = {"date": "Dia", "description": ["Que"], "amount": "Cuanto"}
+    shown = preview(ana, account, content, mapping=json.dumps(mapping))
+
+    assert [(r["description"], r["amount"]) for r in shown["rows"]] == [("Cine", "-9.50")]
+
+
+def test_templates_are_shared_and_recognised(ana: TestClient, bea: TestClient) -> None:
+    mapping = {
+        "date": "Fecha",
+        "description": ["Descripción"],
+        "debit": "Cargo",
+        "credit": "Abono",
+    }
+    response = ana.post("/api/import-templates", json={"name": "Mi banco", "mapping": mapping})
+    assert response.status_code == 201, response.text
+    template_id = response.json()["id"]
+
+    bea_account = str(new_account(bea)["id"])
+    shown = preview(bea, bea_account, DEBIT_CREDIT_CSV)
+
+    assert shown["template_id"] == template_id
+    assert [r["amount"] for r in shown["rows"]] == ["-60.10", "15.00"]
+    listed = bea.get("/api/import-templates").json()
+    assert [(t["name"], t["mine"]) for t in listed] == [("Mi banco", False)]
+    assert bea.delete(f"/api/import-templates/{template_id}").status_code == 403
+    assert ana.delete(f"/api/import-templates/{template_id}").status_code == 204
+
+
+def test_template_names_are_unique(ana: TestClient) -> None:
+    mapping = {"date": "Fecha", "description": ["Concepto"], "amount": "Importe"}
+    ana.post("/api/import-templates", json={"name": "Bankinter", "mapping": mapping})
+
+    response = ana.post("/api/import-templates", json={"name": "bankinter", "mapping": mapping})
+
+    assert response.status_code == 409
+
+
+def test_save_the_mapping_as_a_template_while_importing(ana: TestClient, account: str) -> None:
+    batch = do_import(ana, account, xlsx_statement(), save_template_as="Mi Excel")
+
+    assert batch["template_name"] == "Mi Excel"
+    assert [t["name"] for t in ana.get("/api/import-templates").json()] == ["Mi Excel"]
+
+
+def test_import_only_the_chosen_rows(ana: TestClient, account: str) -> None:
+    batch = do_import(ana, account, SEMICOLON_CSV, rows=[6])
+
+    assert (batch["imported"], batch["skipped"]) == (1, 1)
+    assert [m[1] for m in movements(ana, account)] == ["NÓMINA OCTUBRE"]
+
+
+def test_undo_an_import(ana: TestClient, account: str) -> None:
+    add(ana, account, "expense", "5", description="A mano")
+    batch = do_import(ana, account, SEMICOLON_CSV)
+
+    assert ana.delete(f"/api/imports/{batch['id']}").status_code == 204
+
+    assert [m[1] for m in movements(ana, account)] == ["A mano"]
+    assert ana.get("/api/imports").json() == []
+    # Undone rows are new again.
+    assert {r["status"] for r in preview(ana, account, SEMICOLON_CSV)["rows"]} == {"new"}
+
+
+def test_imports_are_listed_newest_first(
+    ana: TestClient, account: str, fake_clock: FakeClock
+) -> None:
+    do_import(ana, account, SEMICOLON_CSV)
+    fake_clock.advance(minutes=1)
+    do_import(ana, account, DEBIT_CREDIT_CSV)
+
+    listed = ana.get("/api/imports", params={"account_id": account}).json()
+
+    assert [b["date_from"] for b in listed] == ["2026-10-01", "2026-10-14"]
+
+
+def test_rules_categorise_imported_rows(ana: TestClient, account: str) -> None:
+    groceries = category_id(ana, "Supermercado")
+    ana.post("/api/rules", json={"match_text": "mercadona", "category_id": groceries})
+
+    shown = preview(ana, account, SEMICOLON_CSV)
+    assert shown["rows"][0]["category_id"] == groceries
+    do_import(ana, account, SEMICOLON_CSV)
+
+    assert movements(ana, account)[0][3] == groceries
+
+
+def test_errors_are_explained(ana: TestClient, account: str) -> None:
+    def attempt(content: bytes, **form: str) -> Any:
+        return ana.post(
+            "/api/imports/preview",
+            data={"account_id": account, **form},
+            files={"file": ("x.pdf", content, "application/pdf")},
+        )
+
+    assert attempt(b"%PDF-1.4").json()["error"]["message"].startswith("Los PDF")
+    assert attempt(b"x" * (5 * 1024 * 1024 + 1)).status_code == 413
+    incomplete = attempt(SEMICOLON_CSV, mapping=json.dumps({"date": "Fecha"}))
+    assert incomplete.status_code == 422
+    wrong = preview(
+        ana,
+        account,
+        SEMICOLON_CSV,
+        mapping=json.dumps({"date": "Fecha", "description": ["X"], "amount": "Y"}),
+    )
+    assert wrong["error"].startswith("No encuentro las columnas")
+    assert wrong["columns"][0] == "Fecha operación"  # the file's columns, to map them
+
+
+def test_nothing_chosen_nothing_imported(ana: TestClient, account: str) -> None:
+    shown = preview(ana, account, SEMICOLON_CSV)
+    response = ana.post(
+        "/api/imports",
+        data={"account_id": account, "mapping": json.dumps(shown["mapping"]), "rows": "[]"},
+        files={"file": ("e.csv", SEMICOLON_CSV, CSV)},
+    )
+
+    assert response.status_code == 422
+    assert response.json()["error"]["message"] == "No has elegido ningún movimiento."
+
+
+def test_nobody_imports_into_someone_elses_account(bea: TestClient, account: str) -> None:
+    response = bea.post(
+        "/api/imports/preview",
+        data={"account_id": account},
+        files={"file": ("e.csv", SEMICOLON_CSV, CSV)},
+    )
+    assert response.status_code == 404
+
+
+def test_nobody_undoes_someone_elses_import(ana: TestClient, bea: TestClient, account: str) -> None:
+    batch = do_import(ana, account, SEMICOLON_CSV)
+
+    assert bea.delete(f"/api/imports/{batch['id']}").status_code == 404
+    assert bea.get("/api/imports").json() == []

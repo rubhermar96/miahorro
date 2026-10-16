@@ -2,6 +2,7 @@
 
 from app.models.accounts import Account, AccountRate
 from app.models.auth import AuthChallenge, AuthSession, PasskeyCredential, RecoveryCode
+from app.models.imports import CategoryRule, ImportBatch, ImportTemplate
 from app.models.transactions import Category, Transaction
 from app.models.user import User
 
@@ -11,6 +12,9 @@ __all__ = [
     "AuthChallenge",
     "AuthSession",
     "Category",
+    "CategoryRule",
+    "ImportBatch",
+    "ImportTemplate",
     "PasskeyCredential",
     "RecoveryCode",
     "Transaction",

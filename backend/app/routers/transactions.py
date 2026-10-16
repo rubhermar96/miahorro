@@ -7,7 +7,7 @@ from typing import Literal, Self
 
 from fastapi import APIRouter, HTTPException, Query, Response, status
 from pydantic import BaseModel, Field, field_validator, model_validator
-from sqlalchemy import ColumnElement, Select, and_, func, or_, select
+from sqlalchemy import ColumnElement, Select, and_, delete, func, or_, select
 
 from app import clock
 from app.auth.deps import CurrentUser, DbSession
@@ -16,6 +16,7 @@ from app.models.transactions import Category, Transaction
 from app.models.user import User
 from app.ownership import get_owned_or_404
 from app.routers.money_types import Money
+from app.rules import load_rulebook
 
 router = APIRouter(prefix="/api", tags=["transactions"])
 
@@ -147,7 +148,7 @@ def _signed(kind: str, amount: Decimal) -> Decimal:
     return -abs(amount) if kind == "expense" else abs(amount)
 
 
-def _usable_account(db: DbSession, account_id: uuid.UUID, user: User) -> Account:
+def usable_account(db: DbSession, account_id: uuid.UUID, user: User) -> Account:
     account = get_owned_or_404(db, Account, account_id, user)
     if account.archived_at is not None:
         raise HTTPException(
@@ -180,15 +181,22 @@ def _pair(db: DbSession, row: Transaction) -> list[Transaction]:
 
 @router.post("/transactions", status_code=status.HTTP_201_CREATED)
 def create_transaction(body: TransactionIn, user: CurrentUser, db: DbSession) -> TransactionOut:
-    _usable_account(db, body.account_id, user)
+    usable_account(db, body.account_id, user)
     _check_category(db, body.category_id, body.kind, user)
+    amount = _signed(body.kind, body.amount)
+    category_id = body.category_id
+    if category_id is None and body.description:
+        # Without a category, the rules may know it (RF-MOV-07).
+        category_id = load_rulebook(db, user).category_for(
+            body.description, amount, body.account_id
+        )
     row = Transaction(
         user_id=user.id,
         account_id=body.account_id,
         date=body.date,
         kind=body.kind,
-        amount=_signed(body.kind, body.amount),
-        category_id=body.category_id,
+        amount=amount,
+        category_id=category_id,
         description=body.description,
         note=(body.note or "").strip() or None,
         tags=body.tags,
@@ -224,7 +232,7 @@ def update_transaction(
 
     kind = body.kind or row.kind
     if body.account_id is not None:
-        _usable_account(db, body.account_id, user)
+        usable_account(db, body.account_id, user)
         row.account_id = body.account_id
     category_id = body.category_id if "category_id" in fields else row.category_id
     _check_category(db, category_id, kind, user)
@@ -269,14 +277,107 @@ def delete_transaction(transaction_id: uuid.UUID, user: CurrentUser, db: DbSessi
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
+# --- Bulk edit -------------------------------------------------------------------------------
+
+BulkAction = Literal["categorise", "tag", "untag", "delete"]
+
+
+class BulkEdit(BaseModel):
+    ids: list[uuid.UUID] = Field(min_length=1, max_length=500)
+    action: BulkAction
+    category_id: uuid.UUID | None = Field(default=None, description="For categorise; null clears")
+    tag: str | None = Field(default=None, max_length=40, description="For tag and untag")
+
+    @model_validator(mode="after")
+    def _needs(self) -> Self:
+        if self.action in ("tag", "untag"):
+            tags = _normalise_tags([self.tag or ""])
+            if not tags:
+                raise ValueError("Escribe la etiqueta.")
+            self.tag = tags[0]
+        return self
+
+
+class BulkResult(BaseModel):
+    affected: int
+
+
+@router.post("/transactions/bulk")
+def bulk_edit(body: BulkEdit, user: CurrentUser, db: DbSession) -> BulkResult:
+    """Recategorise, tag or delete several movements at once (RF-MOV-15).
+
+    Transfers and adjustments have no category: categorising skips them. Deleting a transfer
+    deletes both of its movements."""
+    rows = list(
+        db.scalars(
+            select(Transaction).where(
+                Transaction.user_id == user.id, Transaction.id.in_(set(body.ids))
+            )
+        )
+    )
+    if len(rows) != len(set(body.ids)):
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Algún movimiento ya no existe.")
+    affected = 0
+    if body.action == "categorise":
+        category = (
+            get_owned_or_404(db, Category, body.category_id, user)
+            if body.category_id is not None
+            else None
+        )
+        for row in rows:
+            if row.kind not in ("expense", "income"):
+                continue
+            if category is not None and category.kind != row.kind:
+                raise HTTPException(
+                    status.HTTP_422_UNPROCESSABLE_CONTENT,
+                    "Has elegido ingresos y gastos a la vez: la categoría solo vale para uno "
+                    "de los dos.",
+                )
+            row.category_id = body.category_id
+            affected += 1
+    elif body.action == "tag":
+        for row in rows:
+            if body.tag not in row.tags:
+                if len(row.tags) >= _MAX_TAGS:
+                    raise HTTPException(
+                        status.HTTP_422_UNPROCESSABLE_CONTENT,
+                        f"Algún movimiento ya tiene {_MAX_TAGS} etiquetas.",
+                    )
+                row.tags = [*row.tags, body.tag or ""]
+                affected += 1
+    elif body.action == "untag":
+        for row in rows:
+            if body.tag in row.tags:
+                row.tags = [tag for tag in row.tags if tag != body.tag]
+                affected += 1
+    else:
+        transfer_ids = {row.transfer_id for row in rows if row.transfer_id is not None}
+        doomed = {row.id for row in rows}
+        if transfer_ids:
+            doomed |= set(
+                db.scalars(
+                    select(Transaction.id).where(
+                        Transaction.user_id == user.id,
+                        Transaction.transfer_id.in_(transfer_ids),
+                    )
+                )
+            )
+        result = db.execute(
+            delete(Transaction).where(Transaction.user_id == user.id, Transaction.id.in_(doomed))
+        )
+        affected = result.rowcount  # type: ignore[attr-defined]
+    db.commit()
+    return BulkResult(affected=affected)
+
+
 # --- Transfers --------------------------------------------------------------------------------
 
 
 @router.post("/transfers", status_code=status.HTTP_201_CREATED)
 def create_transfer(body: TransferIn, user: CurrentUser, db: DbSession) -> list[TransactionOut]:
     """Money moved between own accounts: two linked rows, neither income nor expense."""
-    source = _usable_account(db, body.from_account_id, user)
-    target = _usable_account(db, body.to_account_id, user)
+    source = usable_account(db, body.from_account_id, user)
+    target = usable_account(db, body.to_account_id, user)
     if source.currency != target.currency:
         raise HTTPException(
             status.HTTP_422_UNPROCESSABLE_CONTENT,

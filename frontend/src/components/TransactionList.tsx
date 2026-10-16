@@ -11,17 +11,22 @@ import {
 import { formatDay } from '../lib/format'
 import { Money } from './Money'
 
-/** Transactions grouped by day, newest first, each one a link to edit it. */
+export type Selection = { selected: Set<string>; onToggle: (id: string) => void }
+
+/** Transactions grouped by day, newest first, each one a link to edit it, or a checkbox to
+ * pick it when `selection` is given (bulk edit). */
 export function TransactionList({
   transactions,
   accounts,
   categories,
   showAccount = true,
+  selection,
 }: {
   transactions: Transaction[]
   accounts: Account[]
   categories: Category[]
   showAccount?: boolean
+  selection?: Selection
 }) {
   const { t } = useTranslation()
   const days: { date: string; items: Transaction[] }[] = []
@@ -58,22 +63,39 @@ export function TransactionList({
                   : (categoryDetail ?? (category ? null : t('transactions.noCategory'))),
                 showAccount ? account?.name : null,
               ].filter(Boolean)
+              const content = (
+                <>
+                  <span className="row__icon" aria-hidden="true">
+                    {transaction.kind === 'transfer'
+                      ? '⇄'
+                      : transaction.kind === 'adjustment'
+                        ? '≈'
+                        : categoryIcon(categories, transaction.category_id)}
+                  </span>
+                  <span className="row__text">
+                    <span className="row__title">{title}</span>
+                    <small className="muted">{details.join(' · ')}</small>
+                  </span>
+                  <Money value={transaction.amount} currency={account?.currency} signed />
+                </>
+              )
               return (
                 <li key={transaction.id}>
-                  <Link className="row" to={`/movimientos/${transaction.id}`}>
-                    <span className="row__icon" aria-hidden="true">
-                      {transaction.kind === 'transfer'
-                        ? '⇄'
-                        : transaction.kind === 'adjustment'
-                          ? '≈'
-                          : categoryIcon(categories, transaction.category_id)}
-                    </span>
-                    <span className="row__text">
-                      <span className="row__title">{title}</span>
-                      <small className="muted">{details.join(' · ')}</small>
-                    </span>
-                    <Money value={transaction.amount} currency={account?.currency} signed />
-                  </Link>
+                  {selection ? (
+                    <label className="row">
+                      <input
+                        type="checkbox"
+                        className="row__check"
+                        checked={selection.selected.has(transaction.id)}
+                        onChange={() => selection.onToggle(transaction.id)}
+                      />
+                      {content}
+                    </label>
+                  ) : (
+                    <Link className="row" to={`/movimientos/${transaction.id}`}>
+                      {content}
+                    </Link>
+                  )}
                 </li>
               )
             })}

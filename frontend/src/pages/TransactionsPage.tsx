@@ -1,17 +1,23 @@
+import { useQueryClient } from '@tanstack/react-query'
 import { type FormEvent, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
 
 import {
+  type Category,
+  refreshFinance,
   type TransactionFilters,
   useAccounts,
   useCategories,
   useTransactions,
 } from '../api/finance'
+import { importApi } from '../api/imports'
 import { CategorySelect } from '../components/CategorySelect'
+import { ErrorMessage } from '../components/ErrorMessage'
 import { Money } from '../components/Money'
 import { PageHeader } from '../components/PageHeader'
 import { TransactionList } from '../components/TransactionList'
+import { messageOf } from '../lib/errors'
 
 // Filters live in the URL (in Spanish), so a filtered list can be bookmarked or shared.
 const PARAMS: Record<keyof TransactionFilters, string> = {
@@ -45,6 +51,8 @@ export function TransactionsPage() {
   const categories = useCategories(true)
   const transactions = useTransactions(filters)
   const [search, setSearch] = useState(filters.q ?? '')
+  const [selected, setSelected] = useState<Set<string> | null>(null)
+  const [bulkMessage, setBulkMessage] = useState<string | null>(null)
 
   const setFilter = (key: keyof TransactionFilters, value: string) => {
     const next = new URLSearchParams(params)
@@ -175,18 +183,48 @@ export function TransactionsPage() {
         </details>
 
         {summary && summary.total > 0 && (
-          <section
-            className="summary"
-            aria-label={t('transactions.count', { count: summary.total })}
-          >
-            <span>{t('transactions.count', { count: summary.total })}</span>
-            <span>
-              {t('transactions.income')} <Money value={summary.income} signed />
-            </span>
-            <span>
-              {t('transactions.expenses')} <Money value={summary.expenses} signed />
-            </span>
-          </section>
+          <div className="section-title">
+            <section
+              className="summary"
+              aria-label={t('transactions.count', { count: summary.total })}
+            >
+              <span>{t('transactions.count', { count: summary.total })}</span>
+              <span>
+                {t('transactions.income')} <Money value={summary.income} signed />
+              </span>
+              <span>
+                {t('transactions.expenses')} <Money value={summary.expenses} signed />
+              </span>
+            </section>
+            <button
+              type="button"
+              className="button button--ghost"
+              onClick={() => {
+                setSelected(selected ? null : new Set())
+                setBulkMessage(null)
+              }}
+            >
+              {selected ? t('bulk.cancel') : t('bulk.select')}
+            </button>
+          </div>
+        )}
+
+        {selected && (
+          <BulkBar
+            selected={selected}
+            loaded={items.map((item) => item.id)}
+            categories={categories.data ?? []}
+            onSelect={setSelected}
+            onDone={(message) => {
+              setSelected(null)
+              setBulkMessage(message)
+            }}
+          />
+        )}
+        {bulkMessage && (
+          <p className="notice" role="status">
+            {bulkMessage}
+          </p>
         )}
 
         {transactions.isSuccess && items.length === 0 && (
@@ -200,6 +238,22 @@ export function TransactionsPage() {
           accounts={accounts.data ?? []}
           categories={categories.data ?? []}
           showAccount={!filters.account_id}
+          selection={
+            selected
+              ? {
+                  selected,
+                  onToggle: (id) => {
+                    const next = new Set(selected)
+                    if (next.has(id)) {
+                      next.delete(id)
+                    } else {
+                      next.add(id)
+                    }
+                    setSelected(next)
+                  },
+                }
+              : undefined
+          }
         />
 
         {transactions.hasNextPage && (
@@ -214,5 +268,119 @@ export function TransactionsPage() {
         )}
       </div>
     </>
+  )
+}
+
+/** Actions on the picked movements: category, tag or delete (RF-MOV-15). */
+function BulkBar({
+  selected,
+  loaded,
+  categories,
+  onSelect,
+  onDone,
+}: {
+  selected: Set<string>
+  loaded: string[]
+  categories: Category[]
+  onSelect: (selected: Set<string>) => void
+  onDone: (message: string) => void
+}) {
+  const { t } = useTranslation()
+  const queryClient = useQueryClient()
+  const [categoryId, setCategoryId] = useState('')
+  const [tag, setTag] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const ids = [...selected]
+
+  const run = async (
+    edit:
+      | { action: 'categorise'; category_id: string | null }
+      | { action: 'tag'; tag: string }
+      | { action: 'delete' },
+  ) => {
+    setError(null)
+    if (
+      edit.action === 'delete' &&
+      !window.confirm(t('bulk.confirmDelete', { count: ids.length }))
+    ) {
+      return
+    }
+    try {
+      const { affected } = await importApi.bulkEdit({ ids, ...edit })
+      await refreshFinance(queryClient)
+      onDone(
+        edit.action === 'delete'
+          ? t('bulk.deleted', { count: affected })
+          : t('bulk.done', { count: affected }),
+      )
+    } catch (err) {
+      setError(messageOf(err, t('errors.generic')))
+    }
+  }
+
+  return (
+    <section
+      className="card stack stack--tight"
+      aria-label={t('bulk.selected', { count: ids.length })}
+    >
+      <div className="section-title">
+        <strong>{t('bulk.selected', { count: ids.length })}</strong>
+        <button
+          type="button"
+          className="button button--ghost"
+          onClick={() => onSelect(new Set(loaded))}
+        >
+          {t('bulk.selectLoaded', { count: loaded.length })}
+        </button>
+      </div>
+      <div className="field">
+        <label htmlFor="bulk-category">{t('bulk.category')}</label>
+        <div className="search">
+          <CategorySelect
+            id="bulk-category"
+            categories={categories.filter((c) => !c.archived)}
+            value={categoryId}
+            onChange={setCategoryId}
+            emptyLabel={t('transactions.noCategory')}
+          />
+          <button
+            type="button"
+            className="button button--secondary"
+            disabled={ids.length === 0}
+            onClick={() => void run({ action: 'categorise', category_id: categoryId || null })}
+          >
+            {t('bulk.apply')}
+          </button>
+        </div>
+      </div>
+      <div className="field">
+        <label htmlFor="bulk-tag">{t('bulk.tag')}</label>
+        <div className="search">
+          <input
+            id="bulk-tag"
+            maxLength={40}
+            value={tag}
+            onChange={(event) => setTag(event.target.value)}
+          />
+          <button
+            type="button"
+            className="button button--secondary"
+            disabled={ids.length === 0 || !tag.trim()}
+            onClick={() => void run({ action: 'tag', tag })}
+          >
+            {t('bulk.applyTag')}
+          </button>
+        </div>
+      </div>
+      <ErrorMessage message={error} />
+      <button
+        type="button"
+        className="button button--ghost button--danger"
+        disabled={ids.length === 0}
+        onClick={() => void run({ action: 'delete' })}
+      >
+        {t('bulk.delete')}
+      </button>
+    </section>
   )
 }

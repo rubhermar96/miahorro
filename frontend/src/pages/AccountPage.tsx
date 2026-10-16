@@ -124,6 +124,11 @@ function AccountDetails({ account }: { account: Account }) {
         <RatesCard account={account} />
 
         <section className="card stack stack--tight">
+          {!account.archived && (
+            <Link className="button button--secondary" to={`/importar?cuenta=${account.id}`}>
+              {t('accounts.import')}
+            </Link>
+          )}
           <Link className="button button--secondary" to={`/cuentas/${account.id}/editar`}>
             {t('accounts.edit')}
           </Link>

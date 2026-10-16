@@ -15,10 +15,12 @@ const STATEMENT = Buffer.from(
   'latin1',
 )
 
+// The balance is that of the start of 1 October, before the statement's movements (D25).
 async function newAccount(page: Page, name: string) {
   await page.goto('/cuentas/nueva')
   await page.getByLabel('Nombre').fill(name)
   await page.getByLabel('Saldo', { exact: true }).fill('0')
+  await page.getByLabel('Fecha del saldo').fill('2026-10-01')
   await page.getByRole('button', { name: 'Crear cuenta' }).click()
   await expect(page.getByRole('heading', { level: 1, name })).toBeVisible()
 }

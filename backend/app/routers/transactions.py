@@ -7,7 +7,7 @@ from typing import Literal, Self
 
 from fastapi import APIRouter, HTTPException, Query, Response, status
 from pydantic import BaseModel, Field, field_validator, model_validator
-from sqlalchemy import ColumnElement, Select, and_, delete, func, or_, select
+from sqlalchemy import ColumnElement, Select, Subquery, and_, delete, func, or_, select
 
 from app import clock
 from app.auth.deps import CurrentUser, DbSession
@@ -111,9 +111,12 @@ class TransactionOut(BaseModel):
     transfer_id: uuid.UUID | None
     source: str
     created_at: dt.datetime
+    balance_after: Money | None = Field(
+        default=None, description="Balance of its account right after it (in lists)"
+    )
 
     @classmethod
-    def from_model(cls, row: Transaction) -> TransactionOut:
+    def from_model(cls, row: Transaction, balance_after: Decimal | None = None) -> TransactionOut:
         return cls.model_validate(
             {
                 "id": row.id,
@@ -128,6 +131,7 @@ class TransactionOut(BaseModel):
                 "transfer_id": row.transfer_id,
                 "source": row.source,
                 "created_at": row.created_at,
+                "balance_after": balance_after,
             }
         )
 
@@ -449,6 +453,38 @@ def _filtered(
     return conditions
 
 
+def _running_balances(user: User) -> Subquery:
+    """Each movement with its account's balance right after it, in the order the list shows
+    them (reversed). The opening balance is an anchor (see app/ledger.py): the balance after a
+    movement is the anchor plus everything up to it, minus the history before the anchor."""
+    account = Transaction.account_id
+    up_to_here = func.sum(Transaction.amount).over(
+        partition_by=account,
+        order_by=(
+            Transaction.date,
+            Transaction.created_at,
+            Transaction.amount.desc(),
+            Transaction.id.desc(),
+        ),
+        rows=(None, 0),
+    )
+    before_anchor = func.coalesce(
+        func.sum(Transaction.amount)
+        .filter(Transaction.date < Account.opening_date)
+        .over(partition_by=account),
+        0,
+    )
+    return (
+        select(
+            Transaction.id.label("id"),
+            (Account.opening_balance + up_to_here - before_anchor).label("balance_after"),
+        )
+        .join(Account, Account.id == account)
+        .where(Transaction.user_id == user.id)
+        .subquery()
+    )
+
+
 @router.get("/transactions")
 def list_transactions(
     user: CurrentUser,
@@ -464,8 +500,10 @@ def list_transactions(
     offset: int = Query(default=0, ge=0),
 ) -> TransactionPage:
     condition = and_(*_filtered(user, account_id, category_id, kind, tag, q, date_from, date_to))
-    rows = db.scalars(
-        select(Transaction)
+    running = _running_balances(user)
+    rows = db.execute(
+        select(Transaction, running.c.balance_after)
+        .join(running, running.c.id == Transaction.id)
         .where(condition)
         # Same moment (both legs of a transfer): the money leaving comes first.
         .order_by(
@@ -485,7 +523,7 @@ def list_transactions(
         ).where(condition)
     ).one()
     return TransactionPage(
-        items=[TransactionOut.from_model(row) for row in rows],
+        items=[TransactionOut.from_model(row, after) for row, after in rows],
         total=total,
         income=Decimal(income),
         expenses=Decimal(expenses),

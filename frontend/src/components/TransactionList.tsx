@@ -8,7 +8,7 @@ import {
   categoryLabel,
   type Transaction,
 } from '../api/finance'
-import { formatDay } from '../lib/format'
+import { formatAmount, formatDay } from '../lib/format'
 import { Money } from './Money'
 
 export type Selection = { selected: Set<string>; onToggle: (id: string) => void }
@@ -20,12 +20,15 @@ export function TransactionList({
   accounts,
   categories,
   showAccount = true,
+  showBalance = false,
   selection,
 }: {
   transactions: Transaction[]
   accounts: Account[]
   categories: Category[]
   showAccount?: boolean
+  /** The account's balance after each movement; only meaningful for a single account. */
+  showBalance?: boolean
   selection?: Selection
 }) {
   const { t } = useTranslation()
@@ -76,7 +79,16 @@ export function TransactionList({
                     <span className="row__title">{title}</span>
                     <small className="muted">{details.join(' · ')}</small>
                   </span>
-                  <Money value={transaction.amount} currency={account?.currency} signed />
+                  <span className="row__amounts">
+                    <Money value={transaction.amount} currency={account?.currency} signed />
+                    {showBalance && transaction.balance_after != null && (
+                      <small className="muted">
+                        {t('transactions.balanceAfter', {
+                          amount: formatAmount(transaction.balance_after, account?.currency),
+                        })}
+                      </small>
+                    )}
+                  </span>
                 </>
               )
               return (

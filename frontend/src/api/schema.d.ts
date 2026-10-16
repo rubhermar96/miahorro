@@ -1655,6 +1655,11 @@ export interface components {
              * Format: date-time
              */
             created_at: string;
+            /**
+             * Balance After
+             * @description Balance of its account right after it (in lists)
+             */
+            balance_after?: string | null;
         };
         /** TransactionPage */
         TransactionPage: {

@@ -238,6 +238,10 @@ export function TransactionsPage() {
           accounts={accounts.data ?? []}
           categories={categories.data ?? []}
           showAccount={!filters.account_id}
+          showBalance={
+            Boolean(filters.account_id) ||
+            (accounts.data ?? []).filter((account) => !account.archived).length === 1
+          }
           selection={
             selected
               ? {

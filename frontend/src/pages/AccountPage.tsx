@@ -117,6 +117,7 @@ function AccountDetails({ account }: { account: Account }) {
             accounts={accounts.data ?? []}
             categories={categories.data ?? []}
             showAccount={false}
+            showBalance
           />
         </section>
 

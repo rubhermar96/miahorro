@@ -118,7 +118,7 @@ Empieza como herramienta de uso propio y después se abre a 2–3 familiares cer
 | RF-MOV-12 | Multi-divisa: importe original y equivalente en euros al tipo del día (BCE). | F2 |
 | RF-MOV-13 | Estado pendiente/confirmado y marca de "reembolsable" (gastos que me tienen que devolver la empresa o un amigo). | F2 |
 | RF-MOV-14 | Gastos compartidos (pareja, amigos): reparto y saldo de quién debe a quién, al estilo Splitwise. | Idea |
-| RF-MOV-15 | Búsqueda, filtros avanzados y edición masiva. | MVP |
+| RF-MOV-15 | Búsqueda, filtros avanzados y edición masiva. Al ver una cuenta, cada movimiento muestra el saldo que quedó tras él. | MVP |
 | RF-MOV-16 | Garantías: guardar la factura de compras importantes y avisar antes de que termine la garantía. | Idea |
 | RF-MOV-17 | Captura automática de pagos desde el móvil mediante un punto de entrada de la API con token personal y revocable. En iPhone lo usa el Atajo de Apple Pay, con plantilla y guía. En Android puede usarlo una app de automatización gratuita (p. ej. MacroDroid) que lea la notificación de pago y la envíe al mismo punto de entrada. | MVP: punto de entrada y Atajo · Familia: receta Android, a validar con un móvil real |
 
@@ -191,7 +191,7 @@ Todas las calculadoras comparten estas capacidades: guardar parámetros como "es
 |---|---|---|
 | RF-INF-01 | Panel principal: patrimonio neto, liquidez, gasto del mes frente a presupuesto, progreso de objetivos y próximos cargos. | MVP |
 | RF-INF-02 | Evolución del patrimonio neto (activos − pasivos) con desglose. | MVP |
-| RF-INF-03 | Ingresos frente a gastos por mes y tasa de ahorro. | MVP |
+| RF-INF-03 | Ingresos frente a gastos por mes y tasa de ahorro. Los informes se pueden ver por mes, por año o entre fechas a elegir. | MVP |
 | RF-INF-04 | Gasto por categoría, comercio y etiqueta, comparado con el mes anterior y con el mismo mes del año anterior. | MVP |
 | RF-INF-05 | Previsión de saldo a 30/90 días con recurrentes y préstamos: "¿llego a fin de mes?". | F2 |
 | RF-INF-06 | Diagrama de flujo (Sankey): ingresos → categorías de gasto → ahorro. | F2 |
@@ -500,4 +500,4 @@ Con este volumen, PostgreSQL, la API y Caddy juntos deberían quedarse por debaj
 | 0.4 | 14/10/2026 | D17: backend con FastAPI en lugar de Django. §10 rehecho: autenticación propia (pwdlib, pyotp, webauthn), SQLAdmin, SQLAlchemy 2 + Alembic, cálculos financieros en un único paquete Python y cliente React generado desde OpenAPI. |
 | 1.0 | 14/10/2026 | Definición cerrada. D18–D21: subdominio `miahorro.octogas.es` en la VPS compartida con octogas.es (RNF-18), familia mixta iPhone/Android (RF-MOV-17), sin open banking, MVP aprobado. |
 | 1.1 | 16/10/2026 | D22: registro abierto con salvaguardas (RF-PLT-03 pasa al MVP; RF-PLT-10 actualizado). D23: Face ID como método principal (RF-USR-01). |
-| 1.2 | 16/10/2026 | D24: extractos PDF de Bankinter y Cajamar en el MVP (RF-IMP-03), con comprobación de saldos. D25: el saldo inicial es un ancla en su fecha. |
+| 1.2 | 16/10/2026 | D24: extractos PDF de Bankinter y Cajamar en el MVP (RF-IMP-03), con comprobación de saldos. D25: el saldo inicial es un ancla en su fecha. Saldo tras cada movimiento (RF-MOV-15) e informes por mes, año o fechas a elegir (RF-INF-03). |

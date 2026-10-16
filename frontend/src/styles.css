@@ -776,6 +776,17 @@ label.row {
   min-height: 0;
 }
 
+.row__amounts {
+  display: grid;
+  flex-shrink: 0;
+  justify-items: end;
+  text-align: right;
+}
+
+.row__amounts small {
+  font-size: 0.75rem;
+}
+
 .row__actions {
   display: flex;
   flex-shrink: 0;

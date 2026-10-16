@@ -4611,6 +4611,22 @@
             "type": "string",
             "format": "date-time",
             "title": "Created At"
+          },
+          "balance_after": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+                "examples": [
+                  "-12.50"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Balance After",
+            "description": "Balance of its account right after it (in lists)"
           }
         },
         "type": "object",

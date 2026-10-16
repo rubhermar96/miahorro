@@ -144,6 +144,7 @@ export const es = {
       adjustment: 'Ajuste',
     },
     noCategory: 'Sin categoría',
+    balanceAfter: 'Saldo {{amount}}',
     editTitle: 'Movimiento',
     delete: 'Eliminar',
     confirmDelete: '¿Eliminar este movimiento?',

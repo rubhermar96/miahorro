@@ -325,7 +325,7 @@ Las iteraciones 5–9 dependen sobre todo de la 2. Si alguna te corre más prisa
 **Entregables**
 - Panel principal: patrimonio neto, liquidez, gasto del mes frente a presupuesto, objetivos, próximos cargos y vencimientos.
 - Evolución del patrimonio neto (cuentas + inversiones − préstamos), con desglose.
-- Ingresos frente a gastos por mes y tasa de ahorro.
+- Ingresos frente a gastos y tasa de ahorro, por mes, por año o entre fechas a elegir.
 - Gasto por categoría, comercio y etiqueta, comparado con el mes anterior y con el mismo mes del año anterior.
 - Exportación de todos tus datos en CSV/JSON.
 

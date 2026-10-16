@@ -254,3 +254,88 @@ describe('registration', () => {
     expect(screen.queryByRole('link', { name: 'Crear una' })).not.toBeInTheDocument()
   })
 })
+
+describe('Face ID first', () => {
+  const sessionWith = (level: string, changes: object) => ({
+    status: 200,
+    body: { level, user: { ...testUser, ...changes } },
+  })
+
+  it('sets up Face ID in one tap on the first sign-in, without recovery codes', async () => {
+    const user = userEvent.setup()
+    webauthn.supported = true
+    webauthn.startRegistration.mockResolvedValue({ id: 'new', rawId: 'new' })
+    api.on('GET /api/auth/session', sessionWith('mfa_setup', { has_totp: false }))
+    api.on('POST /api/auth/passkeys/register/options', {
+      status: 200,
+      body: { challenge_id: 'c3', options: { challenge: 'reg' } },
+    })
+    api.on('POST /api/auth/passkeys/register', () => {
+      api.on('GET /api/auth/session', fullSession)
+      return { status: 201, body: { id: 'p', name: 'Este dispositivo' } }
+    })
+    renderApp('/entrar')
+
+    await user.click(await screen.findByRole('button', { name: 'Usar Face ID (recomendado)' }))
+
+    expect(await screen.findByText('Hola, Ana')).toBeInTheDocument()
+    expect(webauthn.startRegistration).toHaveBeenCalledWith({ optionsJSON: { challenge: 'reg' } })
+    expect(api.callsTo('POST /api/auth/totp/setup')).toEqual([])
+  })
+
+  it('lets users without Face ID choose an authenticator app instead', async () => {
+    const user = userEvent.setup()
+    webauthn.supported = true
+    api.on('GET /api/auth/session', sessionWith('mfa_setup', { has_totp: false }))
+    api.on('POST /api/auth/totp/setup', {
+      status: 200,
+      body: { secret: 'JBSWY3DPEHPK3PXP', otpauth_uri: 'otpauth://totp/x', qr_code: 'data:,' },
+    })
+    renderApp('/entrar')
+
+    await user.click(await screen.findByRole('button', { name: 'Prefiero una app de códigos' }))
+
+    expect(
+      await screen.findByRole('img', { name: 'Código QR para la app de autenticación' }),
+    ).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Volver' }))
+    expect(screen.getByRole('button', { name: 'Usar Face ID (recomendado)' })).toBeInTheDocument()
+  })
+
+  it('asks for Face ID, not a code, after the password of a Face ID user', async () => {
+    const user = userEvent.setup()
+    webauthn.supported = true
+    webauthn.startAuthentication.mockResolvedValue({ id: 'cred', rawId: 'cred' })
+    api.on(
+      'GET /api/auth/session',
+      sessionWith('mfa_pending', { has_totp: false, has_passkey: true, recovery_codes_left: 0 }),
+    )
+    api.on('POST /api/auth/passkeys/login/options', {
+      status: 200,
+      body: { challenge_id: 'c4', options: { challenge: 'get' } },
+    })
+    api.on('POST /api/auth/passkeys/login', () => {
+      api.on('GET /api/auth/session', fullSession)
+      return { status: 200, body: { status: 'authenticated' } }
+    })
+    renderApp('/entrar')
+
+    expect(await screen.findByText(/escanea el código QR/)).toBeInTheDocument()
+    expect(screen.queryByLabelText('Código')).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Usar un código de recuperación' }),
+    ).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Confirmar con Face ID' }))
+
+    expect(await screen.findByText('Hola, Ana')).toBeInTheDocument()
+  })
+
+  it('offers both Face ID and the code when the user has both', async () => {
+    webauthn.supported = true
+    api.on('GET /api/auth/session', sessionWith('mfa_pending', { has_passkey: true }))
+    renderApp('/entrar')
+
+    expect(await screen.findByRole('button', { name: 'Confirmar con Face ID' })).toBeInTheDocument()
+    expect(screen.getByLabelText('Código')).toBeInTheDocument()
+  })
+})

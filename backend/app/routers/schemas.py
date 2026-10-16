@@ -6,7 +6,9 @@ from datetime import datetime
 from typing import Any, Literal
 
 from pydantic import BaseModel, Field, field_validator
+from sqlalchemy.orm import Session
 
+from app.auth import factors
 from app.models.auth import PasskeyCredential
 from app.models.user import User
 
@@ -36,16 +38,20 @@ class UserOut(BaseModel):
     display_name: str
     is_admin: bool
     has_totp: bool
+    has_passkey: bool
+    recovery_codes_left: int
     preferences: Preferences
 
     @classmethod
-    def from_user(cls, user: User) -> UserOut:
+    def from_user(cls, db: Session, user: User) -> UserOut:
         return cls(
             id=user.id,
             email=user.email,
             display_name=user.display_name,
             is_admin=user.is_admin,
             has_totp=user.has_totp,
+            has_passkey=factors.passkey_count(db, user) > 0,
+            recovery_codes_left=factors.recovery_codes_left(db, user),
             preferences=Preferences(
                 currency=user.currency,  # constrained in the database
                 month_start_day=user.month_start_day,

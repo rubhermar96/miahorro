@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app.auth import sessions
 from app.config import Settings
 from app.db import get_session
-from app.models.auth import LEVEL_FULL, AuthSession
+from app.models.auth import LEVEL_FULL, LEVEL_MFA_SETUP, AuthSession
 from app.models.user import User
 
 DbSession = Annotated[Session, Depends(get_session)]
@@ -29,6 +29,16 @@ def get_auth_session(request: Request, db: DbSession, settings: AppSettings) -> 
 
 
 CurrentAuthSession = Annotated[AuthSession, Depends(get_auth_session)]
+
+
+def get_enrolling_session(auth: CurrentAuthSession) -> AuthSession:
+    """A full session, or one that is setting up its first second factor."""
+    if auth.level not in (LEVEL_FULL, LEVEL_MFA_SETUP):
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Termina de iniciar sesión.")
+    return auth
+
+
+EnrollingAuthSession = Annotated[AuthSession, Depends(get_enrolling_session)]
 
 
 def get_full_session(auth: CurrentAuthSession) -> AuthSession:

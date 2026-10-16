@@ -243,7 +243,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Register Passkey */
+        /**
+         * Register Passkey
+         * @description Add a passkey. During the first setup it is the second factor and completes sign-in.
+         */
         post: operations["register_passkey_api_auth_passkeys_register_post"];
         delete?: never;
         options?: never;
@@ -294,7 +297,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Login With Passkey */
+        /**
+         * Login With Passkey
+         * @description Sign in with a passkey alone, or finish a password sign-in with it (second factor).
+         */
         post: operations["login_with_passkey_api_auth_passkeys_login_post"];
         delete?: never;
         options?: never;
@@ -528,6 +534,10 @@ export interface components {
             is_admin: boolean;
             /** Has Totp */
             has_totp: boolean;
+            /** Has Passkey */
+            has_passkey: boolean;
+            /** Recovery Codes Left */
+            recovery_codes_left: number;
             preferences: components["schemas"]["Preferences"];
         };
         /** ValidationError */
@@ -880,7 +890,9 @@ export interface operations {
     register_passkey_api_auth_passkeys_register_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                "user-agent"?: string | null;
+            };
             path?: never;
             cookie?: never;
         };

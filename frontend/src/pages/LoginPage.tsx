@@ -1,5 +1,5 @@
 import { browserSupportsWebAuthn } from '@simplewebauthn/browser'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQueryClient } from '@tanstack/react-query'
 import { type FormEvent, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useSearchParams } from 'react-router'
@@ -8,19 +8,25 @@ import {
   authApi,
   isPasskeyCancelled,
   SESSION_KEY,
+  type SessionInfo,
   useRegistrationOpen,
   useSession,
 } from '../api/auth'
-import { FullScreenMessage } from '../components/RequireSession'
+import { ErrorMessage } from '../components/ErrorMessage'
 import { RecoveryCodes } from '../components/RecoveryCodes'
+import { FullScreenMessage } from '../components/RequireSession'
+import { TotpSetupForm } from '../components/TotpSetupForm'
+import { deviceName } from '../lib/device'
+import { messageOf } from '../lib/errors'
 import { isServerPage, safeNextPath } from '../lib/navigation'
 
 /**
  * Sign-in and registration in steps, driven by the session level the API reports:
  *   no session -> email + password (or a passkey, which signs in on its own),
  *                 or the registration form at /registro
- *   mfa_pending -> 6-digit code (or a recovery code)
- *   mfa_setup   -> first time: set up the authenticator app, then show recovery codes
+ *   mfa_pending -> second step: Face ID (passkey) or the 6-digit code, or a recovery code
+ *   mfa_setup   -> first time: choose Face ID (one tap) or set up an authenticator app,
+ *                  which then shows recovery codes (D23)
  */
 export function LoginPage({ mode = 'login' }: { mode?: 'login' | 'register' }) {
   const { t } = useTranslation()
@@ -58,11 +64,12 @@ export function LoginPage({ mode = 'login' }: { mode?: 'login' | 'register' }) {
   if (recoveryCodes) {
     step = <RecoveryCodes codes={recoveryCodes} onDone={() => setRecoveryCodes(null)} />
   } else if (session?.level === 'mfa_pending') {
-    step = <CodeStep onDone={refreshSession} />
+    step = <SecondStep session={session} onDone={refreshSession} />
   } else if (session?.level === 'mfa_setup') {
     step = (
-      <SetupStep
-        onDone={async (codes) => {
+      <ChooseSecondFactorStep
+        onPasskey={refreshSession}
+        onTotp={async (codes) => {
           setRecoveryCodes(codes)
           await refreshSession()
         }}
@@ -86,18 +93,6 @@ export function LoginPage({ mode = 'login' }: { mode?: 'login' | 'register' }) {
       </div>
     </div>
   )
-}
-
-function ErrorMessage({ message }: { message: string | null }) {
-  return message ? (
-    <p className="alert" role="alert">
-      {message}
-    </p>
-  ) : null
-}
-
-function messageOf(error: unknown, fallback: string): string {
-  return error instanceof Error && error.message ? error.message : fallback
 }
 
 type StepProps = { onDone: () => Promise<unknown>; query: string }
@@ -280,56 +275,98 @@ function CredentialsStep({ onDone, query }: StepProps) {
   )
 }
 
-function CodeStep({ onDone }: { onDone: () => Promise<unknown> }) {
+/** Cancelling a half-finished sign-in goes back to the email and password form. */
+function CancelButton({ onDone }: { onDone: () => Promise<unknown> }) {
   const { t } = useTranslation()
-  const [useRecovery, setUseRecovery] = useState(false)
+  const cancel = async () => {
+    await authApi.logout().catch(() => undefined)
+    await onDone()
+  }
+  return (
+    <button type="button" className="button button--ghost" onClick={() => void cancel()}>
+      {t('login.cancel')}
+    </button>
+  )
+}
+
+/** After the password: Face ID, the authenticator code or, as a last resort, a recovery code. */
+function SecondStep({ session, onDone }: { session: SessionInfo; onDone: () => Promise<unknown> }) {
+  const { t } = useTranslation()
+  const { has_passkey: hasPasskey, has_totp: hasTotp } = session.user
+  const canUsePasskey = hasPasskey && browserSupportsWebAuthn()
+  const canUseRecovery = session.user.recovery_codes_left > 0
+  const [useRecovery, setUseRecovery] = useState(!canUsePasskey && !hasTotp)
   const [code, setCode] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
 
-  const submit = async (event: FormEvent) => {
-    event.preventDefault()
+  const run = async (action: () => Promise<unknown>) => {
     setBusy(true)
     setError(null)
     try {
-      await (useRecovery ? authApi.verifyRecoveryCode(code) : authApi.verifyCode(code))
+      await action()
       await onDone()
     } catch (err) {
-      setError(messageOf(err, t('errors.generic')))
+      setError(
+        isPasskeyCancelled(err) ? t('login.passkeyCancelled') : messageOf(err, t('errors.generic')),
+      )
       setCode('')
     } finally {
       setBusy(false)
     }
   }
 
-  const cancel = async () => {
-    await authApi.logout().catch(() => undefined)
-    await onDone()
+  const submitCode = (event: FormEvent) => {
+    event.preventDefault()
+    void run(() => (useRecovery ? authApi.verifyRecoveryCode(code) : authApi.verifyCode(code)))
   }
 
+  const showCodeForm = useRecovery || hasTotp
+
   return (
-    <section className="card">
-      <form className="stack" onSubmit={(event) => void submit(event)}>
-        <h2>{t('login.codeTitle')}</h2>
-        {!useRecovery && <p className="muted">{t('login.codeHelp')}</p>}
-        <label className="field">
-          <span>{useRecovery ? t('login.recoveryCode') : t('login.code')}</span>
-          <input
-            key={useRecovery ? 'recovery' : 'totp'}
-            autoComplete="one-time-code"
-            inputMode={useRecovery ? 'text' : 'numeric'}
-            maxLength={useRecovery ? 16 : 6}
-            required
-            autoFocus
-            value={code}
-            onChange={(event) => setCode(event.target.value)}
-          />
-        </label>
-        <ErrorMessage message={error} />
-        <button type="submit" className="button" disabled={busy}>
-          {t('login.verify')}
-        </button>
-        <div className="actions actions--spread">
+    <section className="card stack">
+      <h2>{t('login.secondTitle')}</h2>
+      {canUsePasskey && !useRecovery && (
+        <>
+          <button
+            type="button"
+            className="button"
+            disabled={busy}
+            onClick={() => void run(() => authApi.signInWithPasskey())}
+          >
+            {t('login.confirmFaceId')}
+          </button>
+          <p className="muted small">{t('login.computerHint')}</p>
+          {hasTotp && <p className="divider">{t('login.or')}</p>}
+        </>
+      )}
+      {showCodeForm && (
+        <form className="stack" onSubmit={submitCode}>
+          {!useRecovery && <p className="muted">{t('login.codeHelp')}</p>}
+          <label className="field">
+            <span>{useRecovery ? t('login.recoveryCode') : t('login.code')}</span>
+            <input
+              key={useRecovery ? 'recovery' : 'totp'}
+              autoComplete="one-time-code"
+              inputMode={useRecovery ? 'text' : 'numeric'}
+              maxLength={useRecovery ? 16 : 6}
+              required
+              value={code}
+              onChange={(event) => setCode(event.target.value)}
+            />
+          </label>
+          <button
+            type="submit"
+            className={canUsePasskey && !useRecovery ? 'button button--secondary' : 'button'}
+            disabled={busy}
+          >
+            {t('login.verify')}
+          </button>
+        </form>
+      )}
+      <ErrorMessage message={error} />
+      <div className="actions actions--spread">
+        {canUseRecovery && (
           <button
             type="button"
             className="button button--ghost"
@@ -339,87 +376,80 @@ function CodeStep({ onDone }: { onDone: () => Promise<unknown> }) {
               setError(null)
             }}
           >
-            {useRecovery ? t('login.useApp') : t('login.useRecovery')}
+            {useRecovery ? t('login.back') : t('login.useRecovery')}
           </button>
-          <button type="button" className="button button--ghost" onClick={() => void cancel()}>
-            {t('login.cancel')}
-          </button>
-        </div>
-      </form>
+        )}
+        <CancelButton onDone={onDone} />
+      </div>
     </section>
   )
 }
 
-function SetupStep({ onDone }: { onDone: (codes: string[]) => Promise<unknown> }) {
+/** First sign-in: Face ID in one tap, or an authenticator app for devices without it. */
+function ChooseSecondFactorStep({
+  onPasskey,
+  onTotp,
+}: {
+  onPasskey: () => Promise<unknown>
+  onTotp: (recoveryCodes: string[]) => Promise<unknown>
+}) {
   const { t } = useTranslation()
-  // A query (not an effect) so React's double rendering in development asks only once.
-  const setup = useQuery({
-    queryKey: ['totp-setup'],
-    queryFn: authApi.startTotpSetup,
-    staleTime: Infinity,
-    gcTime: 0,
-    retry: false,
-  })
-  const [code, setCode] = useState('')
+  const passkeysSupported = browserSupportsWebAuthn()
+  const [useApp, setUseApp] = useState(!passkeysSupported)
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
 
-  const submit = async (event: FormEvent) => {
-    event.preventDefault()
+  if (useApp) {
+    return (
+      <section className="card">
+        <TotpSetupForm
+          title={t('setup.title')}
+          onConfirmed={onTotp}
+          footer={
+            passkeysSupported && (
+              <button
+                type="button"
+                className="button button--ghost"
+                onClick={() => setUseApp(false)}
+              >
+                {t('login.back')}
+              </button>
+            )
+          }
+        />
+      </section>
+    )
+  }
+
+  const enrollFaceId = async () => {
     setBusy(true)
     setError(null)
     try {
-      await onDone(await authApi.confirmTotp(code))
+      await authApi.registerPasskey(deviceName())
+      await onPasskey()
     } catch (err) {
-      setError(messageOf(err, t('errors.generic')))
-      setCode('')
+      setError(
+        isPasskeyCancelled(err) ? t('login.passkeyCancelled') : messageOf(err, t('errors.generic')),
+      )
     } finally {
       setBusy(false)
     }
   }
 
   return (
-    <section className="card">
-      <form className="stack" onSubmit={(event) => void submit(event)}>
-        <h2>{t('setup.title')}</h2>
-        <p className="muted">{t('setup.intro')}</p>
-        <ol className="steps">
-          <li>{t('setup.step1')}</li>
-          <li>{t('setup.step2')}</li>
-          <li>{t('setup.step3')}</li>
-        </ol>
-        {setup.data ? (
-          <div className="totp">
-            <img src={setup.data.qr_code} alt={t('setup.qrAlt')} className="totp__qr" />
-            <a className="button button--secondary" href={setup.data.otpauth_uri}>
-              {t('setup.addOnDevice')}
-            </a>
-            <details>
-              <summary>{t('setup.manual')}</summary>
-              <code className="totp__secret">{setup.data.secret.match(/.{1,4}/g)?.join(' ')}</code>
-            </details>
-          </div>
-        ) : (
-          <ErrorMessage
-            message={setup.isError ? messageOf(setup.error, t('errors.generic')) : null}
-          />
-        )}
-        <label className="field">
-          <span>{t('login.code')}</span>
-          <input
-            autoComplete="one-time-code"
-            inputMode="numeric"
-            maxLength={6}
-            required
-            value={code}
-            onChange={(event) => setCode(event.target.value)}
-          />
-        </label>
-        <ErrorMessage message={error} />
-        <button type="submit" className="button" disabled={busy || !setup.data}>
-          {t('setup.confirm')}
-        </button>
-      </form>
+    <section className="card stack">
+      <h2>{t('setup.title')}</h2>
+      <p className="muted">{t('setup.chooseIntro')}</p>
+      <button type="button" className="button" disabled={busy} onClick={() => void enrollFaceId()}>
+        {t('setup.faceId')}
+      </button>
+      <p className="muted small">{t('setup.faceIdHelp')}</p>
+      <ErrorMessage message={error} />
+      <p className="divider">{t('login.or')}</p>
+      <button type="button" className="button button--secondary" onClick={() => setUseApp(true)}>
+        {t('setup.useApp')}
+      </button>
+      <p className="muted small">{t('setup.useAppHelp')}</p>
     </section>
   )
 }

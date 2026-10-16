@@ -101,9 +101,10 @@ Después, en el iPhone:
 
 1. Abre `https://miahorro.octogas.es` en Safari → Compartir → **Añadir a pantalla de inicio**.
 2. Abre la app desde el icono y pulsa **Crear una** para registrarte; serás el administrador.
-3. Configura la verificación en dos pasos. Si pulsas **Añadir en este dispositivo**, el código se guarda en la app Contraseñas del iPhone.
-4. Guarda los códigos de recuperación en tu gestor de contraseñas.
-5. En **Más → Seguridad**, añade una passkey para entrar a partir de ahora solo con Face ID.
+3. Elige **Usar Face ID**. A partir de ahí entrarás con un toque.
+4. Opcional, pero recomendable: en **Más → Seguridad**, crea los códigos de recuperación y guárdalos con el botón **Guardar**.
+
+Para entrar desde un ordenador: pulsa «Entrar con Face ID o passkey» y elige usar un teléfono. Escaneas el código QR con el iPhone y confirmas con Face ID (el ordenador necesita Bluetooth). Otra opción es añadir en ese ordenador su propia passkey (Windows Hello) desde **Más → Seguridad**.
 
 ## Gestión de usuarios
 

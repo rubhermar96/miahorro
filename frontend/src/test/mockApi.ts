@@ -49,6 +49,8 @@ export const testUser = {
   display_name: 'Ana',
   is_admin: false,
   has_totp: true,
+  has_passkey: false,
+  recovery_codes_left: 10,
   preferences: { currency: 'EUR', month_start_day: 1, theme: 'system', language: 'es' },
 }
 

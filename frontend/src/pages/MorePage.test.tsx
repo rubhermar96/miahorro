@@ -78,7 +78,7 @@ describe('settings', () => {
     api.on('GET /api/auth/passkeys', { status: 200, body: [] })
     await user.click(screen.getByRole('button', { name: 'Quitar iPhone de Ana' }))
 
-    expect(await screen.findByText('Todavía no tienes ninguna passkey.')).toBeInTheDocument()
+    expect(await screen.findByText('Todavía no tienes ninguna.')).toBeInTheDocument()
   })
 
   it('adds a passkey on this device', async () => {
@@ -94,10 +94,10 @@ describe('settings', () => {
     })
     renderApp('/mas')
 
-    const name = await screen.findByLabelText('Nombre de la passkey')
+    const name = await screen.findByLabelText('Nombre')
     await user.clear(name)
     await user.type(name, 'iPad')
-    await user.click(screen.getByRole('button', { name: 'Añadir passkey en este dispositivo' }))
+    await user.click(screen.getByRole('button', { name: 'Añadir en este dispositivo' }))
 
     expect(webauthn.startRegistration).toHaveBeenCalledWith({ optionsJSON: { challenge: 'xyz' } })
     expect(api.callsTo('POST /api/auth/passkeys/register')[0]?.body).toEqual({
@@ -116,9 +116,7 @@ describe('settings', () => {
     })
     renderApp('/mas')
 
-    await user.click(
-      await screen.findByRole('button', { name: 'Generar nuevos códigos de recuperación' }),
-    )
+    await user.click(await screen.findByRole('button', { name: 'Generar nuevos códigos' }))
 
     const list = await screen.findByRole('region', { name: 'Códigos de recuperación' })
     expect(within(list).getAllByRole('listitem')).toHaveLength(10)
@@ -142,5 +140,66 @@ describe('settings', () => {
     renderApp('/mas')
     await screen.findByText('iPhone de Ana')
     expect(screen.queryByRole('link', { name: 'Panel de administración' })).not.toBeInTheDocument()
+  })
+})
+
+describe('security settings (Face ID first)', () => {
+  const faceIdUser = { ...testUser, has_totp: false, has_passkey: true, recovery_codes_left: 0 }
+
+  beforeEach(() => {
+    api.on('GET /api/auth/session', { status: 200, body: { level: 'full', user: faceIdUser } })
+  })
+
+  it('warns when there are no recovery codes and creates them without asking', async () => {
+    const user = userEvent.setup()
+    const confirm = vi.spyOn(window, 'confirm')
+    api.on('POST /api/auth/recovery-codes', {
+      status: 200,
+      body: { codes: Array.from({ length: 10 }, (_, i) => `cccc${i}-ddddd`) },
+    })
+    renderApp('/mas')
+
+    expect(await screen.findByText(/No tienes códigos de recuperación/)).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Crear códigos de recuperación' }))
+
+    expect(confirm).not.toHaveBeenCalled()
+    expect(
+      await screen.findByRole('region', { name: 'Códigos de recuperación' }),
+    ).toBeInTheDocument()
+  })
+
+  it('offers the authenticator app as an option and shows recovery codes after it', async () => {
+    const user = userEvent.setup()
+    api.on('POST /api/auth/totp/setup', {
+      status: 200,
+      body: { secret: 'JBSWY3DPEHPK3PXP', otpauth_uri: 'otpauth://totp/x', qr_code: 'data:,' },
+    })
+    api.on('POST /api/auth/totp/confirm', {
+      status: 200,
+      body: { codes: Array.from({ length: 10 }, (_, i) => `eeee${i}-fffff`) },
+    })
+    renderApp('/mas')
+
+    await user.click(await screen.findByRole('button', { name: 'Activar app de códigos' }))
+    await user.type(screen.getByLabelText('Código'), '123456')
+    await user.click(screen.getByRole('button', { name: 'Activar' }))
+
+    expect(api.callsTo('POST /api/auth/totp/confirm')[0]?.body).toEqual({ code: '123456' })
+    expect(
+      await screen.findByRole('region', { name: 'Códigos de recuperación' }),
+    ).toBeInTheDocument()
+  })
+
+  it('warns before removing the only way to confirm the identity', async () => {
+    const user = userEvent.setup()
+    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false)
+    renderApp('/mas')
+
+    await user.click(await screen.findByRole('button', { name: 'Quitar iPhone de Ana' }))
+
+    expect(confirm).toHaveBeenCalledWith(expect.stringContaining('es tu única forma'))
+    expect(api.callsTo('DELETE /api/auth/passkeys/00000000-0000-0000-0000-0000000000aa')).toEqual(
+      [],
+    )
   })
 })

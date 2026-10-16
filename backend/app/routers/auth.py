@@ -1,9 +1,11 @@
 """Registration, sign-in and account security (RF-USR-01, RF-PLT-03).
 
-Rules:
-- A password always needs a second factor (TOTP). After the password, the session is
-  "mfa_pending" (enter the code) or "mfa_setup" (no authenticator app yet: set it up now).
-- A passkey (Face ID) is enough on its own: it already proves possession and identity.
+Rules (D23):
+- A passkey (Face ID) is the main way in: enough on its own, since it proves possession and
+  identity.
+- A password always needs a second factor: a passkey or the authenticator app (TOTP). After
+  the password the session is "mfa_pending" (confirm with either), or "mfa_setup" when the user
+  has neither yet and must set one up now.
 - Wrong passwords and codes count towards a temporary lockout.
 - The session token changes whenever the session gains privileges.
 """
@@ -11,16 +13,17 @@ Rules:
 import uuid
 from typing import Annotated
 
-from fastapi import APIRouter, Header, HTTPException, Response, status
+from fastapi import APIRouter, Header, HTTPException, Request, Response, status
 from sqlalchemy import func, select
 
 from app import clock
-from app.auth import lockout, passkeys, sessions
+from app.auth import factors, lockout, passkeys, sessions
 from app.auth.deps import (
     AppSettings,
     CurrentAuthSession,
     CurrentUser,
     DbSession,
+    EnrollingAuthSession,
     FullAuthSession,
 )
 from app.config import Settings
@@ -158,9 +161,12 @@ def login(
     if new_hash:
         user.password_hash = new_hash
     lockout.register_success(user)
-    level = LEVEL_MFA_PENDING if user.has_totp else LEVEL_MFA_SETUP
-    _start_session(db, response, user, level, settings, user_agent)
-    return LoginResult(status="mfa_required" if user.has_totp else "mfa_setup_required")
+    # Second step: Face ID (passkey) or the authenticator app; without either, set one up now.
+    if factors.has_second_factor(db, user):
+        _start_session(db, response, user, LEVEL_MFA_PENDING, settings, user_agent)
+        return LoginResult(status="mfa_required")
+    _start_session(db, response, user, LEVEL_MFA_SETUP, settings, user_agent)
+    return LoginResult(status="mfa_setup_required")
 
 
 @router.post("/mfa")
@@ -265,8 +271,10 @@ def confirm_totp_setup(
 def regenerate_recovery_codes(
     user: CurrentUser, db: DbSession, settings: AppSettings
 ) -> RecoveryCodes:
-    if not user.has_totp:
-        raise HTTPException(status.HTTP_409_CONFLICT, "Activa antes la verificación en dos pasos.")
+    if not factors.has_second_factor(db, user):
+        raise HTTPException(
+            status.HTTP_409_CONFLICT, "Configura antes Face ID o una app de códigos."
+        )
     codes = _issue_recovery_codes(db, user, settings)
     db.commit()
     return RecoveryCodes(codes=codes)
@@ -276,8 +284,10 @@ def regenerate_recovery_codes(
 
 
 @router.get("/session")
-def current_session(auth: CurrentAuthSession) -> SessionOut:
-    return SessionOut.model_validate({"level": auth.level, "user": UserOut.from_user(auth.user)})
+def current_session(auth: CurrentAuthSession, db: DbSession) -> SessionOut:
+    return SessionOut.model_validate(
+        {"level": auth.level, "user": UserOut.from_user(db, auth.user)}
+    )
 
 
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
@@ -309,8 +319,9 @@ def list_passkeys(user: CurrentUser, db: DbSession) -> list[PasskeyOut]:
 
 @router.post("/passkeys/register/options")
 def passkey_registration_options(
-    user: CurrentUser, db: DbSession, settings: AppSettings
+    auth: EnrollingAuthSession, db: DbSession, settings: AppSettings
 ) -> PasskeyOptions:
+    user = auth.user
     existing = list(db.scalars(owned(PasskeyCredential, user)))
     challenge_id, options = passkeys.registration_options(db, user, existing, settings)
     db.commit()
@@ -319,8 +330,15 @@ def passkey_registration_options(
 
 @router.post("/passkeys/register", status_code=status.HTTP_201_CREATED)
 def register_passkey(
-    body: PasskeyRegistration, user: CurrentUser, db: DbSession, settings: AppSettings
+    body: PasskeyRegistration,
+    response: Response,
+    auth: EnrollingAuthSession,
+    db: DbSession,
+    settings: AppSettings,
+    user_agent: UserAgent = None,
 ) -> PasskeyOut:
+    """Add a passkey. During the first setup it is the second factor and completes sign-in."""
+    user = auth.user
     try:
         challenge = passkeys.take_challenge(db, body.challenge_id, passkeys.PURPOSE_REGISTER, user)
         credential_id, public_key, sign_count, transports = passkeys.verify_registration(
@@ -340,7 +358,10 @@ def register_passkey(
         created_at=clock.now(),
     )
     db.add(passkey)
-    db.commit()
+    if auth.level == LEVEL_MFA_SETUP:
+        _start_session(db, response, user, LEVEL_FULL, settings, user_agent, replaces=auth)
+    else:
+        db.commit()
     return PasskeyOut.from_model(passkey)
 
 
@@ -362,11 +383,13 @@ def passkey_login_options(db: DbSession, settings: AppSettings) -> PasskeyOption
 @router.post("/passkeys/login")
 def login_with_passkey(
     body: PasskeyAssertion,
+    request: Request,
     response: Response,
     db: DbSession,
     settings: AppSettings,
     user_agent: UserAgent = None,
 ) -> LoginResult:
+    """Sign in with a passkey alone, or finish a password sign-in with it (second factor)."""
     try:
         challenge = passkeys.take_challenge(db, body.challenge_id, passkeys.PURPOSE_LOGIN, None)
         credential_id = passkeys.credential_id_of(body.credential)
@@ -390,5 +413,7 @@ def login_with_passkey(
     passkey.sign_count = new_sign_count
     passkey.last_used_at = clock.now()
     lockout.register_success(user)
-    _start_session(db, response, user, LEVEL_FULL, settings, user_agent)
+    # A half-finished password sign-in on this device is replaced by the full session.
+    previous = sessions.load(db, request.cookies.get(settings.session_cookie_name), settings)
+    _start_session(db, response, user, LEVEL_FULL, settings, user_agent, replaces=previous)
     return LoginResult(status="authenticated")

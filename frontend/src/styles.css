@@ -506,3 +506,13 @@ select {
   font-size: 0.9375rem;
   text-align: center;
 }
+
+.small {
+  font-size: 0.875rem;
+}
+
+.notice {
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+}

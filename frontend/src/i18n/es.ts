@@ -31,12 +31,16 @@ export const es = {
     or: 'o',
     passkey: 'Entrar con Face ID o passkey',
     passkeyCancelled: 'Se ha cancelado. Inténtalo de nuevo o entra con tu contraseña.',
-    codeTitle: 'Verificación en dos pasos',
-    codeHelp: 'Escribe el código de 6 cifras que muestra tu app de autenticación.',
+    secondTitle: 'Confirma que eres tú',
+    confirmFaceId: 'Confirmar con Face ID',
+    computerHint:
+      'En un ordenador, el navegador te dejará usar tu iPhone: elige «usar un teléfono» y escanea el código QR que aparece.',
+    codeHelp:
+      'Escribe el código de 6 cifras de tu app de códigos. Si lo guardaste en Contraseñas del iPhone, Safari te lo propone encima del teclado.',
     code: 'Código',
     verify: 'Verificar',
     useRecovery: 'Usar un código de recuperación',
-    useApp: 'Usar el código de la app',
+    back: 'Volver',
     recoveryCode: 'Código de recuperación',
     cancel: 'Cancelar',
     noAccount: '¿No tienes cuenta?',
@@ -54,12 +58,20 @@ export const es = {
   },
   setup: {
     title: 'Protege tu cuenta',
+    chooseIntro:
+      'Tus datos financieros merecen algo más que una contraseña. Elige cómo confirmarás que eres tú cada vez que entres:',
+    faceId: 'Usar Face ID (recomendado)',
+    faceIdHelp:
+      'Un toque y listo: a partir de ahora entrarás solo con Face ID, sin contraseña ni códigos. Se guarda en tu llavero de iCloud, así que también sirve en tus otros dispositivos Apple.',
+    useApp: 'Prefiero una app de códigos',
+    useAppHelp:
+      'Para Android o dispositivos sin Face ID: una app te da un código de 6 cifras que cambia cada 30 segundos.',
     intro:
-      'Además de la contraseña, MiAhorro te pedirá un código que cambia cada 30 segundos. Configúralo una sola vez:',
+      'Una app te dará un código de 6 cifras que cambia cada 30 segundos. Se configura una vez:',
     step1:
-      'Abre tu app de autenticación (Contraseñas de iPhone, Google Authenticator, 1Password…).',
-    step2: 'Escanea este código QR o pulsa «Añadir en este dispositivo».',
-    step3: 'Escribe el código de 6 cifras que aparece.',
+      'En iPhone, pulsa «Añadir en este dispositivo»: se guarda en la app Contraseñas y Safari te propondrá el código solo, sin copiarlo.',
+    step2: 'En otro móvil, abre tu app (Google Authenticator, 1Password…) y escanea el código QR.',
+    step3: 'Escribe aquí el código de 6 cifras que aparece.',
     qrAlt: 'Código QR para la app de autenticación',
     addOnDevice: 'Añadir en este dispositivo',
     manual: 'Clave para añadirla a mano',
@@ -68,9 +80,10 @@ export const es = {
   recoveryCodes: {
     title: 'Códigos de recuperación',
     intro:
-      'Si pierdes el móvil, podrás entrar con uno de estos códigos. Cada uno sirve una sola vez. Guárdalos en tu gestor de contraseñas o en papel.',
-    copy: 'Copiar los códigos',
-    copied: 'Copiados',
+      'Son tu llave de repuesto: si pierdes el móvil, podrás entrar con uno de ellos (cada uno sirve una vez). Pulsa «Guardar» para mandarlos a Notas o a tu gestor de contraseñas.',
+    shareTitle: 'Códigos de recuperación de MiAhorro',
+    save: 'Guardar',
+    saved: 'Guardados',
     done: 'Ya los he guardado',
   },
   more: {
@@ -92,18 +105,32 @@ export const es = {
   },
   security: {
     title: 'Seguridad',
-    passkeys: 'Passkeys (Face ID)',
-    passkeysHelp: 'Entra solo con Face ID, sin contraseña ni código.',
-    noPasskeys: 'Todavía no tienes ninguna passkey.',
-    passkeyName: 'Nombre de la passkey',
-    passkeyDefaultName: 'Mi iPhone',
-    addPasskey: 'Añadir passkey en este dispositivo',
+    passkeys: 'Face ID y passkeys',
+    passkeysHelp:
+      'Entra con un toque, sin contraseña ni códigos. Añade una en cada dispositivo que no comparta tu llavero de iCloud (por ejemplo, un ordenador con Windows).',
+    noPasskeys: 'Todavía no tienes ninguna.',
+    passkeyName: 'Nombre',
+    addPasskey: 'Añadir en este dispositivo',
     removePasskey: 'Quitar {{name}}',
-    confirmRemovePasskey: '¿Quitar la passkey «{{name}}»? Ya no podrás entrar con ella.',
+    confirmRemovePasskey: '¿Quitar «{{name}}»? Ya no podrás entrar con ella.',
+    confirmRemoveLastPasskey:
+      '«{{name}}» es tu única forma de confirmar que eres tú. Si la quitas, la próxima vez que entres con contraseña tendrás que configurar otra. ¿Quitarla?',
     lastUsed: 'Último uso: {{date}}',
     neverUsed: 'Sin usar todavía',
-    totpOn: 'Verificación en dos pasos activada',
-    newRecoveryCodes: 'Generar nuevos códigos de recuperación',
+    totpTitle: 'App de códigos',
+    totpOn: 'Activada.',
+    totpOff:
+      'Opcional. Útil para entrar desde Android o desde un ordenador sin Bluetooth (que no puede usar el iPhone como llave).',
+    enableTotp: 'Activar app de códigos',
+    totpSetupTitle: 'Activar app de códigos',
+    cancel: 'Cancelar',
+    recoveryTitle: 'Códigos de recuperación',
+    recoveryLeft_one: 'Te queda {{count}} código sin usar.',
+    recoveryLeft_other: 'Te quedan {{count}} códigos sin usar.',
+    recoveryNone:
+      'No tienes códigos de recuperación. Si pierdes el acceso a Face ID y a la app de códigos, no podrás entrar por tu cuenta.',
+    createRecoveryCodes: 'Crear códigos de recuperación',
+    newRecoveryCodes: 'Generar nuevos códigos',
     confirmNewRecoveryCodes: 'Los códigos actuales dejarán de servir. ¿Continuar?',
     logout: 'Cerrar sesión',
     logoutEverywhere: 'Cerrar sesión en todos los dispositivos',

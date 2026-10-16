@@ -13,9 +13,13 @@ import {
   type SessionInfo,
   useSession,
 } from '../api/auth'
+import { ErrorMessage } from '../components/ErrorMessage'
 import { PageHeader } from '../components/PageHeader'
 import { RecoveryCodes } from '../components/RecoveryCodes'
 import { ServerStatusLine } from '../components/ServerStatusLine'
+import { TotpSetupForm } from '../components/TotpSetupForm'
+import { deviceName } from '../lib/device'
+import { messageOf } from '../lib/errors'
 import { formatDate } from '../lib/format'
 import { setThemePreference, type ThemePreference } from '../lib/theme'
 
@@ -44,7 +48,7 @@ export function MorePage() {
           </p>
         </section>
         <PreferencesCard session={session} />
-        <SecurityCard />
+        <SecurityCard session={session} />
         {user.is_admin && (
           <a className="card card--link" href="/admin">
             {t('more.admin')}
@@ -156,42 +160,58 @@ function PreferencesCard({ session }: { session: SessionInfo }) {
   )
 }
 
-function SecurityCard() {
+function SecurityCard({ session }: { session: SessionInfo }) {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const { user } = session
   const passkeys = useQuery({ queryKey: PASSKEYS_KEY, queryFn: authApi.listPasskeys })
-  const [name, setName] = useState(t('security.passkeyDefaultName'))
+  const [name, setName] = useState(deviceName)
   const [codes, setCodes] = useState<string[] | null>(null)
+  const [settingUpTotp, setSettingUpTotp] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const refreshPasskeys = () => queryClient.invalidateQueries({ queryKey: PASSKEYS_KEY })
+  const refresh = () =>
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: PASSKEYS_KEY }),
+      queryClient.invalidateQueries({ queryKey: SESSION_KEY }),
+    ])
 
   const addPasskey = async (event: FormEvent) => {
     event.preventDefault()
     setError(null)
     try {
       await authApi.registerPasskey(name.trim())
-      await refreshPasskeys()
+      await refresh()
     } catch (err) {
       if (!isPasskeyCancelled(err)) {
-        setError(err instanceof Error ? err.message : t('errors.generic'))
+        setError(messageOf(err, t('errors.generic')))
       }
     }
   }
 
   const removePasskey = async (id: string, passkeyName: string) => {
-    if (!window.confirm(t('security.confirmRemovePasskey', { name: passkeyName }))) {
+    const isLastFactor = (passkeys.data?.length ?? 0) === 1 && !user.has_totp
+    const question = isLastFactor
+      ? t('security.confirmRemoveLastPasskey', { name: passkeyName })
+      : t('security.confirmRemovePasskey', { name: passkeyName })
+    if (!window.confirm(question)) {
       return
     }
     await authApi.deletePasskey(id)
-    await refreshPasskeys()
+    await refresh()
   }
 
-  const newRecoveryCodes = async () => {
-    if (window.confirm(t('security.confirmNewRecoveryCodes'))) {
-      setCodes(await authApi.regenerateRecoveryCodes())
+  const createRecoveryCodes = async (replacing: boolean) => {
+    if (replacing && !window.confirm(t('security.confirmNewRecoveryCodes'))) {
+      return
     }
+    setCodes(await authApi.regenerateRecoveryCodes())
+  }
+
+  const finishCodes = async () => {
+    setCodes(null)
+    await refresh()
   }
 
   const signOut = async (everywhere: boolean) => {
@@ -206,7 +226,7 @@ function SecurityCard() {
 
       <div className="stack stack--tight">
         <h3>{t('security.passkeys')}</h3>
-        <p className="muted">{t('security.passkeysHelp')}</p>
+        <p className="muted small">{t('security.passkeysHelp')}</p>
         {passkeys.data?.length === 0 && <p>{t('security.noPasskeys')}</p>}
         <ul className="list">
           {passkeys.data?.map((passkey) => (
@@ -249,25 +269,72 @@ function SecurityCard() {
             </button>
           </form>
         )}
-        {error && (
-          <p className="alert" role="alert">
-            {error}
-          </p>
+        <ErrorMessage message={error} />
+      </div>
+
+      <div className="stack stack--tight">
+        <h3>{t('security.totpTitle')}</h3>
+        {user.has_totp && <p className="muted small">{t('security.totpOn')}</p>}
+        {!user.has_totp && !settingUpTotp && (
+          <>
+            <p className="muted small">{t('security.totpOff')}</p>
+            <button
+              type="button"
+              className="button button--secondary"
+              onClick={() => setSettingUpTotp(true)}
+            >
+              {t('security.enableTotp')}
+            </button>
+          </>
+        )}
+        {!user.has_totp && settingUpTotp && !codes && (
+          <TotpSetupForm
+            title={t('security.totpSetupTitle')}
+            onConfirmed={(newCodes) => {
+              setSettingUpTotp(false)
+              setCodes(newCodes)
+            }}
+            footer={
+              <button
+                type="button"
+                className="button button--ghost"
+                onClick={() => setSettingUpTotp(false)}
+              >
+                {t('security.cancel')}
+              </button>
+            }
+          />
         )}
       </div>
 
       <div className="stack stack--tight">
-        <h3>{t('security.totpOn')}</h3>
+        <h3>{t('security.recoveryTitle')}</h3>
         {codes ? (
-          <RecoveryCodes codes={codes} onDone={() => setCodes(null)} />
+          <RecoveryCodes codes={codes} onDone={() => void finishCodes()} />
+        ) : user.recovery_codes_left > 0 ? (
+          <>
+            <p className="muted small">
+              {t('security.recoveryLeft', { count: user.recovery_codes_left })}
+            </p>
+            <button
+              type="button"
+              className="button button--secondary"
+              onClick={() => void createRecoveryCodes(true)}
+            >
+              {t('security.newRecoveryCodes')}
+            </button>
+          </>
         ) : (
-          <button
-            type="button"
-            className="button button--secondary"
-            onClick={() => void newRecoveryCodes()}
-          >
-            {t('security.newRecoveryCodes')}
-          </button>
+          <>
+            <p className="notice small">{t('security.recoveryNone')}</p>
+            <button
+              type="button"
+              className="button button--secondary"
+              onClick={() => void createRecoveryCodes(false)}
+            >
+              {t('security.createRecoveryCodes')}
+            </button>
+          </>
         )}
       </div>
 

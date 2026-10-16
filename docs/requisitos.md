@@ -254,7 +254,7 @@ Orientativo: no sustituye a un asesor fiscal.
 
 | ID | Requisito | Prioridad |
 |---|---|---|
-| RF-USR-01 | Inicio de sesión con passkey (Face ID) y/o contraseña con segundo factor. | MVP |
+| RF-USR-01 | Inicio de sesión con passkey (Face ID) y/o contraseña con segundo factor. La passkey es el método principal: sirve sola y también como segundo factor tras la contraseña. La app de códigos (TOTP) es la alternativa para dispositivos sin passkeys. Los códigos de recuperación son obligatorios con TOTP y opcionales con passkey. | MVP |
 | RF-USR-02 | Bloqueo por inactividad y modo "ocultar importes" para usar la app en público. | F2 |
 | RF-USR-03 | Hogares compartidos: invitar a otra persona (pareja, familia) a un espacio común con permisos por cuenta. | F2 |
 | RF-USR-04 | Preferencias: divisa principal, día de inicio del mes financiero (p. ej. el día que cobro la nómina), idioma y tema claro/oscuro. | MVP |
@@ -422,6 +422,7 @@ Todo lo que depende de IA: lectura de tickets y PDF, preguntas en lenguaje natur
 | D20 | Sin open banking, ni siquiera para tus cuentas, para que tu uso sea igual que el de tus familiares. (P19) | 14/10/2026 |
 | D21 | Alcance del MVP aprobado tal como está en §7. (P20) | 14/10/2026 |
 | D22 | Registro abierto en lugar de invitaciones, para poder pasar la app a amigos sin gestionar altas. Sustituye a la parte de D8 que limitaba el alta a invitaciones. El primer usuario es el administrador; hay tope de usuarios e interruptor para cerrar el registro. Consecuencia: puede haber usuarios fuera de la familia, así que el texto de privacidad (RF-PLT-06) gana importancia. | 16/10/2026 |
+| D23 | Face ID primero: en el alta se ofrece crear una passkey (un toque) y, como alternativa, la app de códigos. Tras una contraseña, la passkey vale como segundo factor. Con passkey, los códigos de recuperación pasan a ser opcionales. Si alguien pierde el acceso sin códigos, el administrador lo resuelve con `reset-mfa`. | 16/10/2026 |
 
 ### 9.2 Preguntas abiertas
 
@@ -496,4 +497,4 @@ Con este volumen, PostgreSQL, la API y Caddy juntos deberían quedarse por debaj
 | 0.3 | 14/10/2026 | Decisiones D8–D16: tú y 2–3 familiares, VPS netcup, coste cero, sin IA, sin histórico, sin autónomo. Hitos Beta/Público sustituidos por Familia/Futuro; PLT y RGPD simplificados; plantillas de Bankinter y Cajamar en el MVP; propuesta técnica (§10). |
 | 0.4 | 14/10/2026 | D17: backend con FastAPI en lugar de Django. §10 rehecho: autenticación propia (pwdlib, pyotp, webauthn), SQLAdmin, SQLAlchemy 2 + Alembic, cálculos financieros en un único paquete Python y cliente React generado desde OpenAPI. |
 | 1.0 | 14/10/2026 | Definición cerrada. D18–D21: subdominio `miahorro.octogas.es` en la VPS compartida con octogas.es (RNF-18), familia mixta iPhone/Android (RF-MOV-17), sin open banking, MVP aprobado. |
-| 1.1 | 16/10/2026 | D22: registro abierto con salvaguardas (RF-PLT-03 pasa al MVP; RF-PLT-10 actualizado). |
+| 1.1 | 16/10/2026 | D22: registro abierto con salvaguardas (RF-PLT-03 pasa al MVP; RF-PLT-10 actualizado). D23: Face ID como método principal (RF-USR-01). |

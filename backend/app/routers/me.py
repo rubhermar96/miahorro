@@ -7,8 +7,8 @@ router = APIRouter(prefix="/api/me", tags=["me"])
 
 
 @router.get("")
-def read_me(user: CurrentUser) -> UserOut:
-    return UserOut.from_user(user)
+def read_me(user: CurrentUser, db: DbSession) -> UserOut:
+    return UserOut.from_user(db, user)
 
 
 @router.patch("/preferences")
@@ -16,4 +16,4 @@ def update_preferences(body: PreferencesUpdate, user: CurrentUser, db: DbSession
     for field, value in body.model_dump(exclude_none=True).items():
         setattr(user, field, value)
     db.commit()
-    return UserOut.from_user(user)
+    return UserOut.from_user(db, user)

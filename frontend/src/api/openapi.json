@@ -439,16 +439,35 @@
           "auth"
         ],
         "summary": "Register Passkey",
+        "description": "Add a passkey. During the first setup it is the second factor and completes sign-in.",
         "operationId": "register_passkey_api_auth_passkeys_register_post",
+        "parameters": [
+          {
+            "name": "user-agent",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "User-Agent"
+            }
+          }
+        ],
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/PasskeyRegistration"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "201": {
@@ -537,6 +556,7 @@
           "auth"
         ],
         "summary": "Login With Passkey",
+        "description": "Sign in with a passkey alone, or finish a password sign-in with it (second factor).",
         "operationId": "login_with_passkey_api_auth_passkeys_login_post",
         "parameters": [
           {
@@ -1117,6 +1137,14 @@
             "type": "boolean",
             "title": "Has Totp"
           },
+          "has_passkey": {
+            "type": "boolean",
+            "title": "Has Passkey"
+          },
+          "recovery_codes_left": {
+            "type": "integer",
+            "title": "Recovery Codes Left"
+          },
           "preferences": {
             "$ref": "#/components/schemas/Preferences"
           }
@@ -1128,6 +1156,8 @@
           "display_name",
           "is_admin",
           "has_totp",
+          "has_passkey",
+          "recovery_codes_left",
           "preferences"
         ],
         "title": "UserOut"

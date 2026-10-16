@@ -3,7 +3,13 @@ import { vi } from 'vitest'
 type Reply = { status: number; body?: unknown }
 type Handler = Reply | ((request: Request, body: unknown) => Reply)
 
-export type ApiCall = { method: string; path: string; body: unknown; headers: Headers }
+export type ApiCall = {
+  method: string
+  path: string
+  query: URLSearchParams
+  body: unknown
+  headers: Headers
+}
 
 /**
  * Replace fetch with a fake API keyed by "METHOD /path". Unknown routes answer 404.
@@ -14,10 +20,17 @@ export function mockApi(initial: Record<string, Handler> = {}) {
   const calls: ApiCall[] = []
 
   const fetchMock = vi.fn(async (request: Request) => {
-    const path = new URL(request.url).pathname
+    const url = new URL(request.url)
+    const path = url.pathname
     const text = request.method === 'GET' ? '' : await request.clone().text()
     const body: unknown = text ? JSON.parse(text) : undefined
-    calls.push({ method: request.method, path, body, headers: request.headers })
+    calls.push({
+      method: request.method,
+      path,
+      query: url.searchParams,
+      body,
+      headers: request.headers,
+    })
 
     const handler = routes.get(`${request.method} ${path}`)
     const reply: Reply =

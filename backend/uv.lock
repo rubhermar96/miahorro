@@ -925,6 +925,7 @@ dependencies = [
     { name = "sqladmin" },
     { name = "sqlalchemy" },
     { name = "typer" },
+    { name = "tzdata" },
     { name = "uvicorn", extra = ["standard"] },
     { name = "webauthn" },
 ]
@@ -955,6 +956,7 @@ requires-dist = [
     { name = "sqladmin", specifier = ">=0.32.0" },
     { name = "sqlalchemy", specifier = ">=2" },
     { name = "typer", specifier = ">=0.27.3" },
+    { name = "tzdata", specifier = ">=2026.5" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.54.0" },
     { name = "webauthn", specifier = ">=3.0.1" },
 ]

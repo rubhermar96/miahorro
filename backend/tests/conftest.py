@@ -132,3 +132,25 @@ def fake_clock(monkeypatch: pytest.MonkeyPatch) -> FakeClock:
     fake = FakeClock(datetime(2026, 10, 15, 10, 0, tzinfo=UTC))
     monkeypatch.setattr(clock, "now", fake.now)
     return fake
+
+
+def _signed_in(app: FastAPI, email: str) -> Iterator[TestClient]:
+    from tests.helpers import create_user, sign_in
+
+    _, secret = create_user(app, email, with_totp=True)
+    assert secret
+    with new_client(app) as client:
+        sign_in(client, email, secret)
+        yield client
+
+
+@pytest.fixture
+def ana(app: FastAPI, fake_clock: FakeClock) -> Iterator[TestClient]:
+    """Ana, signed in. Today is 15/10/2026 (fake clock)."""
+    yield from _signed_in(app, "ana@example.com")
+
+
+@pytest.fixture
+def bea(app: FastAPI, fake_clock: FakeClock) -> Iterator[TestClient]:
+    """Another user, to check that nobody sees anyone else's data."""
+    yield from _signed_in(app, "bea@example.com")

@@ -57,7 +57,8 @@ export const es = {
     ibanHelp: 'Solo para distinguir cuentas; no se guarda el IBAN completo.',
     currency: 'Divisa',
     openingBalance: 'Saldo',
-    openingBalanceHelp: 'El saldo que tiene en la fecha de abajo. Normalmente, el de hoy.',
+    openingBalanceHelp:
+      'El saldo que tenía al empezar el día de abajo; normalmente, el de hoy. Los movimientos anteriores que importes ya están dentro y no lo cambian.',
     openingDate: 'Fecha del saldo',
     joint: 'Cuenta compartida con otra persona',
     maturityDate: 'Vencimiento',
@@ -314,7 +315,7 @@ export const es = {
     appBalance: 'Saldo en MiAhorro ese día, tras importar',
     balanceOk: 'Cuadra con el banco.',
     balanceOff:
-      'No cuadra. Puede faltar algún movimiento anterior o el saldo inicial de la cuenta no es el correcto. Puedes cuadrarla desde la cuenta después de importar.',
+      'No cuadra. Puede que falten movimientos entre ese día y la fecha del saldo de la cuenta, o que ese saldo no sea el correcto. Puedes cuadrarla desde la cuenta después de importar.',
     saveTemplate: 'Guardar estas columnas como plantilla',
     saveTemplateHelp:
       'La podrán usar las demás personas de MiAhorro con el mismo banco. Solo guarda los nombres de las columnas, nunca tus movimientos.',

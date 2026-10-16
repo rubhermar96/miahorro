@@ -424,6 +424,7 @@ Todo lo que depende de IA: lectura de tickets y PDF, preguntas en lenguaje natur
 | D22 | Registro abierto en lugar de invitaciones, para poder pasar la app a amigos sin gestionar altas. Sustituye a la parte de D8 que limitaba el alta a invitaciones. El primer usuario es el administrador; hay tope de usuarios e interruptor para cerrar el registro. Consecuencia: puede haber usuarios fuera de la familia, así que el texto de privacidad (RF-PLT-06) gana importancia. | 16/10/2026 |
 | D23 | Face ID primero: en el alta se ofrece crear una passkey (un toque) y, como alternativa, la app de códigos. Tras una contraseña, la passkey vale como segundo factor. Con passkey, los códigos de recuperación pasan a ser opcionales. Si alguien pierde el acceso sin códigos, el administrador lo resuelve con `reset-mfa`. | 16/10/2026 |
 | D24 | Se adelanta la importación de extractos PDF (RF-IMP-03) para Bankinter y Cajamar, porque es el formato que se consigue con facilidad. Cada banco tiene su propio lector, sin IA: solo PDF digitales (no escaneados), y solo se acepta el extracto si cada saldo cuadra con el anterior más el importe; si no, no se importa nada. El signo de cada importe sale del cambio de saldo. | 16/10/2026 |
+| D25 | El saldo inicial de una cuenta es un ancla: lo que había al empezar su fecha. Los movimientos desde esa fecha mueven el saldo; los anteriores (historial importado) ya están dentro y solo sirven para conocer saldos pasados, que se calculan hacia atrás. Así se puede crear la cuenta con el saldo de hoy e importar meses anteriores sin descuadrarla. | 16/10/2026 |
 
 ### 9.2 Preguntas abiertas
 
@@ -499,4 +500,4 @@ Con este volumen, PostgreSQL, la API y Caddy juntos deberían quedarse por debaj
 | 0.4 | 14/10/2026 | D17: backend con FastAPI en lugar de Django. §10 rehecho: autenticación propia (pwdlib, pyotp, webauthn), SQLAdmin, SQLAlchemy 2 + Alembic, cálculos financieros en un único paquete Python y cliente React generado desde OpenAPI. |
 | 1.0 | 14/10/2026 | Definición cerrada. D18–D21: subdominio `miahorro.octogas.es` en la VPS compartida con octogas.es (RNF-18), familia mixta iPhone/Android (RF-MOV-17), sin open banking, MVP aprobado. |
 | 1.1 | 16/10/2026 | D22: registro abierto con salvaguardas (RF-PLT-03 pasa al MVP; RF-PLT-10 actualizado). D23: Face ID como método principal (RF-USR-01). |
-| 1.2 | 16/10/2026 | D24: extractos PDF de Bankinter y Cajamar en el MVP (RF-IMP-03), con comprobación de saldos. |
+| 1.2 | 16/10/2026 | D24: extractos PDF de Bankinter y Cajamar en el MVP (RF-IMP-03), con comprobación de saldos. D25: el saldo inicial es un ancla en su fecha. |

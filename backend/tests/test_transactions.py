@@ -300,3 +300,11 @@ def test_nobody_reaches_another_users_transactions(
     )
     assert response.status_code == 404
     assert ana.get(url).json()["amount"] == "-9.99"
+
+
+def test_movements_before_the_opening_date_do_not_change_the_balance(ana: TestClient) -> None:
+    account = str(new_account(ana, opening_date="2026-10-10", opening_balance="100")["id"])
+    add(ana, account, "expense", "30", date="2026-10-09")  # already inside the 100
+    add(ana, account, "expense", "5", date="2026-10-10")  # from the opening date on, it counts
+
+    assert balance(ana, account) == "95.00"

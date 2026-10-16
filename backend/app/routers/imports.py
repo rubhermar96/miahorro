@@ -15,6 +15,7 @@ from pydantic import BaseModel, Field, ValidationError
 from sqlalchemy import delete, func, select
 from sqlalchemy.exc import IntegrityError
 
+from app import ledger
 from app.auth.deps import CurrentUser, DbSession
 from app.importing import ClassifiedRow, classify, save_import
 from app.models.accounts import Account
@@ -200,16 +201,8 @@ def _template_for(
 def _balance_then(
     db: DbSession, account: Account, on: dt.date, rows: list[ClassifiedRow]
 ) -> Decimal:
-    stored = db.scalar(
-        select(func.coalesce(func.sum(Transaction.amount), 0)).where(
-            Transaction.account_id == account.id, Transaction.date <= on
-        )
-    )
-    added = sum(
-        (item.row.amount for item in rows if item.status == "new" and item.row.date <= on),
-        Decimal(0),
-    )
-    return account.opening_balance + Decimal(stored or 0) + added
+    new = [(item.row.date, item.row.amount) for item in rows if item.status == "new"]
+    return ledger.balance_on(db, account, on, extra=new)
 
 
 @router.post("/imports/preview")

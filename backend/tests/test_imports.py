@@ -325,3 +325,35 @@ def test_a_pdf_whose_balances_do_not_add_up_is_refused(ana: TestClient, account:
 
     assert response.status_code == 422
     assert "no cuadran" in response.json()["error"]["message"]
+
+
+def test_history_before_the_opening_date_keeps_todays_balance(ana: TestClient) -> None:
+    """The account was created with today's balance; older movements are already in it."""
+    today = str(new_account(ana, opening_date="2026-10-15", opening_balance="2298")["id"])
+    content = (
+        b"Fecha;Concepto;Importe;Saldo\n"
+        b"30/09/2026;RECIBO VISA;-880,30;793,71\n"
+        b"01/09/2026;NOMINA;1.566,67;2.805,71\n"
+    )
+
+    shown = preview(ana, today, content)
+    do_import(ana, today, content)
+
+    # Before the anchor, the balance is worked out backwards from it: nothing was imported
+    # between 30/09 and today, so MiAhorro says 2.298 where the bank said 793,71 (October is
+    # missing).
+    assert (shown["bank_balance"], shown["balance_then"]) == ("793.71", "2298.00")
+    assert balance(ana, today) == "2298.00"
+    listed = {a["id"]: a["balance"] for a in ana.get("/api/accounts").json()}
+    assert listed[today] == "2298.00"
+
+
+def test_balance_before_the_anchor_matches_the_bank_when_nothing_is_missing(
+    ana: TestClient,
+) -> None:
+    account = str(new_account(ana, opening_date="2026-10-01", opening_balance="793.71")["id"])
+    content = b"Fecha;Concepto;Importe;Saldo\n30/09/2026;RECIBO VISA;-880,30;793,71\n"
+
+    shown = preview(ana, account, content)
+
+    assert (shown["bank_balance"], shown["balance_then"]) == ("793.71", "793.71")

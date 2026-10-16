@@ -12,15 +12,15 @@ from typing import Annotated, Literal
 
 from fastapi import APIRouter, File, Form, HTTPException, Response, UploadFile, status
 from pydantic import BaseModel, Field, ValidationError
-from sqlalchemy import delete, func, select
+from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 
 from app import ledger
 from app.auth.deps import CurrentUser, DbSession
-from app.importing import ClassifiedRow, classify, save_import
+from app.importing import DECISIONS, ClassifiedRow, Decision, classify, save_import
+from app.importing import undo_import as undo_batch
 from app.models.accounts import Account
 from app.models.imports import ImportBatch, ImportTemplate
-from app.models.transactions import Transaction
 from app.models.user import User
 from app.ownership import get_owned_or_404, owned
 from app.routers.money_types import Money
@@ -118,7 +118,8 @@ def delete_template(template_id: uuid.UUID, user: CurrentUser, db: DbSession) ->
 
 # --- Preview ----------------------------------------------------------------------------------
 
-RowStatus = Literal["new", "duplicate", "possible_duplicate"]
+RowStatus = Literal["new", "duplicate", "match", "transfer"]
+RowDecision = Literal["import", "merge", "transfer", "skip"]
 
 
 class PreviewRow(BaseModel):
@@ -127,9 +128,16 @@ class PreviewRow(BaseModel):
     description: str
     amount: Money
     balance: Money | None
-    status: RowStatus
-    category_id: uuid.UUID | None = Field(description="Category the rules give it")
-    match_id: uuid.UUID | None = Field(description="Movement it may repeat (possible_duplicate)")
+    status: RowStatus = Field(
+        description="new · duplicate (already imported) · match (the same as a movement "
+        "recorded another way) · transfer (to or from another own account)"
+    )
+    decisions: list[RowDecision] = Field(description="What can be done; the first is the default")
+    category_id: uuid.UUID | None = Field(description="Category it will get")
+    match_id: uuid.UUID | None = Field(
+        description="match: movement to merge with · transfer: its other side, if recorded"
+    )
+    transfer_account_id: uuid.UUID | None = Field(description="transfer: the other account")
 
 
 class SkippedRowOut(BaseModel):
@@ -201,7 +209,8 @@ def _template_for(
 def _balance_then(
     db: DbSession, account: Account, on: dt.date, rows: list[ClassifiedRow]
 ) -> Decimal:
-    new = [(item.row.date, item.row.amount) for item in rows if item.status == "new"]
+    # Merged rows are already in the account; new rows and transfers add a movement.
+    new = [(item.row.date, item.row.amount) for item in rows if item.status in ("new", "transfer")]
     return ledger.balance_on(db, account, on, extra=new)
 
 
@@ -290,8 +299,10 @@ def _fill(
             amount=item.row.amount,
             balance=item.row.balance,
             status=item.status,
+            decisions=list(DECISIONS[item.status]),
             category_id=item.category_id,
             match_id=item.match_id,
+            transfer_account_id=item.transfer_account_id,
         )
         for item in classified
     ]
@@ -315,7 +326,8 @@ class ImportOut(BaseModel):
     account_id: uuid.UUID
     filename: str
     template_name: str | None
-    imported: int
+    imported: int = Field(description="Movements created")
+    merged: int = Field(description="Rows merged into movements already recorded")
     skipped: int
     date_from: dt.date | None
     date_to: dt.date | None
@@ -329,6 +341,7 @@ class ImportOut(BaseModel):
             filename=batch.filename,
             template_name=batch.template_name,
             imported=batch.imported,
+            merged=batch.merged,
             skipped=batch.skipped,
             date_from=batch.date_from,
             date_to=batch.date_to,
@@ -336,16 +349,38 @@ class ImportOut(BaseModel):
         )
 
 
-def _row_numbers(raw: str) -> set[int]:
+def _decisions(raw: str) -> dict[int, str]:
+    """{"row number": "import" | "merge" | "transfer" | "skip"}."""
     try:
-        numbers = json.loads(raw)
+        decisions = json.loads(raw)
     except json.JSONDecodeError:
-        numbers = None
-    if not isinstance(numbers, list) or not all(type(n) is int for n in numbers):
+        decisions = None
+    if not isinstance(decisions, dict) or not all(
+        key.isdigit() and isinstance(value, str) for key, value in decisions.items()
+    ):
         raise HTTPException(
-            status.HTTP_422_UNPROCESSABLE_CONTENT, "Indica qué filas importar (lista de números)."
+            status.HTTP_422_UNPROCESSABLE_CONTENT,
+            "Indica qué hacer con cada fila ({número: decisión}).",
         )
-    return set(numbers)
+    return {int(key): value for key, value in decisions.items()}
+
+
+def _decided(
+    classified: list[ClassifiedRow], wanted: dict[int, str]
+) -> list[tuple[ClassifiedRow, Decision]]:
+    """Each row with its decision; rows not mentioned are skipped."""
+    result: list[tuple[ClassifiedRow, Decision]] = []
+    for item in classified:
+        decision = wanted.get(item.row.number, "skip")
+        allowed = DECISIONS[item.status]
+        if decision not in allowed:
+            raise HTTPException(
+                status.HTTP_409_CONFLICT,
+                f"La fila {item.row.number} ha cambiado desde la vista previa. Vuelve a cargar el "
+                "fichero.",
+            )
+        result.append((item, next(d for d in allowed if d == decision)))
+    return result
 
 
 @router.post("/imports", status_code=status.HTTP_201_CREATED)
@@ -354,7 +389,9 @@ async def create_import(
     db: DbSession,
     file: Annotated[UploadFile, File()],
     account_id: Annotated[uuid.UUID, Form()],
-    rows: Annotated[str, Form(description="JSON list of the row numbers to import")],
+    decisions: Annotated[
+        str, Form(description='JSON {"row number": "import"|"merge"|"transfer"|"skip"}')
+    ],
     mapping: Annotated[
         str | None, Form(description="Mapping as JSON, as the preview returned it (not for PDF)")
     ] = None,
@@ -365,7 +402,7 @@ async def create_import(
 ) -> ImportOut:
     account = usable_account(db, account_id, user)
     table = await _read_upload(file)
-    wanted = _row_numbers(rows)
+    wanted = _decisions(decisions)
     chosen = None
     if isinstance(table, PdfStatement):
         extraction = Extraction(columns=[], header_row=0, mapping=None, rows=table.rows)
@@ -381,8 +418,8 @@ async def create_import(
         except StatementError as exc:
             raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, str(exc)) from exc
     classified = classify(db, account, extraction.rows, load_rulebook(db, user))
-    selected = [item for item in classified if item.row.number in wanted]
-    if not selected:
+    decided = _decided(classified, wanted)
+    if all(decision == "skip" for _, decision in decided):
         raise HTTPException(
             status.HTTP_422_UNPROCESSABLE_CONTENT, "No has elegido ningún movimiento."
         )
@@ -396,10 +433,9 @@ async def create_import(
         db,
         user,
         account,
-        selected,
+        decided,
         filename=file.filename or "extracto",
         template_name=template_name,
-        skipped=len(classified) - len(selected),
         newest_first=extraction.newest_first,
     )
     db.commit()
@@ -418,11 +454,8 @@ def list_imports(
 
 @router.delete("/imports/{import_id}", status_code=status.HTTP_204_NO_CONTENT)
 def undo_import(import_id: uuid.UUID, user: CurrentUser, db: DbSession) -> Response:
-    """Delete every movement the import created, even those edited since."""
-    batch = get_owned_or_404(db, ImportBatch, import_id, user)
-    db.execute(
-        delete(Transaction).where(Transaction.import_id == batch.id, Transaction.user_id == user.id)
-    )
-    db.delete(batch)
+    """Delete every movement the import created, even those edited since, and put back the
+    ones it merged or turned into transfers."""
+    undo_batch(db, user, get_owned_or_404(db, ImportBatch, import_id, user))
     db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)

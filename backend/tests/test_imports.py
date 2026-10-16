@@ -38,17 +38,18 @@ def do_import(
     **form: str,
 ) -> Any:
     shown = preview(client, account, content)
-    chosen = (
-        rows
+    # By default, what the preview proposes for each row; with rows, import just those.
+    decisions = (
+        {str(number): "import" for number in rows}
         if rows is not None
-        else [row["number"] for row in shown["rows"] if row["status"] == "new"]
+        else {str(row["number"]): row["decisions"][0] for row in shown["rows"]}
     )
     response = client.post(
         "/api/imports",
         data={
             "account_id": account,
             "mapping": json.dumps(shown["mapping"]),
-            "rows": json.dumps(chosen),
+            "decisions": json.dumps(decisions),
             **form,
         },
         files={"file": ("extracto.csv", content, CSV)},
@@ -128,14 +129,33 @@ def test_the_same_purchase_twice_in_a_day_is_not_a_duplicate(ana: TestClient, ac
     assert [r["status"] for r in shown["rows"]] == ["duplicate", "new"]
 
 
-def test_flags_movements_already_entered_by_hand(ana: TestClient, account: str) -> None:
-    add(ana, account, "expense", "45.20", date="2026-10-13", description="Mercadona")
+def test_a_movement_entered_by_hand_is_merged_not_repeated(ana: TestClient, account: str) -> None:
+    by_hand = add(
+        ana,
+        account,
+        "expense",
+        "45.20",
+        date="2026-10-13",
+        description="Mercadona",
+        category_id=category_id(ana, "Supermercado"),
+    )
 
     shown = preview(ana, account, SEMICOLON_CSV)
-
     first = shown["rows"][0]
-    assert (first["status"], first["match_id"] is not None) == ("possible_duplicate", True)
-    assert shown["rows"][1]["status"] == "new"
+    assert (first["status"], first["match_id"], first["decisions"]) == (
+        "match",
+        by_hand["id"],
+        ["merge", "import", "skip"],
+    )
+    batch = do_import(ana, account, SEMICOLON_CSV)
+
+    assert (batch["imported"], batch["merged"]) == (1, 1)
+    # Kept as entered (concept, category), now confirmed by the bank.
+    assert movements(ana, account) == [
+        ("2026-10-14", "NÓMINA OCTUBRE", "2000.00", None),
+        ("2026-10-13", "Mercadona", "-45.20", by_hand["category_id"]),
+    ]
+    assert {r["status"] for r in preview(ana, account, SEMICOLON_CSV)["rows"]} == {"duplicate"}
 
 
 def test_a_hand_mapping_for_unknown_columns(ana: TestClient, account: str) -> None:
@@ -259,7 +279,11 @@ def test_nothing_chosen_nothing_imported(ana: TestClient, account: str) -> None:
     shown = preview(ana, account, SEMICOLON_CSV)
     response = ana.post(
         "/api/imports",
-        data={"account_id": account, "mapping": json.dumps(shown["mapping"]), "rows": "[]"},
+        data={
+            "account_id": account,
+            "mapping": json.dumps(shown["mapping"]),
+            "decisions": json.dumps({"5": "skip"}),
+        },
         files={"file": ("e.csv", SEMICOLON_CSV, CSV)},
     )
 
@@ -308,8 +332,8 @@ def test_bankinter_pdf_statement(ana: TestClient, account: str) -> None:
     ]
     assert (shown["bank_balance"], shown["bank_balance_date"]) == ("2000.00", "2026-09-30")
 
-    numbers = json.dumps([r["number"] for r in shown["rows"]])
-    batch = send("/api/imports", rows=numbers).json()
+    decisions = json.dumps({str(r["number"]): "import" for r in shown["rows"]})
+    batch = send("/api/imports", decisions=decisions).json()
 
     assert (batch["imported"], batch["template_name"]) == (6, "Bankinter (extracto PDF)")
     # Imported again, nothing is new.
@@ -357,3 +381,79 @@ def test_balance_before_the_anchor_matches_the_bank_when_nothing_is_missing(
     shown = preview(ana, account, content)
 
     assert (shown["bank_balance"], shown["balance_then"]) == ("793.71", "793.71")
+
+
+def test_a_decision_the_row_does_not_allow_is_refused(ana: TestClient, account: str) -> None:
+    shown = preview(ana, account, SEMICOLON_CSV)
+    response = ana.post(
+        "/api/imports",
+        data={
+            "account_id": account,
+            "mapping": json.dumps(shown["mapping"]),
+            "decisions": json.dumps({"5": "merge"}),  # a new row has nothing to merge with
+        },
+        files={"file": ("e.csv", SEMICOLON_CSV, CSV)},
+    )
+
+    assert response.status_code == 409
+
+
+def test_undo_puts_back_a_merged_movement(ana: TestClient, account: str) -> None:
+    add(ana, account, "expense", "45.20", date="2026-10-13", description="Mercadona")
+    batch = do_import(ana, account, SEMICOLON_CSV)
+
+    ana.delete(f"/api/imports/{batch['id']}").raise_for_status()
+
+    assert movements(ana, account) == [("2026-10-13", "Mercadona", "-45.20", None)]
+    assert preview(ana, account, SEMICOLON_CSV)["rows"][0]["status"] == "match"
+
+
+def test_the_other_side_of_a_transfer_is_recognised(ana: TestClient, account: str) -> None:
+    savings = str(new_account(ana, name="Ahorro", opening_date="2026-10-01")["id"])
+    add(ana, savings, "income", "45.20", date="2026-10-14", description="Desde la nómina")
+
+    shown = preview(ana, account, SEMICOLON_CSV)
+    first = shown["rows"][0]
+    assert (first["status"], first["transfer_account_id"]) == ("transfer", savings)
+
+    batch = do_import(ana, account, SEMICOLON_CSV)
+    rows = ana.get("/api/transactions").json()["items"]
+    legs = [r for r in rows if r["kind"] == "transfer"]
+    assert {(r["account_id"], r["amount"]) for r in legs} == {
+        (account, "-45.20"),
+        (savings, "45.20"),
+    }
+    assert legs[0]["transfer_id"] == legs[1]["transfer_id"]
+
+    # Undo: the savings movement is a plain income again.
+    ana.delete(f"/api/imports/{batch['id']}").raise_for_status()
+    rows = ana.get("/api/transactions").json()["items"]
+    assert [(r["account_id"], r["kind"], r["transfer_id"]) for r in rows] == [
+        (savings, "income", None)
+    ]
+
+
+def test_a_rule_turns_the_card_bill_into_a_transfer(ana: TestClient, account: str) -> None:
+    card = str(new_account(ana, name="Visa", kind="credit_card", opening_date="2026-10-01")["id"])
+    ana.post(
+        "/api/rules", json={"match_text": "mercadona", "transfer_account_id": card}
+    ).raise_for_status()
+
+    shown = preview(ana, account, SEMICOLON_CSV)
+    assert (shown["rows"][0]["status"], shown["rows"][0]["transfer_account_id"]) == (
+        "transfer",
+        card,
+    )
+    do_import(ana, account, SEMICOLON_CSV)
+
+    # The card account gets the other leg: its debt goes down by what the bank paid.
+    card_rows = ana.get("/api/transactions", params={"account_id": card}).json()["items"]
+    assert [(r["kind"], r["amount"], r["description"]) for r in card_rows] == [
+        ("transfer", "45.20", f"Transferencia desde {_name(ana, account)}")
+    ]
+    # Not an expense: the purchases were already counted in the card.
+    assert ana.get("/api/transactions", params={"kind": "expense"}).json()["total"] == 0
+
+
+def _name(client: TestClient, account_id: str) -> str:
+    return str(client.get(f"/api/accounts/{account_id}").json()["name"])

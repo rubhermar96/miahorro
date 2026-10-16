@@ -1609,6 +1609,50 @@
         }
       }
     },
+    "/api/transactions/{transaction_id}/confirm": {
+      "post": {
+        "tags": [
+          "transactions"
+        ],
+        "summary": "Confirm Transaction",
+        "description": "Keep a captured payment that no statement has confirmed (paid in cash back, a bank\nwhose statements are not imported...).",
+        "operationId": "confirm_transaction_api_transactions__transaction_id__confirm_post",
+        "parameters": [
+          {
+            "name": "transaction_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Transaction Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/transactions/bulk": {
       "post": {
         "tags": [
@@ -1966,7 +2010,7 @@
           "imports"
         ],
         "summary": "Undo Import",
-        "description": "Delete every movement the import created, even those edited since.",
+        "description": "Delete every movement the import created, even those edited since, and put back the\nones it merged or turned into transfers.",
         "operationId": "undo_import_api_imports__import_id__delete",
         "parameters": [
           {
@@ -2229,6 +2273,469 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/capture/tokens": {
+      "get": {
+        "tags": [
+          "capture"
+        ],
+        "summary": "List Tokens",
+        "operationId": "list_tokens_api_capture_tokens_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TokenOut"
+                  },
+                  "type": "array",
+                  "title": "Response List Tokens Api Capture Tokens Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "capture"
+        ],
+        "summary": "Create Token",
+        "operationId": "create_token_api_capture_tokens_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TokenIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NewToken"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/capture/tokens/{token_id}": {
+      "delete": {
+        "tags": [
+          "capture"
+        ],
+        "summary": "Revoke Token",
+        "description": "The Shortcut using it stops working at once.",
+        "operationId": "revoke_token_api_capture_tokens__token_id__delete",
+        "parameters": [
+          {
+            "name": "token_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Token Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/capture/cards": {
+      "get": {
+        "tags": [
+          "capture"
+        ],
+        "summary": "List Cards",
+        "description": "Cards seen in captured payments and the account each one goes to.",
+        "operationId": "list_cards_api_capture_cards_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CardOut"
+                  },
+                  "type": "array",
+                  "title": "Response List Cards Api Capture Cards Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/capture/cards/{card_id}": {
+      "patch": {
+        "tags": [
+          "capture"
+        ],
+        "summary": "Update Card",
+        "operationId": "update_card_api_capture_cards__card_id__patch",
+        "parameters": [
+          {
+            "name": "card_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Card Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CardUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CardOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/capture/payments": {
+      "post": {
+        "tags": [
+          "capture"
+        ],
+        "summary": "Capture Payment",
+        "description": "Record a card payment as it happens. It stays pending until a statement confirms it.\n\nAuthenticated by `Authorization: Bearer <token>` (checked before reading the payment).",
+        "operationId": "capture_payment_api_capture_payments_post",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Payment"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Captured"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/recurring": {
+      "get": {
+        "tags": [
+          "recurring"
+        ],
+        "summary": "List Recurring",
+        "operationId": "list_recurring_api_recurring_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RecurringOut"
+                  },
+                  "type": "array",
+                  "title": "Response List Recurring Api Recurring Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "recurring"
+        ],
+        "summary": "Create Recurring",
+        "operationId": "create_recurring_api_recurring_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecurringIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecurringOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/recurring/{item_id}": {
+      "put": {
+        "tags": [
+          "recurring"
+        ],
+        "summary": "Update Recurring",
+        "operationId": "update_recurring_api_recurring__item_id__put",
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Item Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecurringIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecurringOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "recurring"
+        ],
+        "summary": "Delete Recurring",
+        "operationId": "delete_recurring_api_recurring__item_id__delete",
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Item Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/recurring/upcoming": {
+      "get": {
+        "tags": [
+          "recurring"
+        ],
+        "summary": "Upcoming",
+        "description": "Expected movements from the overdue ones to `days` ahead (forecast).",
+        "operationId": "upcoming_api_recurring_upcoming_get",
+        "parameters": [
+          {
+            "name": "days",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 366,
+              "minimum": 1,
+              "default": 30,
+              "title": "Days"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Upcoming"
+                  },
+                  "title": "Response Upcoming Api Recurring Upcoming Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/inbox": {
+      "get": {
+        "tags": [
+          "recurring"
+        ],
+        "summary": "Inbox",
+        "description": "What needs a look: payments the bank never confirmed (a declined payment?) and\nexpected movements that have not arrived.",
+        "operationId": "inbox_api_inbox_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Inbox"
                 }
               }
             }
@@ -2810,10 +3317,10 @@
             "format": "uuid",
             "title": "Account Id"
           },
-          "rows": {
+          "decisions": {
             "type": "string",
-            "title": "Rows",
-            "description": "JSON list of the row numbers to import"
+            "title": "Decisions",
+            "description": "JSON {\"row number\": \"import\"|\"merge\"|\"transfer\"|\"skip\"}"
           },
           "mapping": {
             "anyOf": [
@@ -2857,7 +3364,7 @@
         "required": [
           "file",
           "account_id",
-          "rows"
+          "decisions"
         ],
         "title": "Body_create_import_api_imports_post"
       },
@@ -2974,6 +3481,94 @@
           "affected"
         ],
         "title": "BulkResult"
+      },
+      "Captured": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "recorded",
+              "already_recorded"
+            ],
+            "title": "Status"
+          },
+          "transaction_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Transaction Id"
+          },
+          "account": {
+            "type": "string",
+            "title": "Account"
+          },
+          "amount": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Amount",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "Short text for the phone's notification"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "transaction_id",
+          "account",
+          "amount",
+          "message"
+        ],
+        "title": "Captured"
+      },
+      "CardOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "account_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Account Id"
+          },
+          "last_seen_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Last Seen At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "account_id",
+          "last_seen_at"
+        ],
+        "title": "CardOut"
+      },
+      "CardUpdate": {
+        "properties": {
+          "account_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Account Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "account_id"
+        ],
+        "title": "CardUpdate"
       },
       "CategoryIn": {
         "properties": {
@@ -3224,7 +3819,13 @@
           },
           "imported": {
             "type": "integer",
-            "title": "Imported"
+            "title": "Imported",
+            "description": "Movements created"
+          },
+          "merged": {
+            "type": "integer",
+            "title": "Merged",
+            "description": "Rows merged into movements already recorded"
           },
           "skipped": {
             "type": "integer",
@@ -3267,6 +3868,7 @@
           "filename",
           "template_name",
           "imported",
+          "merged",
           "skipped",
           "date_from",
           "date_to",
@@ -3417,6 +4019,32 @@
           "balance_then"
         ],
         "title": "ImportPreview"
+      },
+      "Inbox": {
+        "properties": {
+          "unconfirmed": {
+            "items": {
+              "$ref": "#/components/schemas/TransactionOut"
+            },
+            "type": "array",
+            "title": "Unconfirmed",
+            "description": "Captured payments no statement has confirmed after a week"
+          },
+          "overdue": {
+            "items": {
+              "$ref": "#/components/schemas/Upcoming"
+            },
+            "type": "array",
+            "title": "Overdue",
+            "description": "Recurring movements that have not arrived"
+          }
+        },
+        "type": "object",
+        "required": [
+          "unconfirmed",
+          "overdue"
+        ],
+        "title": "Inbox"
       },
       "LoginRequest": {
         "properties": {
@@ -3590,6 +4218,30 @@
         "type": "object",
         "title": "MfaRequest"
       },
+      "NewToken": {
+        "properties": {
+          "token": {
+            "$ref": "#/components/schemas/TokenOut"
+          },
+          "secret": {
+            "type": "string",
+            "title": "Secret",
+            "description": "The token itself. Shown only now"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url",
+            "description": "Where the Shortcut sends payments (path)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "token",
+          "secret",
+          "url"
+        ],
+        "title": "NewToken"
+      },
       "PasskeyAssertion": {
         "properties": {
           "challenge_id": {
@@ -3694,6 +4346,54 @@
           "name"
         ],
         "title": "PasskeyRegistration"
+      },
+      "Payment": {
+        "properties": {
+          "amount": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "title": "Amount",
+            "description": "As the phone writes it: \"12,50 €\", \"€12.50\", 12.5"
+          },
+          "merchant": {
+            "type": "string",
+            "maxLength": 140,
+            "title": "Merchant",
+            "default": ""
+          },
+          "card": {
+            "type": "string",
+            "maxLength": 80,
+            "title": "Card",
+            "description": "Card or pass name in Wallet",
+            "default": ""
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "expense",
+              "income"
+            ],
+            "title": "Kind",
+            "description": "income for a refund to the card",
+            "default": "expense"
+          }
+        },
+        "type": "object",
+        "required": [
+          "amount"
+        ],
+        "title": "Payment",
+        "description": "What the Shortcut's \"Transaction\" automation knows about a payment."
       },
       "Preferences": {
         "properties": {
@@ -3845,9 +4545,25 @@
             "enum": [
               "new",
               "duplicate",
-              "possible_duplicate"
+              "match",
+              "transfer"
             ],
-            "title": "Status"
+            "title": "Status",
+            "description": "new · duplicate (already imported) · match (the same as a movement recorded another way) · transfer (to or from another own account)"
+          },
+          "decisions": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "import",
+                "merge",
+                "transfer",
+                "skip"
+              ]
+            },
+            "type": "array",
+            "title": "Decisions",
+            "description": "What can be done; the first is the default"
           },
           "category_id": {
             "anyOf": [
@@ -3860,7 +4576,7 @@
               }
             ],
             "title": "Category Id",
-            "description": "Category the rules give it"
+            "description": "Category it will get"
           },
           "match_id": {
             "anyOf": [
@@ -3873,7 +4589,20 @@
               }
             ],
             "title": "Match Id",
-            "description": "Movement it may repeat (possible_duplicate)"
+            "description": "match: movement to merge with · transfer: its other side, if recorded"
+          },
+          "transfer_account_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Transfer Account Id",
+            "description": "transfer: the other account"
           }
         },
         "type": "object",
@@ -3884,8 +4613,10 @@
           "amount",
           "balance",
           "status",
+          "decisions",
           "category_id",
-          "match_id"
+          "match_id",
+          "transfer_account_id"
         ],
         "title": "PreviewRow"
       },
@@ -3996,6 +4727,201 @@
         ],
         "title": "RecoveryCodes"
       },
+      "RecurringIn": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 60,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "account_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Account Id"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "expense",
+              "income"
+            ],
+            "title": "Kind"
+          },
+          "amount": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Amount",
+            "description": "Expected amount, positive",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "tolerance": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Tolerance",
+            "description": "Percent the real amount may differ (bills vary)",
+            "default": "10",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "category_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category Id"
+          },
+          "match_text": {
+            "type": "string",
+            "maxLength": 60,
+            "minLength": 2,
+            "title": "Match Text",
+            "description": "Text in the concept of the real movement"
+          },
+          "frequency": {
+            "type": "string",
+            "enum": [
+              "weekly",
+              "monthly",
+              "quarterly",
+              "semiannual",
+              "yearly"
+            ],
+            "title": "Frequency",
+            "default": "monthly"
+          },
+          "next_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Next Date"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "account_id",
+          "kind",
+          "amount",
+          "match_text",
+          "next_date"
+        ],
+        "title": "RecurringIn"
+      },
+      "RecurringOut": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 60,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "account_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Account Id"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "expense",
+              "income"
+            ],
+            "title": "Kind"
+          },
+          "amount": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Amount",
+            "description": "Expected amount, positive",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "tolerance": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Tolerance",
+            "description": "Percent the real amount may differ (bills vary)",
+            "default": "10.00",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "category_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category Id"
+          },
+          "match_text": {
+            "type": "string",
+            "maxLength": 60,
+            "minLength": 2,
+            "title": "Match Text",
+            "description": "Text in the concept of the real movement"
+          },
+          "frequency": {
+            "type": "string",
+            "enum": [
+              "weekly",
+              "monthly",
+              "quarterly",
+              "semiannual",
+              "yearly"
+            ],
+            "title": "Frequency",
+            "default": "monthly"
+          },
+          "next_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Next Date"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "last_transaction_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Transaction Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "account_id",
+          "kind",
+          "amount",
+          "match_text",
+          "next_date",
+          "id",
+          "last_transaction_id"
+        ],
+        "title": "RecurringOut"
+      },
       "RegisterRequest": {
         "properties": {
           "display_name": {
@@ -4064,9 +4990,30 @@
             "description": "Text the concept contains"
           },
           "category_id": {
-            "type": "string",
-            "format": "uuid",
-            "title": "Category Id"
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category Id",
+            "description": "Category to give it"
+          },
+          "transfer_account_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Transfer Account Id",
+            "description": "Or: it is a transfer with this own account"
           },
           "account_id": {
             "anyOf": [
@@ -4121,8 +5068,7 @@
         },
         "type": "object",
         "required": [
-          "match_text",
-          "category_id"
+          "match_text"
         ],
         "title": "RuleIn"
       },
@@ -4136,9 +5082,30 @@
             "description": "Text the concept contains"
           },
           "category_id": {
-            "type": "string",
-            "format": "uuid",
-            "title": "Category Id"
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category Id",
+            "description": "Category to give it"
+          },
+          "transfer_account_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Transfer Account Id",
+            "description": "Or: it is a transfer with this own account"
           },
           "account_id": {
             "anyOf": [
@@ -4197,7 +5164,6 @@
         "type": "object",
         "required": [
           "match_text",
-          "category_id",
           "id",
           "position"
         ],
@@ -4248,6 +5214,18 @@
               }
             ],
             "title": "Category Id"
+          },
+          "transfer_account_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Transfer Account Id"
           },
           "account_id": {
             "anyOf": [
@@ -4420,6 +5398,79 @@
           "mine"
         ],
         "title": "TemplateOut"
+      },
+      "TokenIn": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 60,
+            "minLength": 1,
+            "title": "Name",
+            "description": "E.g. the phone it is for"
+          },
+          "default_account_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Default Account Id",
+            "description": "Account for cards not mapped yet"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "default_account_id"
+        ],
+        "title": "TokenIn"
+      },
+      "TokenOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "hint": {
+            "type": "string",
+            "title": "Hint",
+            "description": "First characters, to tell tokens apart"
+          },
+          "default_account_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Default Account Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "last_used_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Used At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "hint",
+          "default_account_id",
+          "created_at",
+          "last_used_at"
+        ],
+        "title": "TokenOut"
       },
       "TotpSetup": {
         "properties": {
@@ -4607,6 +5658,11 @@
             "type": "string",
             "title": "Source"
           },
+          "pending": {
+            "type": "boolean",
+            "title": "Pending",
+            "description": "Captured payment not yet confirmed by a statement"
+          },
           "created_at": {
             "type": "string",
             "format": "date-time",
@@ -4642,6 +5698,7 @@
           "tags",
           "transfer_id",
           "source",
+          "pending",
           "created_at"
         ],
         "title": "TransactionOut"
@@ -4857,6 +5914,53 @@
           "amount"
         ],
         "title": "TransferIn"
+      },
+      "Upcoming": {
+        "properties": {
+          "item_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Item Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "account_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Account Id"
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date"
+          },
+          "amount": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Amount",
+            "description": "Signed: negative is money going out",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "overdue": {
+            "type": "boolean",
+            "title": "Overdue",
+            "description": "Expected some days ago and not arrived"
+          }
+        },
+        "type": "object",
+        "required": [
+          "item_id",
+          "name",
+          "account_id",
+          "date",
+          "amount",
+          "overdue"
+        ],
+        "title": "Upcoming"
       },
       "UserOut": {
         "properties": {

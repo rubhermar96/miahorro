@@ -8,7 +8,18 @@ from app.config import Settings, get_settings
 from app.db import create_db_engine
 from app.errors import register_error_handlers
 from app.logging_setup import configure_logging, register_access_log
-from app.routers import accounts, auth, categories, health, imports, me, rules, transactions
+from app.routers import (
+    accounts,
+    auth,
+    capture,
+    categories,
+    health,
+    imports,
+    me,
+    recurring,
+    rules,
+    transactions,
+)
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -41,6 +52,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(transactions.router)
     app.include_router(imports.router)
     app.include_router(rules.router)
+    app.include_router(capture.router)
+    app.include_router(recurring.router)
     mount_admin(app, engine, session_factory, settings)
     return app
 

@@ -42,6 +42,7 @@ class ImportBatch(OwnedMixin, Base):
     template_name: Mapped[str | None] = mapped_column(String(60))
     imported: Mapped[int]
     skipped: Mapped[int] = mapped_column(default=0)
+    merged: Mapped[int] = mapped_column(default=0, server_default="0")
     date_from: Mapped[dt.date | None] = mapped_column(Date)
     date_to: Mapped[dt.date | None] = mapped_column(Date)
     created_at: Mapped[dt.datetime] = mapped_column(default=clock.now)
@@ -49,7 +50,8 @@ class ImportBatch(OwnedMixin, Base):
 
 class CategoryRule(OwnedMixin, Base):
     """Automatic categorisation (RF-MOV-07): if the concept contains the text (and the other
-    conditions hold), the movement gets the category. The first matching rule wins."""
+    conditions hold), the movement gets the category, or becomes a transfer to another own
+    account. The first matching rule wins."""
 
     __tablename__ = "category_rules"
     __table_args__ = (
@@ -58,12 +60,20 @@ class CategoryRule(OwnedMixin, Base):
             "amount_max IS NULL OR amount_min IS NULL OR amount_max >= amount_min",
             name="amount_range_ordered",
         ),
+        CheckConstraint(
+            "(category_id IS NULL) <> (transfer_account_id IS NULL)", name="one_target"
+        ),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     match_text: Mapped[str] = mapped_column(String(60))
-    category_id: Mapped[uuid.UUID] = mapped_column(
+    category_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("categories.id", ondelete="CASCADE"), index=True
+    )
+    # Instead of a category, the movement is money moved to another own account (the monthly
+    # credit card bill, savings): it becomes a transfer.
+    transfer_account_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("accounts.id", ondelete="CASCADE"), index=True
     )
     account_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("accounts.id", ondelete="CASCADE"), index=True

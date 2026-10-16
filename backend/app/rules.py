@@ -1,7 +1,8 @@
 """Automatic categorisation (RF-MOV-07).
 
 A rule says: if the concept contains this text (and, optionally, the account and the size of
-the amount match), the movement goes to this category. Rules are tried in order and the first
+the amount match), the movement goes to this category, or is money moved to another own account
+(a transfer). Rules are tried in order and the first
 match wins, so a specific rule ("AMAZON PRIME" → Suscripciones) can sit above a general one
 ("AMAZON" → Compras online).
 """
@@ -80,30 +81,48 @@ class Rulebook:
     """The user's rules in order, ready to categorise many movements."""
 
     def __init__(self, rules: list[CategoryRule], categories: dict[uuid.UUID, Category]) -> None:
-        self._rules = [
-            (rule, _matchable(rule.match_text), categories[rule.category_id].kind)
-            for rule in rules
-            if rule.category_id in categories and categories[rule.category_id].archived_at is None
-        ]
+        # (rule, text to find, kind it applies to: None for transfer rules, which fit both)
+        self._rules: list[tuple[CategoryRule, str, str | None]] = []
+        for rule in rules:
+            if rule.transfer_account_id is not None:
+                self._rules.append((rule, _matchable(rule.match_text), None))
+            elif rule.category_id in categories:
+                category = categories[rule.category_id]
+                if category.archived_at is None:
+                    self._rules.append((rule, _matchable(rule.match_text), category.kind))
 
     def __bool__(self) -> bool:
         return bool(self._rules)
 
+    def first_match(
+        self, description: str, amount: Decimal, account_id: uuid.UUID
+    ) -> CategoryRule | None:
+        text = _matchable(description)
+        kind = "expense" if amount < 0 else "income"
+        for rule, needle, rule_kind in self._rules:
+            if matches(rule, needle, rule_kind, text, kind, abs(amount), account_id):
+                return rule
+        return None
+
     def category_for(
         self, description: str, amount: Decimal, account_id: uuid.UUID
     ) -> uuid.UUID | None:
-        text = _matchable(description)
-        kind = "expense" if amount < 0 else "income"
-        for rule, needle, category_kind in self._rules:
-            if matches(rule, needle, category_kind, text, kind, abs(amount), account_id):
-                return rule.category_id
-        return None
+        rule = self.first_match(description, amount, account_id)
+        return rule.category_id if rule is not None else None
+
+    def transfer_for(
+        self, description: str, amount: Decimal, account_id: uuid.UUID
+    ) -> uuid.UUID | None:
+        """The other own account, if the first matching rule says this is a transfer."""
+        rule = self.first_match(description, amount, account_id)
+        target = rule.transfer_account_id if rule is not None else None
+        return target if target != account_id else None
 
 
 def matches(
     rule: CategoryRule,
     needle: str,
-    category_kind: str,
+    rule_kind: str | None,
     text: str,
     kind: str,
     size: Decimal,
@@ -111,7 +130,7 @@ def matches(
 ) -> bool:
     return (
         needle in text
-        and category_kind == kind
+        and (rule_kind is None or rule_kind == kind)
         and (rule.account_id is None or rule.account_id == account_id)
         and (rule.amount_min is None or size >= rule.amount_min)
         and (rule.amount_max is None or size <= rule.amount_max)
@@ -132,6 +151,7 @@ def apply_rules(
     db: Session, user: User, *, only_uncategorised: bool, only_rule: CategoryRule | None = None
 ) -> int:
     """Categorise existing income and expenses with the rules; returns how many changed.
+    Transfer rules are not applied backwards: they only act on new imports.
 
     With only_rule, just that rule is applied (right after creating it)."""
     rulebook = (

@@ -9,7 +9,7 @@ from fastapi import APIRouter, HTTPException, Query, Response, status
 from pydantic import BaseModel, Field, field_validator, model_validator
 from sqlalchemy import ColumnElement, Select, Subquery, and_, delete, func, or_, select
 
-from app import clock
+from app import clock, recurring
 from app.auth.deps import CurrentUser, DbSession
 from app.models.accounts import Account
 from app.models.transactions import Category, Transaction
@@ -110,6 +110,7 @@ class TransactionOut(BaseModel):
     tags: list[str]
     transfer_id: uuid.UUID | None
     source: str
+    pending: bool = Field(description="Captured payment not yet confirmed by a statement")
     created_at: dt.datetime
     balance_after: Money | None = Field(
         default=None, description="Balance of its account right after it (in lists)"
@@ -130,6 +131,7 @@ class TransactionOut(BaseModel):
                 "tags": row.tags,
                 "transfer_id": row.transfer_id,
                 "source": row.source,
+                "pending": row.pending,
                 "created_at": row.created_at,
                 "balance_after": balance_after,
             }
@@ -206,6 +208,8 @@ def create_transaction(body: TransactionIn, user: CurrentUser, db: DbSession) ->
         tags=body.tags,
     )
     db.add(row)
+    db.flush()
+    recurring.fulfil(db, user, [row])
     db.commit()
     return TransactionOut.from_model(row)
 
@@ -269,6 +273,18 @@ def _apply_shared(leg: Transaction, body: TransactionUpdate, *, keep_sign: bool)
         leg.note = (body.note or "").strip() or None
     if body.tags is not None:
         leg.tags = body.tags
+
+
+@router.post("/transactions/{transaction_id}/confirm")
+def confirm_transaction(
+    transaction_id: uuid.UUID, user: CurrentUser, db: DbSession
+) -> TransactionOut:
+    """Keep a captured payment that no statement has confirmed (paid in cash back, a bank
+    whose statements are not imported...)."""
+    row = get_owned_or_404(db, Transaction, transaction_id, user)
+    row.pending = False
+    db.commit()
+    return TransactionOut.from_model(row)
 
 
 @router.delete("/transactions/{transaction_id}", status_code=status.HTTP_204_NO_CONTENT)

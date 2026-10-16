@@ -516,6 +516,27 @@ export interface paths {
         patch: operations["update_transaction_api_transactions__transaction_id__patch"];
         trace?: never;
     };
+    "/api/transactions/{transaction_id}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirm Transaction
+         * @description Keep a captured payment that no statement has confirmed (paid in cash back, a bank
+         *     whose statements are not imported...).
+         */
+        post: operations["confirm_transaction_api_transactions__transaction_id__confirm_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/transactions/bulk": {
         parameters: {
             query?: never;
@@ -670,7 +691,8 @@ export interface paths {
         post?: never;
         /**
          * Undo Import
-         * @description Delete every movement the import created, even those edited since.
+         * @description Delete every movement the import created, even those edited since, and put back the
+         *     ones it merged or turned into transfers.
          */
         delete: operations["undo_import_api_imports__import_id__delete"];
         options?: never;
@@ -752,6 +774,180 @@ export interface paths {
          * @description A rule to propose after the user changes a movement's category by hand.
          */
         get: operations["suggest_rule_api_rules_suggestion_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/capture/tokens": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Tokens */
+        get: operations["list_tokens_api_capture_tokens_get"];
+        put?: never;
+        /** Create Token */
+        post: operations["create_token_api_capture_tokens_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/capture/tokens/{token_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Revoke Token
+         * @description The Shortcut using it stops working at once.
+         */
+        delete: operations["revoke_token_api_capture_tokens__token_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/capture/cards": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Cards
+         * @description Cards seen in captured payments and the account each one goes to.
+         */
+        get: operations["list_cards_api_capture_cards_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/capture/cards/{card_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update Card */
+        patch: operations["update_card_api_capture_cards__card_id__patch"];
+        trace?: never;
+    };
+    "/api/capture/payments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Capture Payment
+         * @description Record a card payment as it happens. It stays pending until a statement confirms it.
+         *
+         *     Authenticated by `Authorization: Bearer <token>` (checked before reading the payment).
+         */
+        post: operations["capture_payment_api_capture_payments_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/recurring": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Recurring */
+        get: operations["list_recurring_api_recurring_get"];
+        put?: never;
+        /** Create Recurring */
+        post: operations["create_recurring_api_recurring_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/recurring/{item_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Update Recurring */
+        put: operations["update_recurring_api_recurring__item_id__put"];
+        post?: never;
+        /** Delete Recurring */
+        delete: operations["delete_recurring_api_recurring__item_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/recurring/upcoming": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Upcoming
+         * @description Expected movements from the overdue ones to `days` ahead (forecast).
+         */
+        get: operations["upcoming_api_recurring_upcoming_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/inbox": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Inbox
+         * @description What needs a look: payments the bank never confirmed (a declined payment?) and
+         *     expected movements that have not arrived.
+         */
+        get: operations["inbox_api_inbox_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -968,10 +1164,10 @@ export interface components {
              */
             account_id: string;
             /**
-             * Rows
-             * @description JSON list of the row numbers to import
+             * Decisions
+             * @description JSON {"row number": "import"|"merge"|"transfer"|"skip"}
              */
-            rows: string;
+            decisions: string;
             /**
              * Mapping
              * @description Mapping as JSON, as the preview returned it (not for PDF)
@@ -1029,6 +1225,59 @@ export interface components {
         BulkResult: {
             /** Affected */
             affected: number;
+        };
+        /** Captured */
+        Captured: {
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "recorded" | "already_recorded";
+            /**
+             * Transaction Id
+             * Format: uuid
+             */
+            transaction_id: string;
+            /** Account */
+            account: string;
+            /**
+             * Amount
+             * @example -12.50
+             */
+            amount: string;
+            /**
+             * Message
+             * @description Short text for the phone's notification
+             */
+            message: string;
+        };
+        /** CardOut */
+        CardOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /**
+             * Account Id
+             * Format: uuid
+             */
+            account_id: string;
+            /**
+             * Last Seen At
+             * Format: date-time
+             */
+            last_seen_at: string;
+        };
+        /** CardUpdate */
+        CardUpdate: {
+            /**
+             * Account Id
+             * Format: uuid
+             */
+            account_id: string;
         };
         /** CategoryIn */
         CategoryIn: {
@@ -1122,8 +1371,16 @@ export interface components {
             filename: string;
             /** Template Name */
             template_name: string | null;
-            /** Imported */
+            /**
+             * Imported
+             * @description Movements created
+             */
             imported: number;
+            /**
+             * Merged
+             * @description Rows merged into movements already recorded
+             */
+            merged: number;
             /** Skipped */
             skipped: number;
             /** Date From */
@@ -1181,6 +1438,19 @@ export interface components {
              * @description Balance in MiAhorro on that date, after importing the new rows
              */
             balance_then: string | null;
+        };
+        /** Inbox */
+        Inbox: {
+            /**
+             * Unconfirmed
+             * @description Captured payments no statement has confirmed after a week
+             */
+            unconfirmed: components["schemas"]["TransactionOut"][];
+            /**
+             * Overdue
+             * @description Recurring movements that have not arrived
+             */
+            overdue: components["schemas"]["Upcoming"][];
         };
         /** LoginRequest */
         LoginRequest: {
@@ -1241,6 +1511,20 @@ export interface components {
             /** Recovery Code */
             recovery_code?: string | null;
         };
+        /** NewToken */
+        NewToken: {
+            token: components["schemas"]["TokenOut"];
+            /**
+             * Secret
+             * @description The token itself. Shown only now
+             */
+            secret: string;
+            /**
+             * Url
+             * @description Where the Shortcut sends payments (path)
+             */
+            url: string;
+        };
         /** PasskeyAssertion */
         PasskeyAssertion: {
             /**
@@ -1296,6 +1580,35 @@ export interface components {
             /** Name */
             name: string;
         };
+        /**
+         * Payment
+         * @description What the Shortcut's "Transaction" automation knows about a payment.
+         */
+        Payment: {
+            /**
+             * Amount
+             * @description As the phone writes it: "12,50 €", "€12.50", 12.5
+             */
+            amount: string | number;
+            /**
+             * Merchant
+             * @default
+             */
+            merchant: string;
+            /**
+             * Card
+             * @description Card or pass name in Wallet
+             * @default
+             */
+            card: string;
+            /**
+             * Kind
+             * @description income for a refund to the card
+             * @default expense
+             * @enum {string}
+             */
+            kind: "expense" | "income";
+        };
         /** Preferences */
         Preferences: {
             /**
@@ -1350,19 +1663,30 @@ export interface components {
             balance: string | null;
             /**
              * Status
+             * @description new · duplicate (already imported) · match (the same as a movement recorded another way) · transfer (to or from another own account)
              * @enum {string}
              */
-            status: "new" | "duplicate" | "possible_duplicate";
+            status: "new" | "duplicate" | "match" | "transfer";
+            /**
+             * Decisions
+             * @description What can be done; the first is the default
+             */
+            decisions: ("import" | "merge" | "transfer" | "skip")[];
             /**
              * Category Id
-             * @description Category the rules give it
+             * @description Category it will get
              */
             category_id: string | null;
             /**
              * Match Id
-             * @description Movement it may repeat (possible_duplicate)
+             * @description match: movement to merge with · transfer: its other side, if recorded
              */
             match_id: string | null;
+            /**
+             * Transfer Account Id
+             * @description transfer: the other account
+             */
+            transfer_account_id: string | null;
         };
         /** RateTier */
         RateTier: {
@@ -1402,6 +1726,105 @@ export interface components {
             /** Codes */
             codes: string[];
         };
+        /** RecurringIn */
+        RecurringIn: {
+            /** Name */
+            name: string;
+            /**
+             * Account Id
+             * Format: uuid
+             */
+            account_id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "expense" | "income";
+            /**
+             * Amount
+             * @description Expected amount, positive
+             * @example -12.50
+             */
+            amount: string;
+            /**
+             * Tolerance
+             * @description Percent the real amount may differ (bills vary)
+             * @default 10
+             * @example -12.50
+             */
+            tolerance: string;
+            /** Category Id */
+            category_id?: string | null;
+            /**
+             * Match Text
+             * @description Text in the concept of the real movement
+             */
+            match_text: string;
+            /**
+             * Frequency
+             * @default monthly
+             * @enum {string}
+             */
+            frequency: "weekly" | "monthly" | "quarterly" | "semiannual" | "yearly";
+            /**
+             * Next Date
+             * Format: date
+             */
+            next_date: string;
+        };
+        /** RecurringOut */
+        RecurringOut: {
+            /** Name */
+            name: string;
+            /**
+             * Account Id
+             * Format: uuid
+             */
+            account_id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "expense" | "income";
+            /**
+             * Amount
+             * @description Expected amount, positive
+             * @example -12.50
+             */
+            amount: string;
+            /**
+             * Tolerance
+             * @description Percent the real amount may differ (bills vary)
+             * @default 10.00
+             * @example -12.50
+             */
+            tolerance: string;
+            /** Category Id */
+            category_id?: string | null;
+            /**
+             * Match Text
+             * @description Text in the concept of the real movement
+             */
+            match_text: string;
+            /**
+             * Frequency
+             * @default monthly
+             * @enum {string}
+             */
+            frequency: "weekly" | "monthly" | "quarterly" | "semiannual" | "yearly";
+            /**
+             * Next Date
+             * Format: date
+             */
+            next_date: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Last Transaction Id */
+            last_transaction_id: string | null;
+        };
         /** RegisterRequest */
         RegisterRequest: {
             /** Display Name */
@@ -1434,9 +1857,14 @@ export interface components {
             match_text: string;
             /**
              * Category Id
-             * Format: uuid
+             * @description Category to give it
              */
-            category_id: string;
+            category_id?: string | null;
+            /**
+             * Transfer Account Id
+             * @description Or: it is a transfer with this own account
+             */
+            transfer_account_id?: string | null;
             /**
              * Account Id
              * @description Only in this account
@@ -1465,9 +1893,14 @@ export interface components {
             match_text: string;
             /**
              * Category Id
-             * Format: uuid
+             * @description Category to give it
              */
-            category_id: string;
+            category_id?: string | null;
+            /**
+             * Transfer Account Id
+             * @description Or: it is a transfer with this own account
+             */
+            transfer_account_id?: string | null;
             /**
              * Account Id
              * @description Only in this account
@@ -1504,6 +1937,8 @@ export interface components {
             match_text?: string | null;
             /** Category Id */
             category_id?: string | null;
+            /** Transfer Account Id */
+            transfer_account_id?: string | null;
             /** Account Id */
             account_id?: string | null;
             /** Amount Min */
@@ -1562,6 +1997,47 @@ export interface components {
              * @description Created by the current user (who may delete it)
              */
             mine: boolean;
+        };
+        /** TokenIn */
+        TokenIn: {
+            /**
+             * Name
+             * @description E.g. the phone it is for
+             */
+            name: string;
+            /**
+             * Default Account Id
+             * Format: uuid
+             * @description Account for cards not mapped yet
+             */
+            default_account_id: string;
+        };
+        /** TokenOut */
+        TokenOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /**
+             * Hint
+             * @description First characters, to tell tokens apart
+             */
+            hint: string;
+            /**
+             * Default Account Id
+             * Format: uuid
+             */
+            default_account_id: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Last Used At */
+            last_used_at: string | null;
         };
         /** TotpSetup */
         TotpSetup: {
@@ -1651,6 +2127,11 @@ export interface components {
             /** Source */
             source: string;
             /**
+             * Pending
+             * @description Captured payment not yet confirmed by a statement
+             */
+            pending: boolean;
+            /**
              * Created At
              * Format: date-time
              */
@@ -1733,6 +2214,37 @@ export interface components {
              * @example -12.50
              */
             amount: string;
+        };
+        /** Upcoming */
+        Upcoming: {
+            /**
+             * Item Id
+             * Format: uuid
+             */
+            item_id: string;
+            /** Name */
+            name: string;
+            /**
+             * Account Id
+             * Format: uuid
+             */
+            account_id: string;
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /**
+             * Amount
+             * @description Signed: negative is money going out
+             * @example -12.50
+             */
+            amount: string;
+            /**
+             * Overdue
+             * @description Expected some days ago and not arrived
+             */
+            overdue: boolean;
         };
         /** UserOut */
         UserOut: {
@@ -2860,6 +3372,37 @@ export interface operations {
             };
         };
     };
+    confirm_transaction_api_transactions__transaction_id__confirm_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                transaction_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TransactionOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     bulk_edit_api_transactions_bulk_post: {
         parameters: {
             query?: never;
@@ -3331,6 +3874,346 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_tokens_api_capture_tokens_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TokenOut"][];
+                };
+            };
+        };
+    };
+    create_token_api_capture_tokens_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TokenIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NewToken"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    revoke_token_api_capture_tokens__token_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_cards_api_capture_cards_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CardOut"][];
+                };
+            };
+        };
+    };
+    update_card_api_capture_cards__card_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                card_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CardUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CardOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    capture_payment_api_capture_payments_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Payment"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Captured"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_recurring_api_recurring_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RecurringOut"][];
+                };
+            };
+        };
+    };
+    create_recurring_api_recurring_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RecurringIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RecurringOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_recurring_api_recurring__item_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RecurringIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RecurringOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_recurring_api_recurring__item_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    upcoming_api_recurring_upcoming_get: {
+        parameters: {
+            query?: {
+                days?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Upcoming"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    inbox_api_inbox_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Inbox"];
                 };
             };
         };

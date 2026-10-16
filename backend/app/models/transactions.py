@@ -2,7 +2,7 @@ import datetime as dt
 import uuid
 from decimal import Decimal
 
-from sqlalchemy import CheckConstraint, Date, ForeignKey, Index, String, Text
+from sqlalchemy import CheckConstraint, Date, ForeignKey, Index, String, Text, false
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -76,3 +76,13 @@ class Transaction(OwnedMixin, TimestampMixin, Base):
         ForeignKey("imports.id", ondelete="SET NULL"), index=True
     )
     import_key: Mapped[str | None] = mapped_column(String(64))
+    # A captured payment stays pending until a bank statement confirms it.
+    pending: Mapped[bool] = mapped_column(default=False, server_default=false())
+    # Import that merged a bank row into this movement, or turned it into a transfer leg, so
+    # undoing that import can put it back as it was.
+    merged_import_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("imports.id", ondelete="SET NULL"), index=True
+    )
+    paired_import_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("imports.id", ondelete="SET NULL"), index=True
+    )

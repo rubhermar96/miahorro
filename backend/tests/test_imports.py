@@ -7,6 +7,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from tests.conftest import FakeClock
+from tests.importers.pdf_samples import bankinter_pdf
 from tests.importers.samples import DEBIT_CREDIT_CSV, SEMICOLON_CSV, xlsx_statement
 from tests.test_accounts import new_account
 from tests.test_transactions import add, balance, category_id
@@ -238,7 +239,9 @@ def test_errors_are_explained(ana: TestClient, account: str) -> None:
             files={"file": ("x.pdf", content, "application/pdf")},
         )
 
-    assert attempt(b"%PDF-1.4").json()["error"]["message"].startswith("Los PDF")
+    assert attempt(b"%PDF-1.4").json()["error"]["message"] == (
+        "No se puede leer el PDF. ¿Está dañado?"
+    )
     assert attempt(b"x" * (5 * 1024 * 1024 + 1)).status_code == 413
     incomplete = attempt(SEMICOLON_CSV, mapping=json.dumps({"date": "Fecha"}))
     assert incomplete.status_code == 422
@@ -278,3 +281,47 @@ def test_nobody_undoes_someone_elses_import(ana: TestClient, bea: TestClient, ac
 
     assert bea.delete(f"/api/imports/{batch['id']}").status_code == 404
     assert bea.get("/api/imports").json() == []
+
+
+def test_bankinter_pdf_statement(ana: TestClient, account: str) -> None:
+    def send(path: str, **form: str) -> Any:
+        return ana.post(
+            path,
+            data={"account_id": account, **form},
+            files={"file": ("extracto.pdf", bankinter_pdf(), "application/pdf")},
+        )
+
+    shown = send("/api/imports/preview").json()
+
+    assert (shown["reader"], shown["mapping"], shown["columns"]) == (
+        "Bankinter (extracto PDF)",
+        None,
+        [],
+    )
+    assert [r["amount"] for r in shown["rows"]] == [
+        "-12.24",
+        "-187.76",
+        "1500.00",
+        "-100.00",
+        "25.50",
+        "-425.50",
+    ]
+    assert (shown["bank_balance"], shown["bank_balance_date"]) == ("2000.00", "2026-09-30")
+
+    numbers = json.dumps([r["number"] for r in shown["rows"]])
+    batch = send("/api/imports", rows=numbers).json()
+
+    assert (batch["imported"], batch["template_name"]) == (6, "Bankinter (extracto PDF)")
+    # Imported again, nothing is new.
+    assert {r["status"] for r in send("/api/imports/preview").json()["rows"]} == {"duplicate"}
+
+
+def test_a_pdf_whose_balances_do_not_add_up_is_refused(ana: TestClient, account: str) -> None:
+    response = ana.post(
+        "/api/imports/preview",
+        data={"account_id": account},
+        files={"file": ("e.pdf", bankinter_pdf(broken=True), "application/pdf")},
+    )
+
+    assert response.status_code == 422
+    assert "no cuadran" in response.json()["error"]["message"]

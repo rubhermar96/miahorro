@@ -80,7 +80,7 @@ class SkippedRow:
 class Extraction:
     columns: list[str]
     header_row: int
-    mapping: Mapping  # with date order and decimal separator resolved
+    mapping: Mapping | None  # resolved (date order, decimals); None for PDF statements
     rows: list[StatementRow] = field(default_factory=list)
     skipped: list[SkippedRow] = field(default_factory=list)
 
@@ -90,8 +90,8 @@ class Extraction:
         return not (self.rows and self.rows[0].date < self.rows[-1].date)
 
     def bank_balance(self) -> tuple[dt.date, Decimal] | None:
-        """The balance the bank shows after the most recent row, if there is a balance column."""
-        if not self.rows or self.mapping.balance is None:
+        """The balance the bank shows after the most recent row, if the file has balances."""
+        if not self.rows:
             return None
         latest = self.rows[0] if self.newest_first else self.rows[-1]
         return None if latest.balance is None else (latest.date, latest.balance)

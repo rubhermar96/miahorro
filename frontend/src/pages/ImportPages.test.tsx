@@ -124,6 +124,37 @@ describe('import', () => {
     )
   })
 
+  it('reads a Bankinter PDF statement without asking for columns', async () => {
+    const user = userEvent.setup()
+    api.on('POST /api/imports/preview', {
+      status: 200,
+      body: preview({
+        columns: [],
+        sample: [],
+        mapping: null,
+        reader: 'Bankinter (extracto PDF)',
+        rows: [row({})],
+        skipped: [],
+      }),
+    })
+    api.on('POST /api/imports', { status: 201, body: batch })
+    renderApp('/importar')
+    await choose(user)
+
+    expect(
+      await screen.findByText(
+        'Leído como Bankinter (extracto PDF). Cada importe se ha comprobado con el saldo del extracto.',
+      ),
+    ).toBeInTheDocument()
+    expect(screen.queryByText('Columnas del fichero')).not.toBeInTheDocument()
+    expect(screen.queryByText('Guardar estas columnas como plantilla')).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Importar 1 movimiento' }))
+
+    const sent = api.callsTo('POST /api/imports')[0]?.body as Record<string, string>
+    expect(sent.rows).toBe('[2]')
+    expect(sent).not.toHaveProperty('mapping')
+  })
+
   it('asks for the columns when the file is not recognised', async () => {
     const user = userEvent.setup()
     api.on('POST /api/imports/preview', {

@@ -2810,15 +2810,22 @@
             "format": "uuid",
             "title": "Account Id"
           },
-          "mapping": {
-            "type": "string",
-            "title": "Mapping",
-            "description": "Mapping as JSON, as the preview returned it"
-          },
           "rows": {
             "type": "string",
             "title": "Rows",
             "description": "JSON list of the row numbers to import"
+          },
+          "mapping": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mapping",
+            "description": "Mapping as JSON, as the preview returned it (not for PDF)"
           },
           "template_id": {
             "anyOf": [
@@ -2850,7 +2857,6 @@
         "required": [
           "file",
           "account_id",
-          "mapping",
           "rows"
         ],
         "title": "Body_create_import_api_imports_post"
@@ -3313,6 +3319,18 @@
             "title": "Template Id",
             "description": "Template whose columns the file has"
           },
+          "reader": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reader",
+            "description": "Bank reader used for a PDF statement"
+          },
           "error": {
             "anyOf": [
               {
@@ -3390,6 +3408,7 @@
           "sample",
           "mapping",
           "template_id",
+          "reader",
           "error",
           "rows",
           "skipped",

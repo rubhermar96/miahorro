@@ -25,6 +25,7 @@ from app.ownership import get_owned_or_404, owned
 from app.routers.money_types import Money
 from app.routers.transactions import usable_account
 from app.rules import load_rulebook
+from importers.pdf import PdfStatement, read_pdf
 from importers.statement import (
     Extraction,
     Mapping,
@@ -141,6 +142,7 @@ class ImportPreview(BaseModel):
     sample: list[list[str]] = Field(description="First rows after the titles, as text")
     mapping: Mapping | None = Field(description="Mapping used, or suggested; null if unclear")
     template_id: uuid.UUID | None = Field(description="Template whose columns the file has")
+    reader: str | None = Field(description="Bank reader used for a PDF statement")
     error: str | None = Field(description="Why the rows could not be read with the mapping")
     rows: list[PreviewRow]
     skipped: list[SkippedRowOut]
@@ -151,14 +153,15 @@ class ImportPreview(BaseModel):
     )
 
 
-async def _read_upload(file: UploadFile) -> Table:
+async def _read_upload(file: UploadFile) -> Table | PdfStatement:
+    """A table (CSV, XLSX) or, for a PDF, the statement already read by its bank's reader."""
     content = await file.read(MAX_FILE_BYTES + 1)
     if len(content) > MAX_FILE_BYTES:
         raise HTTPException(
             status.HTTP_413_CONTENT_TOO_LARGE, "El fichero es demasiado grande (máximo 5 MB)."
         )
     try:
-        return read_table(content)
+        return read_pdf(content) if content.startswith(b"%PDF") else read_table(content)
     except UnreadableFileError as exc:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, str(exc)) from exc
 
@@ -221,6 +224,11 @@ async def preview_import(
     """What the file would add to the account. Stores nothing."""
     account = get_owned_or_404(db, Account, account_id, user)
     table = await _read_upload(file)
+    if isinstance(table, PdfStatement):
+        preview = _empty_preview(columns=[], sample=[], mapping=None, template_id=None, error=None)
+        preview.reader = table.reader
+        extraction = Extraction(columns=[], header_row=0, mapping=None, rows=table.rows)
+        return _fill(preview, extraction, db, account, user)
     chosen = _parse_mapping(mapping)
     template = None
     if chosen is None:
@@ -233,7 +241,7 @@ async def preview_import(
     if chosen is None:
         chosen = suggest_mapping(table, header)
 
-    preview = ImportPreview(
+    preview = _empty_preview(
         columns=column_labels(table[header]),
         sample=[[cell_text(cell) for cell in row] for row in table[header + 1 :] if row][
             :_SAMPLE_ROWS
@@ -241,11 +249,6 @@ async def preview_import(
         mapping=chosen,
         template_id=template.id if template else None,
         error=None if chosen else "Indica qué columna es la fecha, el concepto y el importe.",
-        rows=[],
-        skipped=[],
-        bank_balance=None,
-        bank_balance_date=None,
-        balance_then=None,
     )
     if chosen is None:
         return preview
@@ -254,9 +257,38 @@ async def preview_import(
     except StatementError as exc:
         preview.error = str(exc)
         return preview
-
-    classified = classify(db, account, extraction.rows, load_rulebook(db, user))
     preview.mapping = extraction.mapping
+    return _fill(preview, extraction, db, account, user)
+
+
+def _empty_preview(
+    *,
+    columns: list[str],
+    sample: list[list[str]],
+    mapping: Mapping | None,
+    template_id: uuid.UUID | None,
+    error: str | None,
+) -> ImportPreview:
+    return ImportPreview(
+        columns=columns,
+        sample=sample,
+        mapping=mapping,
+        template_id=template_id,
+        reader=None,
+        error=error,
+        rows=[],
+        skipped=[],
+        bank_balance=None,
+        bank_balance_date=None,
+        balance_then=None,
+    )
+
+
+def _fill(
+    preview: ImportPreview, extraction: Extraction, db: DbSession, account: Account, user: User
+) -> ImportPreview:
+    """The rows with their status and category, and the balance check."""
+    classified = classify(db, account, extraction.rows, load_rulebook(db, user))
     preview.rows = [
         PreviewRow(
             number=item.row.number,
@@ -329,8 +361,10 @@ async def create_import(
     db: DbSession,
     file: Annotated[UploadFile, File()],
     account_id: Annotated[uuid.UUID, Form()],
-    mapping: Annotated[str, Form(description="Mapping as JSON, as the preview returned it")],
     rows: Annotated[str, Form(description="JSON list of the row numbers to import")],
+    mapping: Annotated[
+        str | None, Form(description="Mapping as JSON, as the preview returned it (not for PDF)")
+    ] = None,
     template_id: Annotated[uuid.UUID | None, Form()] = None,
     save_template_as: Annotated[
         str | None, Form(max_length=60, description="Also save the mapping as a template")
@@ -338,13 +372,21 @@ async def create_import(
 ) -> ImportOut:
     account = usable_account(db, account_id, user)
     table = await _read_upload(file)
-    chosen = _parse_mapping(mapping)
-    assert chosen is not None  # noqa: S101  # the form field is required
     wanted = _row_numbers(rows)
-    try:
-        extraction: Extraction = extract(table, chosen)
-    except StatementError as exc:
-        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, str(exc)) from exc
+    chosen = None
+    if isinstance(table, PdfStatement):
+        extraction = Extraction(columns=[], header_row=0, mapping=None, rows=table.rows)
+    else:
+        chosen = _parse_mapping(mapping)
+        if chosen is None:
+            raise HTTPException(
+                status.HTTP_422_UNPROCESSABLE_CONTENT,
+                "Indica qué columna es la fecha, el concepto y el importe.",
+            )
+        try:
+            extraction = extract(table, chosen)
+        except StatementError as exc:
+            raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, str(exc)) from exc
     classified = classify(db, account, extraction.rows, load_rulebook(db, user))
     selected = [item for item in classified if item.row.number in wanted]
     if not selected:
@@ -352,8 +394,8 @@ async def create_import(
             status.HTTP_422_UNPROCESSABLE_CONTENT, "No has elegido ningún movimiento."
         )
 
-    template_name = None
-    if save_template_as and save_template_as.strip():
+    template_name = table.reader if isinstance(table, PdfStatement) else None
+    if chosen is not None and save_template_as and save_template_as.strip():
         template_name = _new_template(db, user, save_template_as, chosen).name
     elif template_id is not None and (template := db.get(ImportTemplate, template_id)):
         template_name = template.name

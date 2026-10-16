@@ -74,3 +74,18 @@ test('una regla categoriza lo que se importa', async ({ page }) => {
     page.getByRole('link', { name: /MERCADONA.*Alimentación › Supermercado/ }),
   ).toBeVisible()
 })
+
+test('importar un extracto PDF de Bankinter comprobando los saldos', async ({ page }) => {
+  const name = `Bankinter ${Date.now()}`
+  await newAccount(page, name)
+
+  await page.getByRole('link', { name: 'Importar extracto' }).click()
+  // Made-up statement with the layout of the real ones (see backend tests/importers).
+  await page.getByLabel(/Fichero del banco/).setInputFiles('e2e/fixtures/bankinter-ejemplo.pdf')
+  await page.getByRole('button', { name: 'Ver movimientos' }).click()
+
+  await expect(page.getByText(/Leído como Bankinter \(extracto PDF\)/)).toBeVisible()
+  await expect(page.getByText('6 nuevos', { exact: true })).toBeVisible()
+  await page.getByRole('button', { name: 'Importar 6 movimientos' }).click()
+  await expect(page.getByText(`6 movimientos importados en ${name}.`)).toBeVisible()
+})

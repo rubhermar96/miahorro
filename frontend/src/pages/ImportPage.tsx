@@ -26,7 +26,7 @@ import { PageHeader } from '../components/PageHeader'
 import { messageOf } from '../lib/errors'
 import { formatDate } from '../lib/format'
 
-const ACCEPT = '.csv,.txt,.xlsx,.xls,text/csv'
+const ACCEPT = '.csv,.txt,.xlsx,.xls,.pdf,text/csv,application/pdf'
 
 /** Import a bank statement: choose the file, check what it adds, import (RF-IMP-01). */
 export function ImportPage() {
@@ -82,7 +82,8 @@ export function ImportPage() {
   }
 
   const submit = async () => {
-    if (!file || !preview?.mapping) {
+    // A PDF statement is read by its bank's reader: there are no columns to map.
+    if (!file || (!preview?.mapping && !preview?.reader)) {
       return
     }
     if (selected.size === 0) {
@@ -95,7 +96,7 @@ export function ImportPage() {
       const batch = await importApi.create({
         file,
         accountId,
-        mapping: preview.mapping,
+        mapping: preview.mapping ?? null,
         rows: [...selected],
         templateId: preview.template_id,
         saveTemplateAs: saveTemplate ? templateName : undefined,
@@ -199,7 +200,13 @@ export function ImportPage() {
           </form>
         )}
 
-        {preview && (
+        {preview?.reader && (
+          <p className="notice small" role="status">
+            {t('imports.pdfReader', { reader: preview.reader })}
+          </p>
+        )}
+
+        {preview && !preview.reader && (
           <MappingEditor
             key={JSON.stringify(preview.mapping) + preview.columns.join('|')}
             preview={preview}
@@ -222,7 +229,7 @@ export function ImportPage() {
 
         {preview && preview.rows.length > 0 && (
           <section className="card stack stack--tight">
-            {!preview.template_id && (
+            {!preview.template_id && !preview.reader && (
               <>
                 <label className="check">
                   <input

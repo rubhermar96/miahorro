@@ -269,7 +269,9 @@ export const es = {
       'Descarga los movimientos desde tu banca online en Excel o CSV y súbelos aquí. Antes de guardar nada verás lo que se va a importar.',
     account: 'Cuenta',
     file: 'Fichero del banco',
-    fileHelp: 'Excel (.xlsx) o CSV. Hasta 5 MB.',
+    fileHelp:
+      'Excel (.xlsx) o CSV de cualquier banco, o el extracto en PDF de Bankinter. Hasta 5 MB.',
+    pdfReader: 'Leído como {{reader}}. Cada importe se ha comprobado con el saldo del extracto.',
     template: 'Banco',
     autoTemplate: 'Detectar automáticamente',
     preview: 'Ver movimientos',

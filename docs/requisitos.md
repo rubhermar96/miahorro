@@ -1,6 +1,6 @@
 # MiAhorro: requisitos y funcionalidades
 
-> **Estado:** v1.1 · 16/10/2026 · **Definición cerrada; en desarrollo** (ver [plan-mvp.md](plan-mvp.md)).
+> **Estado:** v1.2 · 16/10/2026 · **Definición cerrada; en desarrollo** (ver [plan-mvp.md](plan-mvp.md)).
 >
 > Este documento es la referencia del proyecto y se irá actualizando. Cada requisito tiene un ID para poder comentarlo con precisión (por ejemplo, "quita RF-CTA-11" o "sube RF-PRE-06 al MVP").
 
@@ -232,7 +232,7 @@ Orientativo: no sustituye a un asesor fiscal.
 |---|---|---|
 | RF-IMP-01 | Importador genérico de CSV/XLSX con asistente de mapeo de columnas, capaz de leer el extracto de cualquier banco. La configuración se guarda como plantilla reutilizable y compartida entre todos los usuarios. | MVP |
 | RF-IMP-02 | Importar **Norma 43** (formato estándar de extractos de la banca española; un único lector sirve para todos los bancos que lo ofrecen) y OFX/QIF. | F2 |
-| RF-IMP-03 | Importar extractos PDF de bancos o brókers que no exportan en otro formato. | Aplazado (sin IA) |
+| RF-IMP-03 | Importar extractos PDF de bancos o brókers que no exportan en otro formato. | MVP: extractos PDF de Bankinter y Cajamar, con lector propio de cada banco que comprueba los saldos (D24) · resto aplazado (sin IA) |
 | RF-IMP-04 | Exportar todos los datos (CSV/JSON). | MVP |
 | RF-IMP-05 | Copias de seguridad automáticas cifradas y restauración probada. | MVP |
 | RF-IMP-06 | Migrar histórico desde otras herramientas (Excel propio, Fintonic…). | Descartado (D14) |
@@ -423,6 +423,7 @@ Todo lo que depende de IA: lectura de tickets y PDF, preguntas en lenguaje natur
 | D21 | Alcance del MVP aprobado tal como está en §7. (P20) | 14/10/2026 |
 | D22 | Registro abierto en lugar de invitaciones, para poder pasar la app a amigos sin gestionar altas. Sustituye a la parte de D8 que limitaba el alta a invitaciones. El primer usuario es el administrador; hay tope de usuarios e interruptor para cerrar el registro. Consecuencia: puede haber usuarios fuera de la familia, así que el texto de privacidad (RF-PLT-06) gana importancia. | 16/10/2026 |
 | D23 | Face ID primero: en el alta se ofrece crear una passkey (un toque) y, como alternativa, la app de códigos. Tras una contraseña, la passkey vale como segundo factor. Con passkey, los códigos de recuperación pasan a ser opcionales. Si alguien pierde el acceso sin códigos, el administrador lo resuelve con `reset-mfa`. | 16/10/2026 |
+| D24 | Se adelanta la importación de extractos PDF (RF-IMP-03) para Bankinter y Cajamar, porque es el formato que se consigue con facilidad. Cada banco tiene su propio lector, sin IA: solo PDF digitales (no escaneados), y solo se acepta el extracto si cada saldo cuadra con el anterior más el importe; si no, no se importa nada. El signo de cada importe sale del cambio de saldo. | 16/10/2026 |
 
 ### 9.2 Preguntas abiertas
 
@@ -498,3 +499,4 @@ Con este volumen, PostgreSQL, la API y Caddy juntos deberían quedarse por debaj
 | 0.4 | 14/10/2026 | D17: backend con FastAPI en lugar de Django. §10 rehecho: autenticación propia (pwdlib, pyotp, webauthn), SQLAdmin, SQLAlchemy 2 + Alembic, cálculos financieros en un único paquete Python y cliente React generado desde OpenAPI. |
 | 1.0 | 14/10/2026 | Definición cerrada. D18–D21: subdominio `miahorro.octogas.es` en la VPS compartida con octogas.es (RNF-18), familia mixta iPhone/Android (RF-MOV-17), sin open banking, MVP aprobado. |
 | 1.1 | 16/10/2026 | D22: registro abierto con salvaguardas (RF-PLT-03 pasa al MVP; RF-PLT-10 actualizado). D23: Face ID como método principal (RF-USR-01). |
+| 1.2 | 16/10/2026 | D24: extractos PDF de Bankinter y Cajamar en el MVP (RF-IMP-03), con comprobación de saldos. |

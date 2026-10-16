@@ -968,15 +968,15 @@ export interface components {
              */
             account_id: string;
             /**
-             * Mapping
-             * @description Mapping as JSON, as the preview returned it
-             */
-            mapping: string;
-            /**
              * Rows
              * @description JSON list of the row numbers to import
              */
             rows: string;
+            /**
+             * Mapping
+             * @description Mapping as JSON, as the preview returned it (not for PDF)
+             */
+            mapping?: string | null;
             /** Template Id */
             template_id?: string | null;
             /**
@@ -1155,6 +1155,11 @@ export interface components {
              * @description Template whose columns the file has
              */
             template_id: string | null;
+            /**
+             * Reader
+             * @description Bank reader used for a PDF statement
+             */
+            reader: string | null;
             /**
              * Error
              * @description Why the rows could not be read with the mapping

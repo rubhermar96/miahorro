@@ -164,7 +164,7 @@ Las iteraciones 5–9 dependen sobre todo de la 2. Si alguna te corre más prisa
   - Detecta la codificación, el separador y los formatos españoles de fecha e importe (`1.234,56`).
   - Asistente de mapeo de columnas y vista previa antes de confirmar.
   - Lo configurado se guarda como plantilla compartida.
-- Plantillas de **Bankinter y Cajamar**.
+- Plantillas de **Bankinter y Cajamar**: en PDF, el extracto mensual que genera el banco, con lector propio que comprueba los saldos línea a línea (D24).
 - Reimportar un fichero repetido o que se solapa con otro no crea duplicados.
 - Deshacer una importación completa.
 - Reglas de categorización aplicadas al importar y al apuntar a mano. Al corregir una categoría, la app propone crear la regla.

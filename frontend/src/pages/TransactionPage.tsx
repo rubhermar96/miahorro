@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { type FormEvent, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useParams } from 'react-router'
+import { Link, useNavigate, useParams } from 'react-router'
 
 import {
   type Account,
@@ -247,6 +247,14 @@ function TransactionForm({
         <button type="submit" className="button" disabled={busy}>
           {t('add.save')}
         </button>
+        {isEntry && (
+          <Link
+            className="button button--secondary"
+            to={`/mas/recurrentes?desde=${transaction.id}`}
+          >
+            {t('recurring.fromTransaction')}
+          </Link>
+        )}
         <button
           type="button"
           className="button button--ghost button--danger"

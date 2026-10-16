@@ -77,13 +77,21 @@ export function RulesPage() {
               {list.map((rule, index) => (
                 <li key={rule.id} className="row">
                   <span className="row__icon" aria-hidden="true">
-                    {categoryIcon(categories.data ?? [], rule.category_id)}
+                    {rule.transfer_account_id
+                      ? '⇄'
+                      : categoryIcon(categories.data ?? [], rule.category_id)}
                   </span>
                   <span className="row__text">
                     <span className="row__title">«{rule.match_text}»</span>
                     <small className="muted">
                       {[
-                        categoryLabel(categories.data ?? [], rule.category_id),
+                        rule.transfer_account_id
+                          ? t('rules.transferTo', {
+                              account:
+                                accounts.data?.find((a) => a.id === rule.transfer_account_id)
+                                  ?.name ?? '',
+                            })
+                          : categoryLabel(categories.data ?? [], rule.category_id),
                         conditions(rule, accounts.data ?? [], t),
                       ]
                         .filter(Boolean)
@@ -167,7 +175,9 @@ function RuleForm({
   const { t } = useTranslation()
   const categories = useCategories()
   const [text, setText] = useState('')
+  const [target, setTarget] = useState<'category' | 'transfer'>('category')
   const [categoryId, setCategoryId] = useState('')
+  const [transferAccountId, setTransferAccountId] = useState('')
   const [accountId, setAccountId] = useState('')
   const [minText, setMinText] = useState('')
   const [maxText, setMaxText] = useState('')
@@ -178,8 +188,12 @@ function RuleForm({
   const submit = async (event: FormEvent) => {
     event.preventDefault()
     setError(null)
-    if (!categoryId) {
+    if (target === 'category' && !categoryId) {
       setError(t('rules.chooseCategory'))
+      return
+    }
+    if (target === 'transfer' && !transferAccountId) {
+      setError(t('rules.chooseAccount'))
       return
     }
     const amountMin = minText.trim() ? parseAmountInput(minText) : null
@@ -192,7 +206,8 @@ function RuleForm({
     try {
       const { applied } = await importApi.createRule({
         match_text: text,
-        category_id: categoryId,
+        category_id: target === 'category' ? categoryId : null,
+        transfer_account_id: target === 'transfer' ? transferAccountId : null,
         account_id: accountId || null,
         amount_min: amountMin,
         amount_max: amountMax,
@@ -222,16 +237,48 @@ function RuleForm({
           onChange={(event) => setText(event.target.value)}
         />
       </label>
-      <div className="field">
-        <label htmlFor="rule-category">{t('rules.category')}</label>
-        <CategorySelect
-          id="rule-category"
-          categories={categories.data ?? []}
-          value={categoryId}
-          onChange={setCategoryId}
-          emptyLabel={t('rules.chooseCategory')}
-        />
+      <div className="segmented segmented--two" role="radiogroup" aria-label={t('rules.target')}>
+        {(['category', 'transfer'] as const).map((option) => (
+          <button
+            key={option}
+            type="button"
+            role="radio"
+            aria-checked={target === option}
+            className="segmented__option"
+            onClick={() => setTarget(option)}
+          >
+            {t(`rules.targets.${option}`)}
+          </button>
+        ))}
       </div>
+      {target === 'category' ? (
+        <div className="field">
+          <label htmlFor="rule-category">{t('rules.category')}</label>
+          <CategorySelect
+            id="rule-category"
+            categories={categories.data ?? []}
+            value={categoryId}
+            onChange={setCategoryId}
+            emptyLabel={t('rules.chooseCategory')}
+          />
+        </div>
+      ) : (
+        <label className="field">
+          <span>{t('rules.transferAccount')}</span>
+          <select
+            value={transferAccountId}
+            onChange={(event) => setTransferAccountId(event.target.value)}
+          >
+            <option value="">{t('rules.chooseAccount')}</option>
+            {accounts.map((account) => (
+              <option key={account.id} value={account.id}>
+                {account.name}
+              </option>
+            ))}
+          </select>
+          <small className="muted">{t('rules.transferHelp')}</small>
+        </label>
+      )}
       <details>
         <summary>{t('rules.conditions')}</summary>
         <div className="stack stack--tight details-body">
@@ -266,14 +313,16 @@ function RuleForm({
           </div>
         </div>
       </details>
-      <label className="check">
-        <input
-          type="checkbox"
-          checked={applyExisting}
-          onChange={(event) => setApplyExisting(event.target.checked)}
-        />
-        <span>{t('rules.applyExisting')}</span>
-      </label>
+      {target === 'category' && (
+        <label className="check">
+          <input
+            type="checkbox"
+            checked={applyExisting}
+            onChange={(event) => setApplyExisting(event.target.checked)}
+          />
+          <span>{t('rules.applyExisting')}</span>
+        </label>
+      )}
       <ErrorMessage message={error} />
       <button type="submit" className="button" disabled={busy}>
         {t('rules.add')}

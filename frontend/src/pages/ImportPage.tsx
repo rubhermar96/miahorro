@@ -17,6 +17,7 @@ import {
   importKeys,
   type ImportPreview,
   type Mapping,
+  type PreviewRow,
   useImports,
   useTemplates,
 } from '../api/imports'
@@ -25,6 +26,14 @@ import { Money } from '../components/Money'
 import { PageHeader } from '../components/PageHeader'
 import { messageOf } from '../lib/errors'
 import { formatDate } from '../lib/format'
+
+type Decision = PreviewRow['decisions'][number]
+type Decisions = Record<number, Decision>
+
+/** What happens to a row when it is ticked: the server's proposal, never "skip". */
+function firstAction(row: PreviewRow): Decision {
+  return row.decisions.find((d) => d !== 'skip') ?? 'import'
+}
 
 const ACCEPT = '.csv,.txt,.xlsx,.xls,.pdf,text/csv,application/pdf'
 
@@ -40,7 +49,7 @@ export function ImportPage() {
   const [file, setFile] = useState<File | null>(null)
   const [templateId, setTemplateId] = useState('')
   const [preview, setPreview] = useState<ImportPreview | null>(null)
-  const [selected, setSelected] = useState<Set<number>>(new Set())
+  const [decisions, setDecisions] = useState<Decisions>({})
   const [saveTemplate, setSaveTemplate] = useState(false)
   const [templateName, setTemplateName] = useState('')
   const [done, setDone] = useState<ImportBatch | null>(null)
@@ -64,7 +73,9 @@ export function ImportPage() {
         templateId: mapping ? null : templateId || null,
       })
       setPreview(result)
-      setSelected(new Set(result.rows.filter((r) => r.status === 'new').map((r) => r.number)))
+      setDecisions(
+        Object.fromEntries(result.rows.map((row) => [row.number, row.decisions[0] ?? 'skip'])),
+      )
     } catch (err) {
       setPreview(null)
       setError(messageOf(err, t('errors.generic')))
@@ -86,7 +97,8 @@ export function ImportPage() {
     if (!file || (!preview?.mapping && !preview?.reader)) {
       return
     }
-    if (selected.size === 0) {
+    const included = Object.values(decisions).filter((d) => d !== 'skip').length
+    if (included === 0) {
       setError(t('imports.nothingSelected'))
       return
     }
@@ -97,7 +109,7 @@ export function ImportPage() {
         file,
         accountId,
         mapping: preview.mapping ?? null,
-        rows: [...selected],
+        decisions,
         templateId: preview.template_id,
         saveTemplateAs: saveTemplate ? templateName : undefined,
       })
@@ -221,9 +233,10 @@ export function ImportPage() {
           <Review
             preview={preview}
             account={account}
+            accounts={accounts.data ?? []}
             categories={categories.data ?? []}
-            selected={selected}
-            onSelect={setSelected}
+            decisions={decisions}
+            onDecide={setDecisions}
           />
         )}
 
@@ -259,7 +272,9 @@ export function ImportPage() {
               disabled={busy || (saveTemplate && !templateName.trim())}
               onClick={() => void submit()}
             >
-              {t('imports.submit', { count: selected.size })}
+              {t('imports.submit', {
+                count: Object.values(decisions).filter((d) => d !== 'skip').length,
+              })}
             </button>
           </section>
         )}
@@ -431,38 +446,42 @@ function MappingEditor({
   )
 }
 
-/** The rows the file would add, each one ticked or not, plus the balance check. */
+/** The rows the file would add, each with what will happen to it, plus the balance check. */
 function Review({
   preview,
   account,
+  accounts,
   categories,
-  selected,
-  onSelect,
+  decisions,
+  onDecide,
 }: {
   preview: ImportPreview
   account: Account
+  accounts: Account[]
   categories: Category[]
-  selected: Set<number>
-  onSelect: (selected: Set<number>) => void
+  decisions: Decisions
+  onDecide: (decisions: Decisions) => void
 }) {
   const { t } = useTranslation()
   const count = (status: string) => preview.rows.filter((r) => r.status === status).length
   const summary = [
     t('imports.summaryNew', { count: count('new') }),
     count('duplicate') > 0 && t('imports.summaryDuplicate', { count: count('duplicate') }),
-    count('possible_duplicate') > 0 &&
-      t('imports.summaryPossible', { count: count('possible_duplicate') }),
+    count('match') > 0 && t('imports.summaryMatch', { count: count('match') }),
+    count('transfer') > 0 && t('imports.summaryTransfer', { count: count('transfer') }),
   ].filter(Boolean)
+  const included = preview.rows.filter((r) => decisions[r.number] !== 'skip').length
+  const accountName = (id: string | null) => accounts.find((a) => a.id === id)?.name ?? ''
 
-  const toggle = (number: number) => {
-    const next = new Set(selected)
-    if (next.has(number)) {
-      next.delete(number)
-    } else {
-      next.add(number)
-    }
-    onSelect(next)
-  }
+  const decide = (number: number, decision: Decision) =>
+    onDecide({ ...decisions, [number]: decision })
+
+  const optionLabel = (row: PreviewRow, decision: Decision) =>
+    decision === 'transfer'
+      ? t('imports.decision.transfer', { account: accountName(row.transfer_account_id) })
+      : row.status === 'transfer' && decision === 'import'
+        ? t('imports.decision.plain')
+        : t(`imports.decision.${decision}`)
 
   const balanceMatches =
     preview.bank_balance !== null && preview.bank_balance === preview.balance_then
@@ -498,47 +517,73 @@ function Review({
             type="button"
             className="button button--ghost"
             onClick={() =>
-              onSelect(
-                selected.size === preview.rows.length
-                  ? new Set()
-                  : new Set(preview.rows.map((r) => r.number)),
+              onDecide(
+                Object.fromEntries(
+                  preview.rows.map((row) => [
+                    row.number,
+                    included === preview.rows.length ? 'skip' : firstAction(row),
+                  ]),
+                ),
               )
             }
           >
-            {selected.size === preview.rows.length
-              ? t('imports.selectNone')
-              : t('imports.selectAll')}
+            {included === preview.rows.length ? t('imports.selectNone') : t('imports.selectAll')}
           </button>
         </div>
-        {count('possible_duplicate') > 0 && (
-          <p className="notice small">{t('imports.possibleHelp')}</p>
+        {(count('match') > 0 || count('transfer') > 0) && (
+          <p className="notice small">{t('imports.reconcileHelp')}</p>
         )}
         <ul className="list card card--flush">
-          {preview.rows.map((row) => (
-            <li key={row.number}>
-              <label className="row">
-                <input
-                  type="checkbox"
-                  className="row__check"
-                  checked={selected.has(row.number)}
-                  onChange={() => toggle(row.number)}
-                />
-                <span className="row__text">
-                  <span className="row__title">{row.description || '—'}</span>
-                  <small className="muted">
-                    {[
-                      formatDate(row.date),
-                      categoryLabel(categories, row.category_id),
-                      row.status !== 'new' && t(`imports.status.${row.status}`),
-                    ]
-                      .filter(Boolean)
-                      .join(' · ')}
-                  </small>
-                </span>
-                <Money value={row.amount} currency={account.currency} signed />
-              </label>
-            </li>
-          ))}
+          {preview.rows.map((row) => {
+            const decision = decisions[row.number] ?? 'skip'
+            const actions = row.decisions.filter((d) => d !== 'skip')
+            return (
+              <li key={row.number}>
+                <label className="row">
+                  <input
+                    type="checkbox"
+                    className="row__check"
+                    checked={decision !== 'skip'}
+                    onChange={() =>
+                      decide(row.number, decision === 'skip' ? firstAction(row) : 'skip')
+                    }
+                  />
+                  <span className="row__text">
+                    <span className="row__title">{row.description || '—'}</span>
+                    <small className="muted">
+                      {[
+                        formatDate(row.date),
+                        categoryLabel(categories, row.category_id),
+                        row.status === 'transfer'
+                          ? t('imports.status.transfer', {
+                              account: accountName(row.transfer_account_id),
+                            })
+                          : row.status !== 'new' && t(`imports.status.${row.status}`),
+                      ]
+                        .filter(Boolean)
+                        .join(' · ')}
+                    </small>
+                  </span>
+                  <Money value={row.amount} currency={account.currency} signed />
+                </label>
+                {decision !== 'skip' && actions.length > 1 && (
+                  <div className="row__choice">
+                    <select
+                      aria-label={t('imports.decisionFor', { name: row.description })}
+                      value={decision}
+                      onChange={(event) => decide(row.number, event.target.value as Decision)}
+                    >
+                      {actions.map((action) => (
+                        <option key={action} value={action}>
+                          {optionLabel(row, action)}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+              </li>
+            )
+          })}
         </ul>
         {preview.skipped.length > 0 && (
           <details className="card">
@@ -571,7 +616,10 @@ function Done({
   const { t } = useTranslation()
   return (
     <section className="card stack stack--tight" role="status">
-      <p className="saved">{t('imports.done', { count: batch.imported, account: account.name })}</p>
+      <p className="saved">
+        {t('imports.done', { count: batch.imported, account: account.name })}
+        {batch.merged > 0 && ` ${t('imports.doneMerged', { count: batch.merged })}`}
+      </p>
       <p className="muted small">{t('imports.uncategorised')}</p>
       <Link className="button" to={`/movimientos?cuenta=${account.id}`}>
         {t('imports.seeTransactions')}

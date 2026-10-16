@@ -56,6 +56,18 @@ export function MorePage() {
               </Link>
             </li>
             <li>
+              <Link className="row" to="/mas/captura">
+                <span className="row__title">{t('more.capture')}</span>
+                <span aria-hidden="true">›</span>
+              </Link>
+            </li>
+            <li>
+              <Link className="row" to="/mas/recurrentes">
+                <span className="row__title">{t('more.recurring')}</span>
+                <span aria-hidden="true">›</span>
+              </Link>
+            </li>
+            <li>
               <Link className="row" to="/mas/reglas">
                 <span className="row__title">{t('more.rules')}</span>
                 <span aria-hidden="true">›</span>

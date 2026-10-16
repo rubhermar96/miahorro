@@ -20,6 +20,13 @@ const mapping = {
   invert_sign: false,
 }
 
+const DECISIONS: Record<string, string[]> = {
+  new: ['import', 'skip'],
+  duplicate: ['skip', 'import'],
+  match: ['merge', 'import', 'skip'],
+  transfer: ['transfer', 'import', 'skip'],
+}
+
 const row = (fields: Record<string, unknown>) => ({
   number: 2,
   date: '2026-10-15',
@@ -29,7 +36,9 @@ const row = (fields: Record<string, unknown>) => ({
   status: 'new',
   category_id: 'groceries',
   match_id: null,
+  transfer_account_id: null,
   ...fields,
+  decisions: DECISIONS[(fields.status as string | undefined) ?? 'new'],
 })
 
 const preview = (fields: Record<string, unknown> = {}) => ({
@@ -41,7 +50,15 @@ const preview = (fields: Record<string, unknown> = {}) => ({
   rows: [
     row({}),
     row({ number: 3, description: 'NÓMINA', amount: '2000.00', status: 'duplicate' }),
-    row({ number: 4, description: 'BAR', amount: '-3.00', status: 'possible_duplicate' }),
+    row({ number: 4, description: 'BAR', amount: '-3.00', status: 'match', match_id: 'tx-9' }),
+    row({
+      number: 5,
+      description: 'RECIBO VISA',
+      amount: '-800.00',
+      status: 'transfer',
+      transfer_account_id: 'acc-2',
+      category_id: null,
+    }),
   ],
   skipped: [{ number: 5, reason: 'Sin fecha.', text: 'Total · 1.951,80' }],
   bank_balance: '954.80',
@@ -52,6 +69,7 @@ const preview = (fields: Record<string, unknown> = {}) => ({
 
 const batch = {
   id: 'imp-1',
+  merged: 0,
   account_id: 'acc-1',
   filename: 'extracto.csv',
   template_name: null,
@@ -93,6 +111,10 @@ async function choose(user: ReturnType<typeof userEvent.setup>) {
 describe('import', () => {
   it('previews a file and imports only the new rows by default', async () => {
     const user = userEvent.setup()
+    api.on('GET /api/accounts', {
+      status: 200,
+      body: [account(), account({ id: 'acc-2', name: 'Visa', kind: 'credit_card' })],
+    })
     api.on('POST /api/imports', { status: 201, body: batch })
     renderApp('/importar')
 
@@ -102,20 +124,26 @@ describe('import', () => {
       file: expect.any(String) as unknown,
       account_id: 'acc-1',
     })
-    expect(await screen.findByText('1 nuevo · 1 ya importado · 1 quizá ya apuntado')).toBeVisible()
+    expect(
+      await screen.findByText('1 nuevo · 1 ya importado · 1 ya apuntado · 1 transferencia'),
+    ).toBeVisible()
     expect(screen.getByRole('checkbox', { name: /COMPRA MERCADONA/ })).toBeChecked()
     expect(screen.getByRole('checkbox', { name: /NÓMINA/ })).not.toBeChecked()
-    expect(screen.getByRole('checkbox', { name: /BAR.*¿Ya apuntado\?/ })).not.toBeChecked()
+    expect(screen.getByRole('checkbox', { name: /BAR.*Ya lo tenías apuntado/ })).toBeChecked()
+    expect(
+      screen.getByRole('checkbox', { name: /RECIBO VISA.*Transferencia con Visa/ }),
+    ).toBeChecked()
+    expect(screen.getByLabelText('Qué hacer con «BAR»')).toHaveValue('merge')
     expect(screen.getByText('Cuadra con el banco.')).toBeInTheDocument()
     expect(screen.getByText('1 fila del fichero no es un movimiento')).toBeInTheDocument()
 
-    await user.click(screen.getByRole('checkbox', { name: /BAR/ }))
-    await user.click(screen.getByRole('button', { name: 'Importar 2 movimientos' }))
+    await user.selectOptions(screen.getByLabelText('Qué hacer con «BAR»'), 'import')
+    await user.click(screen.getByRole('button', { name: 'Importar 3 movimientos' }))
 
     expect(api.callsTo('POST /api/imports')[0]?.body).toMatchObject({
       account_id: 'acc-1',
       mapping: JSON.stringify(mapping),
-      rows: '[2,4]',
+      decisions: JSON.stringify({ 2: 'import', 3: 'skip', 4: 'import', 5: 'transfer' }),
     })
     expect(await screen.findByText('1 movimiento importado en Nómina.')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Ver movimientos' })).toHaveAttribute(
@@ -151,7 +179,7 @@ describe('import', () => {
     await user.click(screen.getByRole('button', { name: 'Importar 1 movimiento' }))
 
     const sent = api.callsTo('POST /api/imports')[0]?.body as Record<string, string>
-    expect(sent.rows).toBe('[2]')
+    expect(sent.decisions).toBe(JSON.stringify({ 2: 'import' }))
     expect(sent).not.toHaveProperty('mapping')
   })
 
@@ -200,7 +228,7 @@ describe('import', () => {
 
     await user.click(await screen.findByLabelText('Guardar estas columnas como plantilla'))
     await user.type(screen.getByLabelText(/Nombre del banco/), 'Bankinter')
-    await user.click(screen.getByRole('button', { name: 'Importar 1 movimiento' }))
+    await user.click(screen.getByRole('button', { name: 'Importar 3 movimientos' }))
 
     expect(api.callsTo('POST /api/imports')[0]?.body).toMatchObject({
       save_template_as: 'Bankinter',
@@ -260,6 +288,7 @@ describe('rules', () => {
     expect(api.callsTo('POST /api/rules')[0]?.body).toEqual({
       match_text: 'MERCADONA',
       category_id: 'groceries',
+      transfer_account_id: null,
       account_id: null,
       amount_min: null,
       amount_max: null,

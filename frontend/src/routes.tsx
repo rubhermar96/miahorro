@@ -4,6 +4,7 @@ import { RequireSession } from './components/RequireSession'
 import { AccountFormPage } from './pages/AccountFormPage'
 import { AccountPage } from './pages/AccountPage'
 import { ArchivedAccountsPage } from './pages/ArchivedAccountsPage'
+import { CapturePage } from './pages/CapturePage'
 import { CategoriesPage } from './pages/CategoriesPage'
 import { HomePage } from './pages/HomePage'
 import { ImportPage } from './pages/ImportPage'
@@ -12,6 +13,8 @@ import { MorePage } from './pages/MorePage'
 import { NotFoundPage } from './pages/NotFoundPage'
 import { PlanPage } from './pages/PlaceholderPages'
 import { QuickAddPage } from './pages/QuickAddPage'
+import { RecurringPage } from './pages/RecurringPage'
+import { ReviewPage } from './pages/ReviewPage'
 import { RulesPage } from './pages/RulesPage'
 import { TransactionPage } from './pages/TransactionPage'
 import { TransactionsPage } from './pages/TransactionsPage'
@@ -36,6 +39,9 @@ export const routes: RouteObject[] = [
       { path: 'mas', element: <MorePage /> },
       { path: 'mas/categorias', element: <CategoriesPage /> },
       { path: 'mas/reglas', element: <RulesPage /> },
+      { path: 'mas/captura', element: <CapturePage /> },
+      { path: 'mas/recurrentes', element: <RecurringPage /> },
+      { path: 'revisar', element: <ReviewPage /> },
       { path: 'importar', element: <ImportPage /> },
       { path: '*', element: <NotFoundPage /> },
     ],

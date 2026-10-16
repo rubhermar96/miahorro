@@ -77,7 +77,12 @@ export function TransactionList({
                   </span>
                   <span className="row__text">
                     <span className="row__title">{title}</span>
-                    <small className="muted">{details.join(' · ')}</small>
+                    <small className="muted">
+                      {transaction.pending && (
+                        <span className="tag tag--pending">{t('transactions.pending')}</span>
+                      )}
+                      {details.join(' · ')}
+                    </small>
                   </span>
                   <span className="row__amounts">
                     <Money value={transaction.amount} currency={account?.currency} signed />

@@ -78,13 +78,17 @@ export const importApi = {
       template_id: templateId ?? null,
     }),
   create: (
-    request: PreviewRequest & { mapping: Mapping | null; rows: number[]; saveTemplateAs?: string },
+    request: PreviewRequest & {
+      mapping: Mapping | null
+      decisions: Record<number, string>
+      saveTemplateAs?: string
+    },
   ) =>
     postForm<ImportBatch>('/api/imports', {
       file: request.file,
       account_id: request.accountId,
       mapping: request.mapping ? JSON.stringify(request.mapping) : null,
-      rows: JSON.stringify(request.rows),
+      decisions: JSON.stringify(request.decisions),
       template_id: request.templateId ?? null,
       save_template_as: request.saveTemplateAs?.trim() || null,
     }),

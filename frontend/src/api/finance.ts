@@ -118,6 +118,7 @@ export function useTransactions(filters: TransactionFilters) {
 export function useTransaction(id: string) {
   return useQuery({
     queryKey: [...financeKeys.transactions, 'one', id],
+    enabled: id !== '',
     queryFn: () =>
       unwrap(
         api.GET('/api/transactions/{transaction_id}', {

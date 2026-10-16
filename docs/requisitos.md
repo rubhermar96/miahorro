@@ -1,6 +1,6 @@
 # MiAhorro: requisitos y funcionalidades
 
-> **Estado:** v1.2 · 16/10/2026 · **Definición cerrada; en desarrollo** (ver [plan-mvp.md](plan-mvp.md)).
+> **Estado:** v1.3 · 16/10/2026 · **Definición cerrada; en desarrollo** (ver [plan-mvp.md](plan-mvp.md)).
 >
 > Este documento es la referencia del proyecto y se irá actualizando. Cada requisito tiene un ID para poder comentarlo con precisión (por ejemplo, "quita RF-CTA-11" o "sube RF-PRE-06 al MVP").
 
@@ -110,7 +110,7 @@ Empieza como herramienta de uso propio y después se abre a 2–3 familiares cer
 | RF-MOV-04 | Transferencias entre cuentas propias: no cuentan como ingreso ni gasto; detección automática de la pareja salida/entrada. | MVP |
 | RF-MOV-05 | Dividir un movimiento en varias categorías (ticket del súper con productos de droguería). | F2 |
 | RF-MOV-06 | Movimientos recurrentes (nómina, alquiler, recibos) con previsión. Detección automática de suscripciones y recibos, y aviso de subidas de precio. | MVP: manual · F2: detección |
-| RF-MOV-07 | Reglas de categorización automática (por concepto, comercio, importe, cuenta). Si corrijo una categoría, la app ofrece crear la regla. | MVP |
+| RF-MOV-07 | Reglas de categorización automática (por concepto, comercio, importe, cuenta). Una regla también puede decir que el movimiento es una transferencia con otra cuenta propia (p. ej. el cargo mensual de la tarjeta de crédito). Si corrijo una categoría, la app ofrece crear la regla. | MVP |
 | RF-MOV-08 | Normalización de comercios ("COMPRA TARJ. 1234 MERCADONA S.A. VALENCIA" → "Mercadona"). | F2 |
 | RF-MOV-09 | Detección y fusión de duplicados (p. ej. un pago capturado por Apple Pay y luego recibido del banco). | MVP |
 | RF-MOV-10 | Adjuntos: foto del ticket o factura (imagen/PDF). | F2 |
@@ -501,3 +501,4 @@ Con este volumen, PostgreSQL, la API y Caddy juntos deberían quedarse por debaj
 | 1.0 | 14/10/2026 | Definición cerrada. D18–D21: subdominio `miahorro.octogas.es` en la VPS compartida con octogas.es (RNF-18), familia mixta iPhone/Android (RF-MOV-17), sin open banking, MVP aprobado. |
 | 1.1 | 16/10/2026 | D22: registro abierto con salvaguardas (RF-PLT-03 pasa al MVP; RF-PLT-10 actualizado). D23: Face ID como método principal (RF-USR-01). |
 | 1.2 | 16/10/2026 | D24: extractos PDF de Bankinter y Cajamar en el MVP (RF-IMP-03), con comprobación de saldos. D25: el saldo inicial es un ancla en su fecha. Saldo tras cada movimiento (RF-MOV-15) e informes por mes, año o fechas a elegir (RF-INF-03). El lector de Cajamar queda pendiente hasta tener un extracto de ejemplo. |
+| 1.3 | 16/10/2026 | RF-MOV-07: reglas que convierten un movimiento en transferencia entre cuentas propias. |

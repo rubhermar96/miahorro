@@ -48,3 +48,37 @@ export function formatDate(isoDate: string): string {
   const [, year, month, day] = match.map(Number)
   return DATE_FORMAT.format(new Date(year!, month! - 1, day))
 }
+
+/** Like formatAmount, with an explicit "+" for money coming in ("+2.000,00 €"). */
+export function formatSignedAmount(value: string, currency = 'EUR'): string {
+  const formatted = formatAmount(value, currency)
+  return value.startsWith('-') || /^0*(\.0*)?$/.test(value) ? formatted : `+${formatted}`
+}
+
+/** Today's date in Spain as "2026-10-16", for date inputs. */
+export function todayIso(now: Date = new Date()): string {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Europe/Madrid',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(now)
+  return parts // en-CA formats as YYYY-MM-DD
+}
+
+const DAY_FORMAT = new Intl.DateTimeFormat('es-ES', {
+  weekday: 'long',
+  day: 'numeric',
+  month: 'long',
+})
+
+/** "jueves, 16 de octubre" for list headers. */
+export function formatDay(isoDate: string): string {
+  const [year, month, day] = isoDate.split('-').map(Number)
+  return DAY_FORMAT.format(new Date(year!, month! - 1, day))
+}
+
+/** An API rate ("2.1500") the Spanish way, without trailing zeros ("2,15"). */
+export function formatRate(value: string): string {
+  return value.includes('.') ? value.replace(/\.?0+$/, '').replace('.', ',') : value
+}

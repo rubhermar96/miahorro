@@ -42,6 +42,9 @@ class User(TimestampMixin, Base):
     theme: Mapped[str] = mapped_column(String(10), default="system")
     language: Mapped[str] = mapped_column(String(5), default="es")
 
+    # Default categories are created once, the first time they are needed.
+    categories_seeded_at: Mapped[datetime | None]
+
     @property
     def has_totp(self) -> bool:
         return self.totp_enabled_at is not None

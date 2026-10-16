@@ -2,7 +2,7 @@ import { browserSupportsWebAuthn } from '@simplewebauthn/browser'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { type FormEvent, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 
 import {
   authApi,
@@ -47,6 +47,22 @@ export function MorePage() {
             <span className="muted">{user.email}</span>
           </p>
         </section>
+        <nav className="card card--flush" aria-label={t('more.title')}>
+          <ul className="list">
+            <li>
+              <Link className="row" to="/mas/categorias">
+                <span className="row__title">{t('more.categories')}</span>
+                <span aria-hidden="true">›</span>
+              </Link>
+            </li>
+            <li>
+              <Link className="row" to="/cuentas/archivadas">
+                <span className="row__title">{t('more.accounts')}</span>
+                <span aria-hidden="true">›</span>
+              </Link>
+            </li>
+          </ul>
+        </nav>
         <PreferencesCard session={session} />
         <SecurityCard session={session} />
         {user.is_admin && (

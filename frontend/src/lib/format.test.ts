@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { formatAmount, formatDate } from './format'
+import { formatAmount, formatDate, formatDay, formatSignedAmount, todayIso } from './format'
 
 const NBSP = ' '
 
@@ -50,5 +50,26 @@ describe('formatDate', () => {
 
   it('rejects values that are not ISO dates', () => {
     expect(() => formatDate('14/10/2026')).toThrow('Not an ISO date')
+  })
+})
+
+describe('formatSignedAmount', () => {
+  it('marks income with a plus sign', () => {
+    expect(formatSignedAmount('2000')).toBe(`+2.000,00${NBSP}€`)
+    expect(formatSignedAmount('-12.5')).toBe(`-12,50${NBSP}€`)
+    expect(formatSignedAmount('0.00')).toBe(`0,00${NBSP}€`)
+  })
+})
+
+describe('todayIso', () => {
+  it('uses the Spanish date, not UTC', () => {
+    // 23:30 UTC on 15 October is already 16 October in Madrid (summer time).
+    expect(todayIso(new Date('2026-10-15T23:30:00Z'))).toBe('2026-10-16')
+  })
+})
+
+describe('formatDay', () => {
+  it('formats a list header', () => {
+    expect(formatDay('2026-10-16')).toBe('viernes, 16 de octubre')
   })
 })

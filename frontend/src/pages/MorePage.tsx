@@ -50,6 +50,30 @@ export function MorePage() {
         <nav className="card card--flush" aria-label={t('more.title')}>
           <ul className="list">
             <li>
+              <Link className="row" to="/importar">
+                <span className="row__title">{t('more.import')}</span>
+                <span aria-hidden="true">›</span>
+              </Link>
+            </li>
+            <li>
+              <Link className="row" to="/mas/captura">
+                <span className="row__title">{t('more.capture')}</span>
+                <span aria-hidden="true">›</span>
+              </Link>
+            </li>
+            <li>
+              <Link className="row" to="/mas/recurrentes">
+                <span className="row__title">{t('more.recurring')}</span>
+                <span aria-hidden="true">›</span>
+              </Link>
+            </li>
+            <li>
+              <Link className="row" to="/mas/reglas">
+                <span className="row__title">{t('more.rules')}</span>
+                <span aria-hidden="true">›</span>
+              </Link>
+            </li>
+            <li>
               <Link className="row" to="/mas/categorias">
                 <span className="row__title">{t('more.categories')}</span>
                 <span aria-hidden="true">›</span>

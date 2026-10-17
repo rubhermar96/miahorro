@@ -14,9 +14,9 @@ from app.errors import error_body
 
 CSRF_HEADER = "X-MiAhorro-CSRF"
 _UNSAFE_METHODS = frozenset({"POST", "PUT", "PATCH", "DELETE"})
-# Endpoints authenticated by a bearer token instead of the cookie (e.g. the Apple Pay capture
-# endpoint in iteration 4) go here.
-EXEMPT_PATHS: frozenset[str] = frozenset()
+# Endpoints authenticated by a bearer token instead of the cookie: the payment capture of the
+# Apple Pay Shortcut (app/routers/capture.py), which never reads the session cookie.
+EXEMPT_PATHS: frozenset[str] = frozenset({"/api/capture/payments"})
 
 
 def register_csrf_protection(app: FastAPI) -> None:

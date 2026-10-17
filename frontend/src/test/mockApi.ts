@@ -11,6 +11,21 @@ export type ApiCall = {
   headers: Headers
 }
 
+/** JSON bodies as objects; multipart forms as {field: value}, with files by name. */
+async function readBody(request: Request): Promise<unknown> {
+  if ((request.headers.get('content-type') ?? '').startsWith('multipart/form-data')) {
+    const form = await request.clone().formData()
+    return Object.fromEntries(
+      [...form.entries()].map(([name, value]) => [
+        name,
+        typeof value === 'string' ? value : (value as File).name,
+      ]),
+    )
+  }
+  const text = await request.clone().text()
+  return text ? (JSON.parse(text) as unknown) : undefined
+}
+
 /**
  * Replace fetch with a fake API keyed by "METHOD /path". Unknown routes answer 404.
  * Handlers can be swapped during a test (e.g. the session changes after signing in).
@@ -22,8 +37,7 @@ export function mockApi(initial: Record<string, Handler> = {}) {
   const fetchMock = vi.fn(async (request: Request) => {
     const url = new URL(request.url)
     const path = url.pathname
-    const text = request.method === 'GET' ? '' : await request.clone().text()
-    const body: unknown = text ? JSON.parse(text) : undefined
+    const body = request.method === 'GET' ? undefined : await readBody(request)
     calls.push({
       method: request.method,
       path,

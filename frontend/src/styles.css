@@ -763,3 +763,107 @@ fieldset.card legend {
 details.card {
   display: block;
 }
+
+/* Rows that are picked with a checkbox (import review, bulk edit). */
+label.row {
+  cursor: pointer;
+}
+
+.row__check {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  min-height: 0;
+}
+
+.row__amounts {
+  display: grid;
+  flex-shrink: 0;
+  justify-items: end;
+  text-align: right;
+}
+
+.row__amounts small {
+  font-size: 0.75rem;
+}
+
+.tag {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 0 6px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.tag--pending {
+  background: color-mix(in srgb, var(--primary) 14%, transparent);
+  color: var(--text);
+}
+
+.guide {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.copy {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.copy code {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 8px;
+  overflow-wrap: anywhere;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  font-size: 0.8125rem;
+}
+
+.row__choice {
+  padding: 0 16px 10px 50px;
+}
+
+.row__choice select {
+  min-height: 36px;
+  font-size: 0.875rem;
+}
+
+.row__actions {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.row__actions .button {
+  min-width: 40px;
+  padding: 0 8px;
+}
+
+/* The first rows of an imported file, to tell which column is which. */
+.table-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.sample {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.sample th,
+.sample td {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.sample th {
+  background: var(--surface-2);
+}

@@ -112,6 +112,25 @@ describe('transactions', () => {
     expect(screen.getByText('3 movimientos')).toBeInTheDocument()
   })
 
+  it('shows the balance after each movement for a single account', async () => {
+    api.on('GET /api/accounts', {
+      status: 200,
+      body: [account(), account({ id: 'acc-2', name: 'Ahorro' })],
+    })
+    api.on('GET /api/transactions', {
+      status: 200,
+      body: page([transaction({ balance_after: '954.80' })]),
+    })
+    const { unmount } = renderApp('/movimientos')
+    expect(await screen.findByText('Mercadona')).toBeInTheDocument()
+    expect(screen.queryByText('Saldo 954,80 €')).not.toBeInTheDocument() // two accounts mixed
+    unmount()
+
+    renderApp('/movimientos?cuenta=acc-1')
+
+    expect(await screen.findByText('Saldo 954,80 €')).toBeInTheDocument()
+  })
+
   it('searches and filters through the URL', async () => {
     const user = userEvent.setup()
     const { router } = renderApp('/movimientos')

@@ -516,6 +516,50 @@ export interface paths {
         patch: operations["update_transaction_api_transactions__transaction_id__patch"];
         trace?: never;
     };
+    "/api/transactions/{transaction_id}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirm Transaction
+         * @description Keep a captured payment that no statement has confirmed (paid in cash back, a bank
+         *     whose statements are not imported...).
+         */
+        post: operations["confirm_transaction_api_transactions__transaction_id__confirm_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/transactions/bulk": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Bulk Edit
+         * @description Recategorise, tag or delete several movements at once (RF-MOV-15).
+         *
+         *     Transfers and adjustments have no category: categorising skips them. Deleting a transfer
+         *     deletes both of its movements.
+         */
+        post: operations["bulk_edit_api_transactions_bulk_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/transfers": {
         parameters: {
             query?: never;
@@ -548,6 +592,362 @@ export interface paths {
          * @description Tags in use, most used first (for suggestions).
          */
         get: operations["list_tags_api_tags_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/import-templates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Templates
+         * @description Templates shared by everyone, by name.
+         */
+        get: operations["list_templates_api_import_templates_get"];
+        put?: never;
+        /** Create Template */
+        post: operations["create_template_api_import_templates_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/import-templates/{template_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete Template
+         * @description Only whoever created a template, or an administrator, can delete it.
+         */
+        delete: operations["delete_template_api_import_templates__template_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/imports/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Preview Import
+         * @description What the file would add to the account. Stores nothing.
+         */
+        post: operations["preview_import_api_imports_preview_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/imports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Imports */
+        get: operations["list_imports_api_imports_get"];
+        put?: never;
+        /** Create Import */
+        post: operations["create_import_api_imports_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/imports/{import_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Undo Import
+         * @description Delete every movement the import created, even those edited since, and put back the
+         *     ones it merged or turned into transfers.
+         */
+        delete: operations["undo_import_api_imports__import_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/rules": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Rules
+         * @description In the order they are tried: the first that matches wins.
+         */
+        get: operations["list_rules_api_rules_get"];
+        put?: never;
+        /**
+         * Create Rule
+         * @description New rules go first: they are usually more specific than the ones already there.
+         */
+        post: operations["create_rule_api_rules_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/rules/{rule_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Rule */
+        delete: operations["delete_rule_api_rules__rule_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update Rule */
+        patch: operations["update_rule_api_rules__rule_id__patch"];
+        trace?: never;
+    };
+    "/api/rules/apply": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Apply All Rules
+         * @description Categorise existing movements with every rule.
+         */
+        post: operations["apply_all_rules_api_rules_apply_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/rules/suggestion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Suggest Rule
+         * @description A rule to propose after the user changes a movement's category by hand.
+         */
+        get: operations["suggest_rule_api_rules_suggestion_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/capture/tokens": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Tokens */
+        get: operations["list_tokens_api_capture_tokens_get"];
+        put?: never;
+        /** Create Token */
+        post: operations["create_token_api_capture_tokens_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/capture/tokens/{token_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Revoke Token
+         * @description The Shortcut using it stops working at once.
+         */
+        delete: operations["revoke_token_api_capture_tokens__token_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/capture/cards": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Cards
+         * @description Cards seen in captured payments and the account each one goes to.
+         */
+        get: operations["list_cards_api_capture_cards_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/capture/cards/{card_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update Card */
+        patch: operations["update_card_api_capture_cards__card_id__patch"];
+        trace?: never;
+    };
+    "/api/capture/payments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Capture Payment
+         * @description Record a card payment as it happens. It stays pending until a statement confirms it.
+         *
+         *     Authenticated by `Authorization: Bearer <token>` (checked before reading the payment).
+         */
+        post: operations["capture_payment_api_capture_payments_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/recurring": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Recurring */
+        get: operations["list_recurring_api_recurring_get"];
+        put?: never;
+        /** Create Recurring */
+        post: operations["create_recurring_api_recurring_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/recurring/{item_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Update Recurring */
+        put: operations["update_recurring_api_recurring__item_id__put"];
+        post?: never;
+        /** Delete Recurring */
+        delete: operations["delete_recurring_api_recurring__item_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/recurring/upcoming": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Upcoming
+         * @description Expected movements from the overdue ones to `days` ahead (forecast).
+         */
+        get: operations["upcoming_api_recurring_upcoming_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/inbox": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Inbox
+         * @description What needs a look: payments the bank never confirmed (a declined payment?) and
+         *     expected movements that have not arrived.
+         */
+        get: operations["inbox_api_inbox_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -741,6 +1141,144 @@ export interface components {
             /** Archived */
             archived?: boolean | null;
         };
+        /** Applied */
+        Applied: {
+            /** Applied */
+            applied: number;
+        };
+        /** ApplyIn */
+        ApplyIn: {
+            /**
+             * Only Uncategorised
+             * @default true
+             */
+            only_uncategorised: boolean;
+        };
+        /** Body_create_import_api_imports_post */
+        Body_create_import_api_imports_post: {
+            /** File */
+            file: string;
+            /**
+             * Account Id
+             * Format: uuid
+             */
+            account_id: string;
+            /**
+             * Decisions
+             * @description JSON {"row number": "import"|"merge"|"transfer"|"skip"}
+             */
+            decisions: string;
+            /**
+             * Mapping
+             * @description Mapping as JSON, as the preview returned it (not for PDF)
+             */
+            mapping?: string | null;
+            /** Template Id */
+            template_id?: string | null;
+            /**
+             * Save Template As
+             * @description Also save the mapping as a template
+             */
+            save_template_as?: string | null;
+        };
+        /** Body_preview_import_api_imports_preview_post */
+        Body_preview_import_api_imports_preview_post: {
+            /**
+             * File
+             * @description CSV, TXT or XLSX statement
+             */
+            file: string;
+            /**
+             * Account Id
+             * Format: uuid
+             */
+            account_id: string;
+            /**
+             * Mapping
+             * @description Mapping as JSON; omit to detect
+             */
+            mapping?: string | null;
+            /** Template Id */
+            template_id?: string | null;
+        };
+        /** BulkEdit */
+        BulkEdit: {
+            /** Ids */
+            ids: string[];
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "categorise" | "tag" | "untag" | "delete";
+            /**
+             * Category Id
+             * @description For categorise; null clears
+             */
+            category_id?: string | null;
+            /**
+             * Tag
+             * @description For tag and untag
+             */
+            tag?: string | null;
+        };
+        /** BulkResult */
+        BulkResult: {
+            /** Affected */
+            affected: number;
+        };
+        /** Captured */
+        Captured: {
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "recorded" | "already_recorded";
+            /**
+             * Transaction Id
+             * Format: uuid
+             */
+            transaction_id: string;
+            /** Account */
+            account: string;
+            /**
+             * Amount
+             * @example -12.50
+             */
+            amount: string;
+            /**
+             * Message
+             * @description Short text for the phone's notification
+             */
+            message: string;
+        };
+        /** CardOut */
+        CardOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /**
+             * Account Id
+             * Format: uuid
+             */
+            account_id: string;
+            /**
+             * Last Seen At
+             * Format: date-time
+             */
+            last_seen_at: string;
+        };
+        /** CardUpdate */
+        CardUpdate: {
+            /**
+             * Account Id
+             * Format: uuid
+             */
+            account_id: string;
+        };
         /** CategoryIn */
         CategoryIn: {
             /** Name */
@@ -795,6 +1333,8 @@ export interface components {
             /** Code */
             code: string;
         };
+        /** @enum {string} */
+        DateOrder: "dmy" | "ymd" | "mdy";
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -815,6 +1355,103 @@ export interface components {
              */
             database: "ok" | "unavailable";
         };
+        /** ImportOut */
+        ImportOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Account Id
+             * Format: uuid
+             */
+            account_id: string;
+            /** Filename */
+            filename: string;
+            /** Template Name */
+            template_name: string | null;
+            /**
+             * Imported
+             * @description Movements created
+             */
+            imported: number;
+            /**
+             * Merged
+             * @description Rows merged into movements already recorded
+             */
+            merged: number;
+            /** Skipped */
+            skipped: number;
+            /** Date From */
+            date_from: string | null;
+            /** Date To */
+            date_to: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** ImportPreview */
+        ImportPreview: {
+            /**
+             * Columns
+             * @description Column titles found in the file
+             */
+            columns: string[];
+            /**
+             * Sample
+             * @description First rows after the titles, as text
+             */
+            sample: string[][];
+            /** @description Mapping used, or suggested; null if unclear */
+            mapping: components["schemas"]["Mapping"] | null;
+            /**
+             * Template Id
+             * @description Template whose columns the file has
+             */
+            template_id: string | null;
+            /**
+             * Reader
+             * @description Bank reader used for a PDF statement
+             */
+            reader: string | null;
+            /**
+             * Error
+             * @description Why the rows could not be read with the mapping
+             */
+            error: string | null;
+            /** Rows */
+            rows: components["schemas"]["PreviewRow"][];
+            /** Skipped */
+            skipped: components["schemas"]["SkippedRowOut"][];
+            /**
+             * Bank Balance
+             * @description Balance the bank shows after the last row
+             */
+            bank_balance: string | null;
+            /** Bank Balance Date */
+            bank_balance_date: string | null;
+            /**
+             * Balance Then
+             * @description Balance in MiAhorro on that date, after importing the new rows
+             */
+            balance_then: string | null;
+        };
+        /** Inbox */
+        Inbox: {
+            /**
+             * Unconfirmed
+             * @description Captured payments no statement has confirmed after a week
+             */
+            unconfirmed: components["schemas"]["TransactionOut"][];
+            /**
+             * Overdue
+             * @description Recurring movements that have not arrived
+             */
+            overdue: components["schemas"]["Upcoming"][];
+        };
         /** LoginRequest */
         LoginRequest: {
             /** Email */
@@ -830,12 +1467,63 @@ export interface components {
              */
             status: "authenticated" | "mfa_required" | "mfa_setup_required";
         };
+        /**
+         * Mapping
+         * @description Where each field is, by column title, so the rows above the table may vary.
+         */
+        Mapping: {
+            /** Date */
+            date: string;
+            /** Description */
+            description: string[];
+            /** Amount */
+            amount?: string | null;
+            /**
+             * Debit
+             * @description Money out written as positive (Cargo, Debe)
+             */
+            debit?: string | null;
+            /**
+             * Credit
+             * @description Money in written as positive (Abono, Haber)
+             */
+            credit?: string | null;
+            /** Balance */
+            balance?: string | null;
+            /** @description None: detect it */
+            date_order?: components["schemas"]["DateOrder"] | null;
+            /**
+             * Decimal Comma
+             * @description None: detect it
+             */
+            decimal_comma?: boolean | null;
+            /**
+             * Invert Sign
+             * @description Expenses come as positive amounts
+             * @default false
+             */
+            invert_sign: boolean;
+        };
         /** MfaRequest */
         MfaRequest: {
             /** Code */
             code?: string | null;
             /** Recovery Code */
             recovery_code?: string | null;
+        };
+        /** NewToken */
+        NewToken: {
+            token: components["schemas"]["TokenOut"];
+            /**
+             * Secret
+             * @description The token itself. Shown only now
+             */
+            secret: string;
+            /**
+             * Url
+             * @description Where the Shortcut sends payments (path)
+             */
+            url: string;
         };
         /** PasskeyAssertion */
         PasskeyAssertion: {
@@ -892,6 +1580,35 @@ export interface components {
             /** Name */
             name: string;
         };
+        /**
+         * Payment
+         * @description What the Shortcut's "Transaction" automation knows about a payment.
+         */
+        Payment: {
+            /**
+             * Amount
+             * @description As the phone writes it: "12,50 €", "€12.50", 12.5
+             */
+            amount: string | number;
+            /**
+             * Merchant
+             * @default
+             */
+            merchant: string;
+            /**
+             * Card
+             * @description Card or pass name in Wallet
+             * @default
+             */
+            card: string;
+            /**
+             * Kind
+             * @description income for a refund to the card
+             * @default expense
+             * @enum {string}
+             */
+            kind: "expense" | "income";
+        };
         /** Preferences */
         Preferences: {
             /**
@@ -922,6 +1639,54 @@ export interface components {
             theme?: ("system" | "light" | "dark") | null;
             /** Language */
             language?: "es" | null;
+        };
+        /** PreviewRow */
+        PreviewRow: {
+            /**
+             * Number
+             * @description Row in the file, as a spreadsheet numbers it
+             */
+            number: number;
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Description */
+            description: string;
+            /**
+             * Amount
+             * @example -12.50
+             */
+            amount: string;
+            /** Balance */
+            balance: string | null;
+            /**
+             * Status
+             * @description new · duplicate (already imported) · match (the same as a movement recorded another way) · transfer (to or from another own account)
+             * @enum {string}
+             */
+            status: "new" | "duplicate" | "match" | "transfer";
+            /**
+             * Decisions
+             * @description What can be done; the first is the default
+             */
+            decisions: ("import" | "merge" | "transfer" | "skip")[];
+            /**
+             * Category Id
+             * @description Category it will get
+             */
+            category_id: string | null;
+            /**
+             * Match Id
+             * @description match: movement to merge with · transfer: its other side, if recorded
+             */
+            match_id: string | null;
+            /**
+             * Transfer Account Id
+             * @description transfer: the other account
+             */
+            transfer_account_id: string | null;
         };
         /** RateTier */
         RateTier: {
@@ -961,6 +1726,105 @@ export interface components {
             /** Codes */
             codes: string[];
         };
+        /** RecurringIn */
+        RecurringIn: {
+            /** Name */
+            name: string;
+            /**
+             * Account Id
+             * Format: uuid
+             */
+            account_id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "expense" | "income";
+            /**
+             * Amount
+             * @description Expected amount, positive
+             * @example -12.50
+             */
+            amount: string;
+            /**
+             * Tolerance
+             * @description Percent the real amount may differ (bills vary)
+             * @default 10
+             * @example -12.50
+             */
+            tolerance: string;
+            /** Category Id */
+            category_id?: string | null;
+            /**
+             * Match Text
+             * @description Text in the concept of the real movement
+             */
+            match_text: string;
+            /**
+             * Frequency
+             * @default monthly
+             * @enum {string}
+             */
+            frequency: "weekly" | "monthly" | "quarterly" | "semiannual" | "yearly";
+            /**
+             * Next Date
+             * Format: date
+             */
+            next_date: string;
+        };
+        /** RecurringOut */
+        RecurringOut: {
+            /** Name */
+            name: string;
+            /**
+             * Account Id
+             * Format: uuid
+             */
+            account_id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "expense" | "income";
+            /**
+             * Amount
+             * @description Expected amount, positive
+             * @example -12.50
+             */
+            amount: string;
+            /**
+             * Tolerance
+             * @description Percent the real amount may differ (bills vary)
+             * @default 10.00
+             * @example -12.50
+             */
+            tolerance: string;
+            /** Category Id */
+            category_id?: string | null;
+            /**
+             * Match Text
+             * @description Text in the concept of the real movement
+             */
+            match_text: string;
+            /**
+             * Frequency
+             * @default monthly
+             * @enum {string}
+             */
+            frequency: "weekly" | "monthly" | "quarterly" | "semiannual" | "yearly";
+            /**
+             * Next Date
+             * Format: date
+             */
+            next_date: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Last Transaction Id */
+            last_transaction_id: string | null;
+        };
         /** RegisterRequest */
         RegisterRequest: {
             /** Display Name */
@@ -975,6 +1839,118 @@ export interface components {
             /** Open */
             open: boolean;
         };
+        /** RuleCreated */
+        RuleCreated: {
+            rule: components["schemas"]["RuleOut"];
+            /**
+             * Applied
+             * @description Existing movements recategorised
+             */
+            applied: number;
+        };
+        /** RuleIn */
+        RuleIn: {
+            /**
+             * Match Text
+             * @description Text the concept contains
+             */
+            match_text: string;
+            /**
+             * Category Id
+             * @description Category to give it
+             */
+            category_id?: string | null;
+            /**
+             * Transfer Account Id
+             * @description Or: it is a transfer with this own account
+             */
+            transfer_account_id?: string | null;
+            /**
+             * Account Id
+             * @description Only in this account
+             */
+            account_id?: string | null;
+            /**
+             * Amount Min
+             * @description Size of the amount, no sign
+             */
+            amount_min?: string | null;
+            /** Amount Max */
+            amount_max?: string | null;
+            /**
+             * Apply To Existing
+             * @description Also recategorise the movements that already match
+             * @default false
+             */
+            apply_to_existing: boolean;
+        };
+        /** RuleOut */
+        RuleOut: {
+            /**
+             * Match Text
+             * @description Text the concept contains
+             */
+            match_text: string;
+            /**
+             * Category Id
+             * @description Category to give it
+             */
+            category_id?: string | null;
+            /**
+             * Transfer Account Id
+             * @description Or: it is a transfer with this own account
+             */
+            transfer_account_id?: string | null;
+            /**
+             * Account Id
+             * @description Only in this account
+             */
+            account_id?: string | null;
+            /**
+             * Amount Min
+             * @description Size of the amount, no sign
+             */
+            amount_min?: string | null;
+            /** Amount Max */
+            amount_max?: string | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Position */
+            position: number;
+        };
+        /** RuleSuggestion */
+        RuleSuggestion: {
+            /** Match Text */
+            match_text: string;
+            /**
+             * Matches
+             * @description Other movements whose concept has the text
+             */
+            matches: number;
+        };
+        /** RuleUpdate */
+        RuleUpdate: {
+            /** Match Text */
+            match_text?: string | null;
+            /** Category Id */
+            category_id?: string | null;
+            /** Transfer Account Id */
+            transfer_account_id?: string | null;
+            /** Account Id */
+            account_id?: string | null;
+            /** Amount Min */
+            amount_min?: string | null;
+            /** Amount Max */
+            amount_max?: string | null;
+            /**
+             * Position
+             * @description New place in the list
+             */
+            position?: number | null;
+        };
         /** SessionOut */
         SessionOut: {
             /**
@@ -984,12 +1960,84 @@ export interface components {
             level: "full" | "mfa_pending" | "mfa_setup";
             user: components["schemas"]["UserOut"];
         };
+        /** SkippedRowOut */
+        SkippedRowOut: {
+            /** Number */
+            number: number;
+            /** Reason */
+            reason: string;
+            /** Text */
+            text: string;
+        };
         /** TagCount */
         TagCount: {
             /** Tag */
             tag: string;
             /** Count */
             count: number;
+        };
+        /** TemplateIn */
+        TemplateIn: {
+            /** Name */
+            name: string;
+            mapping: components["schemas"]["Mapping"];
+        };
+        /** TemplateOut */
+        TemplateOut: {
+            /** Name */
+            name: string;
+            mapping: components["schemas"]["Mapping"];
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Mine
+             * @description Created by the current user (who may delete it)
+             */
+            mine: boolean;
+        };
+        /** TokenIn */
+        TokenIn: {
+            /**
+             * Name
+             * @description E.g. the phone it is for
+             */
+            name: string;
+            /**
+             * Default Account Id
+             * Format: uuid
+             * @description Account for cards not mapped yet
+             */
+            default_account_id: string;
+        };
+        /** TokenOut */
+        TokenOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /**
+             * Hint
+             * @description First characters, to tell tokens apart
+             */
+            hint: string;
+            /**
+             * Default Account Id
+             * Format: uuid
+             */
+            default_account_id: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Last Used At */
+            last_used_at: string | null;
         };
         /** TotpSetup */
         TotpSetup: {
@@ -1079,10 +2127,20 @@ export interface components {
             /** Source */
             source: string;
             /**
+             * Pending
+             * @description Captured payment not yet confirmed by a statement
+             */
+            pending: boolean;
+            /**
              * Created At
              * Format: date-time
              */
             created_at: string;
+            /**
+             * Balance After
+             * @description Balance of its account right after it (in lists)
+             */
+            balance_after?: string | null;
         };
         /** TransactionPage */
         TransactionPage: {
@@ -1156,6 +2214,37 @@ export interface components {
              * @example -12.50
              */
             amount: string;
+        };
+        /** Upcoming */
+        Upcoming: {
+            /**
+             * Item Id
+             * Format: uuid
+             */
+            item_id: string;
+            /** Name */
+            name: string;
+            /**
+             * Account Id
+             * Format: uuid
+             */
+            account_id: string;
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /**
+             * Amount
+             * @description Signed: negative is money going out
+             * @example -12.50
+             */
+            amount: string;
+            /**
+             * Overdue
+             * @description Expected some days ago and not arrived
+             */
+            overdue: boolean;
         };
         /** UserOut */
         UserOut: {
@@ -2283,6 +3372,70 @@ export interface operations {
             };
         };
     };
+    confirm_transaction_api_transactions__transaction_id__confirm_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                transaction_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TransactionOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    bulk_edit_api_transactions_bulk_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BulkEdit"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BulkResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     create_transfer_api_transfers_post: {
         parameters: {
             query?: never;
@@ -2332,6 +3485,735 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TagCount"][];
+                };
+            };
+        };
+    };
+    list_templates_api_import_templates_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TemplateOut"][];
+                };
+            };
+        };
+    };
+    create_template_api_import_templates_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TemplateIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TemplateOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_template_api_import_templates__template_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                template_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    preview_import_api_imports_preview_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_preview_import_api_imports_preview_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportPreview"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_imports_api_imports_get: {
+        parameters: {
+            query?: {
+                account_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_import_api_imports_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_create_import_api_imports_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    undo_import_api_imports__import_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                import_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_rules_api_rules_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RuleOut"][];
+                };
+            };
+        };
+    };
+    create_rule_api_rules_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RuleIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RuleCreated"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_rule_api_rules__rule_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                rule_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_rule_api_rules__rule_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                rule_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RuleUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RuleOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    apply_all_rules_api_rules_apply_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApplyIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Applied"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    suggest_rule_api_rules_suggestion_get: {
+        parameters: {
+            query: {
+                transaction_id: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RuleSuggestion"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_tokens_api_capture_tokens_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TokenOut"][];
+                };
+            };
+        };
+    };
+    create_token_api_capture_tokens_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TokenIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NewToken"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    revoke_token_api_capture_tokens__token_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_cards_api_capture_cards_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CardOut"][];
+                };
+            };
+        };
+    };
+    update_card_api_capture_cards__card_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                card_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CardUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CardOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    capture_payment_api_capture_payments_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Payment"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Captured"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_recurring_api_recurring_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RecurringOut"][];
+                };
+            };
+        };
+    };
+    create_recurring_api_recurring_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RecurringIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RecurringOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_recurring_api_recurring__item_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RecurringIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RecurringOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_recurring_api_recurring__item_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    upcoming_api_recurring_upcoming_get: {
+        parameters: {
+            query?: {
+                days?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Upcoming"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    inbox_api_inbox_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Inbox"];
                 };
             };
         };

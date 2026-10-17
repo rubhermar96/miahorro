@@ -75,3 +75,13 @@ def test_admin_panel_lists_users_without_secrets(admin_client: TestClient) -> No
     assert page.status_code == 200
     assert "admin@example.com" in page.text
     assert "argon2" not in page.text  # password hashes never shown
+
+
+def test_admin_panel_lists_shared_import_templates(admin_client: TestClient) -> None:
+    mapping = {"date": "Fecha", "description": ["Concepto"], "amount": "Importe"}
+    admin_client.post("/api/import-templates", json={"name": "Bankinter", "mapping": mapping})
+
+    page = admin_client.get("/admin/import-template/list")
+
+    assert page.status_code == 200
+    assert "Bankinter" in page.text

@@ -1,11 +1,12 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { type FormEvent, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useParams } from 'react-router'
+import { Link, useNavigate, useParams } from 'react-router'
 
 import {
   type Account,
   type Category,
+  categoryLabel,
   financeApi,
   refreshFinance,
   type Transaction,
@@ -13,6 +14,7 @@ import {
   useCategories,
   useTransaction,
 } from '../api/finance'
+import { importApi } from '../api/imports'
 import { CategorySelect } from '../components/CategorySelect'
 import { ErrorMessage } from '../components/ErrorMessage'
 import { PageHeader } from '../components/PageHeader'
@@ -65,6 +67,7 @@ function TransactionForm({
   const [tagsText, setTagsText] = useState(transaction.tags.join(', '))
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  const [suggestion, setSuggestion] = useState<{ match_text: string; matches: number } | null>(null)
 
   const done = async () => {
     await refreshFinance(queryClient)
@@ -93,6 +96,20 @@ function TransactionForm({
             }
           : shared,
       )
+      // A category corrected by hand: offer a rule so it is right next time (RF-MOV-07).
+      const corrected =
+        isEntry &&
+        categoryId &&
+        categoryId !== (transaction.category_id ?? '') &&
+        description.trim()
+      if (corrected) {
+        const proposal = await importApi.ruleSuggestion(transaction.id).catch(() => null)
+        if (proposal) {
+          await refreshFinance(queryClient)
+          setSuggestion(proposal)
+          return
+        }
+      }
       await done()
     } catch (err) {
       setError(messageOf(err, t('errors.generic')))
@@ -111,6 +128,20 @@ function TransactionForm({
     }
     await financeApi.deleteTransaction(transaction.id)
     await done()
+  }
+
+  if (suggestion) {
+    return (
+      <>
+        <PageHeader title={t(`transactions.kinds.${transaction.kind}`)} back="/movimientos" />
+        <RuleSuggestion
+          suggestion={suggestion}
+          categoryId={categoryId}
+          categories={categories}
+          onDone={() => void done()}
+        />
+      </>
+    )
   }
 
   return (
@@ -216,6 +247,14 @@ function TransactionForm({
         <button type="submit" className="button" disabled={busy}>
           {t('add.save')}
         </button>
+        {isEntry && (
+          <Link
+            className="button button--secondary"
+            to={`/mas/recurrentes?desde=${transaction.id}`}
+          >
+            {t('recurring.fromTransaction')}
+          </Link>
+        )}
         <button
           type="button"
           className="button button--ghost button--danger"
@@ -225,5 +264,72 @@ function TransactionForm({
         </button>
       </form>
     </>
+  )
+}
+
+/** After a category is corrected by hand: "always do it this way?" (RF-MOV-07). */
+function RuleSuggestion({
+  suggestion,
+  categoryId,
+  categories,
+  onDone,
+}: {
+  suggestion: { match_text: string; matches: number }
+  categoryId: string
+  categories: Category[]
+  onDone: () => void
+}) {
+  const { t } = useTranslation()
+  const [text, setText] = useState(suggestion.match_text)
+  const [applyExisting, setApplyExisting] = useState(suggestion.matches > 0)
+  const [error, setError] = useState<string | null>(null)
+
+  const create = async (event: FormEvent) => {
+    event.preventDefault()
+    try {
+      await importApi.createRule({
+        match_text: text,
+        category_id: categoryId,
+        apply_to_existing: applyExisting,
+      })
+      onDone()
+    } catch (err) {
+      setError(messageOf(err, t('errors.generic')))
+    }
+  }
+
+  return (
+    <form className="card stack stack--tight" onSubmit={(event) => void create(event)}>
+      <h2>{t('rules.suggestTitle')}</h2>
+      <label className="field">
+        <span>
+          {t('rules.suggestBody', { category: categoryLabel(categories, categoryId) ?? '' })}
+        </span>
+        <input
+          required
+          minLength={2}
+          maxLength={60}
+          value={text}
+          onChange={(event) => setText(event.target.value)}
+        />
+      </label>
+      {suggestion.matches > 0 && (
+        <label className="check">
+          <input
+            type="checkbox"
+            checked={applyExisting}
+            onChange={(event) => setApplyExisting(event.target.checked)}
+          />
+          <span>{t('rules.suggestExisting', { count: suggestion.matches })}</span>
+        </label>
+      )}
+      <ErrorMessage message={error} />
+      <button type="submit" className="button">
+        {t('rules.create')}
+      </button>
+      <button type="button" className="button button--ghost" onClick={onDone}>
+        {t('rules.notNow')}
+      </button>
+    </form>
   )
 }

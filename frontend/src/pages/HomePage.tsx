@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 
 import { useSession } from '../api/auth'
+import { useInbox, useUpcoming } from '../api/capture'
 import { ACCOUNT_KINDS, type Account, useAccounts } from '../api/finance'
 import { Money } from '../components/Money'
 import { PageHeader } from '../components/PageHeader'
@@ -36,11 +37,15 @@ export function HomePage() {
   const { t } = useTranslation()
   const { data: session } = useSession()
   const accounts = useAccounts()
+  const inbox = useInbox()
+  const upcoming = useUpcoming(30)
   const mainCurrency = session?.user.preferences.currency ?? 'EUR'
 
   const list = accounts.data ?? []
   const [main, ...others] = totalsByCurrency(list, mainCurrency)
   const maturities = upcomingMaturities(list)
+  const toReview = (inbox.data?.unconfirmed.length ?? 0) + (inbox.data?.overdue.length ?? 0)
+  const nextUp = (upcoming.data ?? []).filter((item) => !item.overdue).slice(0, 5)
 
   return (
     <>
@@ -76,6 +81,32 @@ export function HomePage() {
               </p>
             )}
             <p className="muted small">{t('home.totalHelp')}</p>
+          </section>
+        )}
+
+        {toReview > 0 && (
+          <Link className="card card--link notice" to="/revisar">
+            {t('home.toReview', { count: toReview })}
+          </Link>
+        )}
+
+        {nextUp.length > 0 && (
+          <section className="stack stack--tight" aria-labelledby="upcoming-title">
+            <div className="section-title">
+              <h2 id="upcoming-title">{t('home.upcomingTitle')}</h2>
+              <Link to="/mas/recurrentes">{t('home.upcomingAll')}</Link>
+            </div>
+            <ul className="list card card--flush">
+              {nextUp.map((item) => (
+                <li key={`${item.item_id}-${item.date}`} className="row">
+                  <span className="row__text">
+                    <span className="row__title">{item.name}</span>
+                    <small className="muted">{formatDate(item.date)}</small>
+                  </span>
+                  <Money value={item.amount} signed />
+                </li>
+              ))}
+            </ul>
           </section>
         )}
 

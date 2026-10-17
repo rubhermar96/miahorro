@@ -9,7 +9,7 @@ from fastapi import APIRouter, HTTPException, Response, status
 from pydantic import BaseModel, Field, model_validator
 from sqlalchemy import exists, select
 
-from app import clock, ledger
+from app import clock, goals, ledger
 from app.auth.deps import CurrentUser, DbSession
 from app.models.accounts import Account, AccountRate
 from app.models.transactions import Transaction
@@ -111,6 +111,8 @@ class AccountUpdate(BaseModel):
 class AccountOut(AccountIn):
     id: uuid.UUID
     balance: Money
+    reserved: Money = Field(description="Set aside for savings goals")
+    available: Money = Field(description="Balance minus what goals hold")
     archived: bool
     current_rate: AccountRateOut | None
 
@@ -125,7 +127,7 @@ class ReconcileOut(BaseModel):
     balance: Money
 
 
-def _out(account: Account, balance: Decimal) -> AccountOut:
+def _out(account: Account, balance: Decimal, reserved: Decimal = Decimal(0)) -> AccountOut:
     rate = ledger.rate_on(account, clock.today())
     return AccountOut.model_validate(
         {
@@ -142,6 +144,8 @@ def _out(account: Account, balance: Decimal) -> AccountOut:
             "auto_renew": account.auto_renew,
             "early_cancellation_note": account.early_cancellation_note,
             "balance": balance,
+            "reserved": reserved,
+            "available": balance - reserved,
             "archived": account.archived_at is not None,
             "current_rate": AccountRateOut.from_model(rate) if rate else None,
         }
@@ -161,8 +165,13 @@ def list_accounts(
         query = query.where(Account.archived_at.is_(None))
     accounts = sorted(db.scalars(query), key=lambda a: (_KIND_ORDER[a.kind], a.name.lower()))
     totals = ledger.transaction_totals(db, user)
+    reserved = goals.reserved_by_account(db, user)
     return [
-        _out(account, account.opening_balance + totals.get(account.id, Decimal(0)))
+        _out(
+            account,
+            account.opening_balance + totals.get(account.id, Decimal(0)),
+            reserved.get(account.id, Decimal(0)),
+        )
         for account in accounts
     ]
 
@@ -191,7 +200,7 @@ def create_account(body: AccountIn, user: CurrentUser, db: DbSession) -> Account
 @router.get("/{account_id}")
 def read_account(account_id: uuid.UUID, user: CurrentUser, db: DbSession) -> AccountOut:
     account = get_owned_or_404(db, Account, account_id, user)
-    return _out(account, ledger.balance_of(db, account))
+    return _out(account, ledger.balance_of(db, account), goals.reserved_in(db, user, account))
 
 
 @router.patch("/{account_id}")
@@ -218,7 +227,7 @@ def update_account(
             "El vencimiento debe ser posterior a la fecha de apertura.",
         )
     db.commit()
-    return _out(account, ledger.balance_of(db, account))
+    return _out(account, ledger.balance_of(db, account), goals.reserved_in(db, user, account))
 
 
 @router.delete("/{account_id}", status_code=status.HTTP_204_NO_CONTENT)

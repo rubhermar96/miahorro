@@ -8,6 +8,9 @@
   --text-muted: #5a6b68;
   --border: #dbe3e1;
   --primary: #0f766e;
+  /* Chart marks: validated for chroma, lightness and contrast on the surface. */
+  --chart-fill: #0d9488;
+  --chart-track: color-mix(in srgb, #0d9488 16%, var(--surface));
   --primary-strong: #0b5d57;
   --on-primary: #ffffff;
   --success: #067647;
@@ -36,6 +39,10 @@
     --text-muted: #9aaba8;
     --border: #273634;
     --primary: #2dd4bf;
+    --chart-fill: #1aa595;
+    --chart-track: color-mix(in srgb, #1aa595 22%, var(--surface));
+    --chart-fill: #1aa595;
+    --chart-track: color-mix(in srgb, #1aa595 22%, var(--surface));
     --primary-strong: #5eead4;
     --on-primary: #042f2c;
     --success: #4ade80;
@@ -53,6 +60,8 @@
   --text-muted: #9aaba8;
   --border: #273634;
   --primary: #2dd4bf;
+  --chart-fill: #1aa595;
+  --chart-track: color-mix(in srgb, #1aa595 22%, var(--surface));
   --primary-strong: #5eead4;
   --on-primary: #042f2c;
   --success: #4ade80;
@@ -866,4 +875,100 @@ label.row {
 
 .sample th {
   background: var(--surface-2);
+}
+
+/* Progress towards a limit (goals, savings rate): one hue over a lighter track. */
+.meter {
+  position: relative;
+  height: 10px;
+  overflow: visible;
+  border-radius: 999px;
+  background: var(--chart-track);
+}
+
+.meter__fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--chart-fill);
+}
+
+.meter__marker {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 2px;
+  border-radius: 1px;
+  background: var(--text);
+  transform: translateX(-1px);
+}
+
+.goal {
+  display: grid;
+  gap: 8px;
+  /* A whole card is a link: its text keeps the normal ink, not the link colour. */
+  color: var(--text);
+  text-decoration: none;
+}
+
+.goal__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.goal__icon {
+  font-size: 1.5rem;
+}
+
+.goal__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.goal__percent {
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.goal__status {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.goal__status--behind {
+  color: var(--danger);
+}
+
+.goal__status--achieved,
+.goal__status--on_track {
+  color: var(--success);
+}
+
+.rate-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rate-list__row {
+  display: grid;
+  grid-template-columns: 4.5rem 1fr 3.5rem;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.875rem;
+}
+
+.rate-list__label {
+  color: var(--text-muted);
+}
+
+.rate-list__value {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
 }

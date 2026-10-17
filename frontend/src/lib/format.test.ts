@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest'
 
-import { formatAmount, formatDate, formatDay, formatSignedAmount, todayIso } from './format'
+import {
+  formatAmount,
+  formatDate,
+  formatDay,
+  formatMonthYear,
+  formatShortDate,
+  formatSignedAmount,
+  todayIso,
+} from './format'
 
 const NBSP = ' '
 
@@ -71,5 +79,12 @@ describe('todayIso', () => {
 describe('formatDay', () => {
   it('formats a list header', () => {
     expect(formatDay('2026-10-16')).toBe('viernes, 16 de octubre')
+  })
+})
+
+describe('month and short dates', () => {
+  it('formats forecasts and periods', () => {
+    expect(formatMonthYear('2028-03-16')).toBe('marzo de 2028')
+    expect(formatShortDate('2026-09-25')).toBe('25 sept')
   })
 })

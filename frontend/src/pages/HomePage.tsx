@@ -145,7 +145,16 @@ export function HomePage() {
                               <small className="muted">{account.institution}</small>
                             )}
                           </span>
-                          <Money value={account.balance} currency={account.currency} />
+                          <span className="row__amounts">
+                            <Money value={account.balance} currency={account.currency} />
+                            {account.reserved !== '0.00' && (
+                              <small className="muted">
+                                {t('accounts.availableShort', {
+                                  amount: formatAmount(account.available, account.currency),
+                                })}
+                              </small>
+                            )}
+                          </span>
                         </Link>
                       </li>
                     ))}

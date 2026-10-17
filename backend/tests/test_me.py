@@ -30,6 +30,7 @@ def test_profile_includes_default_preferences(ana: TestClient) -> None:
         "month_start_day": 1,
         "theme": "system",
         "language": "es",
+        "savings_rate_target": None,
     }
 
 
@@ -42,6 +43,7 @@ def test_update_some_preferences(ana: TestClient) -> None:
         "month_start_day": 25,
         "theme": "dark",
         "language": "es",
+        "savings_rate_target": None,
     }
     assert ana.get("/api/me").json()["preferences"]["month_start_day"] == 25
 

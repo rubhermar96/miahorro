@@ -23,6 +23,9 @@ class Preferences(BaseModel):
     month_start_day: int = Field(ge=1, le=28)
     theme: Theme
     language: Language
+    savings_rate_target: int | None = Field(
+        default=None, ge=1, le=90, description="Percent of income to save; null if not set"
+    )
 
 
 class PreferencesUpdate(BaseModel):
@@ -30,6 +33,9 @@ class PreferencesUpdate(BaseModel):
     month_start_day: int | None = Field(default=None, ge=1, le=28)
     theme: Theme | None = None
     language: Language | None = None
+    savings_rate_target: int | None = Field(
+        default=None, ge=1, le=90, description="Send null to remove the target"
+    )
 
 
 class UserOut(BaseModel):
@@ -57,6 +63,7 @@ class UserOut(BaseModel):
                 month_start_day=user.month_start_day,
                 theme=user.theme,
                 language=user.language,
+                savings_rate_target=user.savings_rate_target,
             ),
         )
 

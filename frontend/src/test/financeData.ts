@@ -16,7 +16,9 @@ export const account = (fields: Record<string, unknown> = {}) => ({
   balance: '1000.00',
   archived: false,
   current_rate: null,
+  reserved: '0.00',
   ...fields,
+  available: fields.available ?? fields.balance ?? '1000.00',
 })
 
 export const category = (fields: Record<string, unknown>) => ({

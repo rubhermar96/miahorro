@@ -82,3 +82,24 @@ export function formatDay(isoDate: string): string {
 export function formatRate(value: string): string {
   return value.includes('.') ? value.replace(/\.?0+$/, '').replace('.', ',') : value
 }
+
+function isoParts(isoDate: string): [number, number, number] {
+  const [year, month, day] = isoDate.split('-').map(Number)
+  return [year!, month!, day!]
+}
+
+const MONTH_YEAR_FORMAT = new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric' })
+
+/** "marzo de 2028", for forecasts where the day does not matter. */
+export function formatMonthYear(isoDate: string): string {
+  const [year, month, day] = isoParts(isoDate)
+  return MONTH_YEAR_FORMAT.format(new Date(year, month - 1, day))
+}
+
+const SHORT_DATE_FORMAT = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'short' })
+
+/** "25 sep", for compact lists of recent periods. */
+export function formatShortDate(isoDate: string): string {
+  const [year, month, day] = isoParts(isoDate)
+  return SHORT_DATE_FORMAT.format(new Date(year, month - 1, day))
+}

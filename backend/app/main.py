@@ -13,6 +13,7 @@ from app.routers import (
     auth,
     capture,
     categories,
+    goals,
     health,
     imports,
     me,
@@ -54,6 +55,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(rules.router)
     app.include_router(capture.router)
     app.include_router(recurring.router)
+    app.include_router(goals.router)
     mount_admin(app, engine, session_factory, settings)
     return app
 

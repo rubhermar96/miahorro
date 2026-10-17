@@ -18,6 +18,10 @@ class User(TimestampMixin, Base):
         CheckConstraint("email = lower(email)", name="email_lowercase"),
         CheckConstraint("month_start_day BETWEEN 1 AND 28", name="month_start_day_range"),
         CheckConstraint(f"theme IN {THEMES}", name="theme_valid"),
+        CheckConstraint(
+            "savings_rate_target IS NULL OR savings_rate_target BETWEEN 1 AND 90",
+            name="savings_rate_target_range",
+        ),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
@@ -39,6 +43,8 @@ class User(TimestampMixin, Base):
     # Preferences (RF-USR-04).
     currency: Mapped[str] = mapped_column(String(3), default="EUR")
     month_start_day: Mapped[int] = mapped_column(SmallInteger, default=1)
+    # Share of income to save each financial month, in percent (RF-OBJ-06); None: not set.
+    savings_rate_target: Mapped[int | None] = mapped_column(SmallInteger)
     theme: Mapped[str] = mapped_column(String(10), default="system")
     language: Mapped[str] = mapped_column(String(5), default="es")
 

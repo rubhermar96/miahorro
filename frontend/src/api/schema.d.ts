@@ -956,6 +956,109 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/goals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Goals
+         * @description Pending goals first, by priority and date.
+         */
+        get: operations["list_goals_api_goals_get"];
+        put?: never;
+        /** Create Goal */
+        post: operations["create_goal_api_goals_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/goals/{goal_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Goal */
+        get: operations["read_goal_api_goals__goal_id__get"];
+        put?: never;
+        post?: never;
+        /**
+         * Delete Goal
+         * @description The money set aside is released: it is available again in its accounts.
+         */
+        delete: operations["delete_goal_api_goals__goal_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update Goal */
+        patch: operations["update_goal_api_goals__goal_id__patch"];
+        trace?: never;
+    };
+    "/api/goals/{goal_id}/contributions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Contributions */
+        get: operations["list_contributions_api_goals__goal_id__contributions_get"];
+        put?: never;
+        /**
+         * Add Contribution
+         * @description Set money aside for the goal inside an account, or take it back. Only what is
+         *     available can be set aside: the balance minus what other goals already hold.
+         */
+        post: operations["add_contribution_api_goals__goal_id__contributions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/goals/{goal_id}/contributions/{contribution_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Contribution */
+        delete: operations["delete_contribution_api_goals__goal_id__contributions__contribution_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/savings-rate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Savings Rate
+         * @description Income, expenses and the share saved in each financial month (from the payday set in
+         *     the preferences).
+         */
+        get: operations["savings_rate_api_savings_rate_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1059,6 +1162,18 @@ export interface components {
              * @example -12.50
              */
             balance: string;
+            /**
+             * Reserved
+             * @description Set aside for savings goals
+             * @example -12.50
+             */
+            reserved: string;
+            /**
+             * Available
+             * @description Balance minus what goals hold
+             * @example -12.50
+             */
+            available: string;
             /** Archived */
             archived: boolean;
             current_rate: components["schemas"]["AccountRateOut"] | null;
@@ -1333,8 +1448,172 @@ export interface components {
             /** Code */
             code: string;
         };
+        /** ContributionIn */
+        ContributionIn: {
+            /**
+             * Account Id
+             * Format: uuid
+             */
+            account_id: string;
+            /**
+             * Amount
+             * @description Positive
+             * @example -12.50
+             */
+            amount: string;
+            /**
+             * Action
+             * @default add
+             * @enum {string}
+             */
+            action: "add" | "withdraw";
+            /** Date */
+            date?: string | null;
+            /** Note */
+            note?: string | null;
+        };
+        /** ContributionOut */
+        ContributionOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Account Id
+             * Format: uuid
+             */
+            account_id: string;
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /**
+             * Amount
+             * @description Positive: set aside · negative: taken back
+             * @example -12.50
+             */
+            amount: string;
+            /** Note */
+            note: string | null;
+        };
         /** @enum {string} */
         DateOrder: "dmy" | "ymd" | "mdy";
+        /** GoalIn */
+        GoalIn: {
+            /** Name */
+            name: string;
+            /**
+             * Target Amount
+             * @example -12.50
+             */
+            target_amount: string;
+            /** Target Date */
+            target_date?: string | null;
+            /**
+             * Priority
+             * @description 1 high · 2 medium · 3 low
+             * @default 2
+             * @enum {integer}
+             */
+            priority: 1 | 2 | 3;
+            /** Icon */
+            icon?: string | null;
+            /** Note */
+            note?: string | null;
+            /**
+             * Account Ids
+             * @description Accounts that belong to the goal entirely
+             */
+            account_ids?: string[];
+        };
+        /** GoalOut */
+        GoalOut: {
+            /** Name */
+            name: string;
+            /**
+             * Target Amount
+             * @example -12.50
+             */
+            target_amount: string;
+            /** Target Date */
+            target_date?: string | null;
+            /**
+             * Priority
+             * @description 1 high · 2 medium · 3 low
+             * @default 2
+             * @enum {integer}
+             */
+            priority: 1 | 2 | 3;
+            /** Icon */
+            icon?: string | null;
+            /** Note */
+            note?: string | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Account Ids */
+            account_ids: string[];
+            /**
+             * Pots
+             * @description Money set aside in each account
+             */
+            pots: components["schemas"]["Pot"][];
+            /** Achieved */
+            achieved: boolean;
+            /**
+             * Saved
+             * @example -12.50
+             */
+            saved: string;
+            /**
+             * Remaining
+             * @example -12.50
+             */
+            remaining: string;
+            /** Percent */
+            percent: number;
+            /**
+             * Required Monthly
+             * @description To reach the target date
+             */
+            required_monthly: string | null;
+            /**
+             * Pace
+             * @description Saved per month lately; null if too recent
+             */
+            pace: string | null;
+            /**
+             * Estimated Date
+             * @description When it is reached at this pace
+             */
+            estimated_date: string | null;
+            status: components["schemas"]["GoalStatus"];
+        };
+        /** @enum {string} */
+        GoalStatus: "achieved" | "on_track" | "behind" | "starting" | "no_date";
+        /** GoalUpdate */
+        GoalUpdate: {
+            /** Name */
+            name?: string | null;
+            /** Target Amount */
+            target_amount?: string | null;
+            /** Target Date */
+            target_date?: string | null;
+            /** Priority */
+            priority?: (1 | 2 | 3) | null;
+            /** Icon */
+            icon?: string | null;
+            /** Note */
+            note?: string | null;
+            /** Account Ids */
+            account_ids?: string[] | null;
+            /** Achieved */
+            achieved?: boolean | null;
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -1609,6 +1888,19 @@ export interface components {
              */
             kind: "expense" | "income";
         };
+        /** Pot */
+        Pot: {
+            /**
+             * Account Id
+             * Format: uuid
+             */
+            account_id: string;
+            /**
+             * Amount
+             * @example -12.50
+             */
+            amount: string;
+        };
         /** Preferences */
         Preferences: {
             /**
@@ -1628,6 +1920,11 @@ export interface components {
              * @constant
              */
             language: "es";
+            /**
+             * Savings Rate Target
+             * @description Percent of income to save; null if not set
+             */
+            savings_rate_target?: number | null;
         };
         /** PreferencesUpdate */
         PreferencesUpdate: {
@@ -1639,6 +1936,11 @@ export interface components {
             theme?: ("system" | "light" | "dark") | null;
             /** Language */
             language?: "es" | null;
+            /**
+             * Savings Rate Target
+             * @description Send null to remove the target
+             */
+            savings_rate_target?: number | null;
         };
         /** PreviewRow */
         PreviewRow: {
@@ -1950,6 +2252,52 @@ export interface components {
              * @description New place in the list
              */
             position?: number | null;
+        };
+        /** SavingsPeriod */
+        SavingsPeriod: {
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            /**
+             * End
+             * Format: date
+             */
+            end: string;
+            /**
+             * Income
+             * @example -12.50
+             */
+            income: string;
+            /**
+             * Expenses
+             * @example -12.50
+             */
+            expenses: string;
+            /**
+             * Saved
+             * @example -12.50
+             */
+            saved: string;
+            /**
+             * Rate
+             * @description Percent of income saved; null without income
+             */
+            rate: string | null;
+        };
+        /** SavingsRate */
+        SavingsRate: {
+            /**
+             * Target
+             * @description Percent to save, from the preferences
+             */
+            target: number | null;
+            /**
+             * Periods
+             * @description Financial months, oldest first
+             */
+            periods: components["schemas"]["SavingsPeriod"][];
         };
         /** SessionOut */
         SessionOut: {
@@ -4214,6 +4562,281 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Inbox"];
+                };
+            };
+        };
+    };
+    list_goals_api_goals_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GoalOut"][];
+                };
+            };
+        };
+    };
+    create_goal_api_goals_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GoalIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GoalOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_goal_api_goals__goal_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                goal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GoalOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_goal_api_goals__goal_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                goal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_goal_api_goals__goal_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                goal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GoalUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GoalOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_contributions_api_goals__goal_id__contributions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                goal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContributionOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    add_contribution_api_goals__goal_id__contributions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                goal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ContributionIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GoalOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_contribution_api_goals__goal_id__contributions__contribution_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                goal_id: string;
+                contribution_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    savings_rate_api_savings_rate_get: {
+        parameters: {
+            query?: {
+                months?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SavingsRate"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

@@ -6,12 +6,14 @@ import { AccountPage } from './pages/AccountPage'
 import { ArchivedAccountsPage } from './pages/ArchivedAccountsPage'
 import { CapturePage } from './pages/CapturePage'
 import { CategoriesPage } from './pages/CategoriesPage'
+import { GoalFormPage } from './pages/GoalFormPage'
+import { GoalPage } from './pages/GoalPage'
 import { HomePage } from './pages/HomePage'
 import { ImportPage } from './pages/ImportPage'
 import { LoginPage } from './pages/LoginPage'
 import { MorePage } from './pages/MorePage'
 import { NotFoundPage } from './pages/NotFoundPage'
-import { PlanPage } from './pages/PlaceholderPages'
+import { PlanPage } from './pages/PlanPage'
 import { QuickAddPage } from './pages/QuickAddPage'
 import { RecurringPage } from './pages/RecurringPage'
 import { ReviewPage } from './pages/ReviewPage'
@@ -36,6 +38,9 @@ export const routes: RouteObject[] = [
       { path: 'cuentas/:id', element: <AccountPage /> },
       { path: 'cuentas/:id/editar', element: <AccountFormPage /> },
       { path: 'planificar', element: <PlanPage /> },
+      { path: 'planificar/objetivos/nuevo', element: <GoalFormPage /> },
+      { path: 'planificar/objetivos/:id', element: <GoalPage /> },
+      { path: 'planificar/objetivos/:id/editar', element: <GoalFormPage /> },
       { path: 'mas', element: <MorePage /> },
       { path: 'mas/categorias', element: <CategoriesPage /> },
       { path: 'mas/reglas', element: <RulesPage /> },

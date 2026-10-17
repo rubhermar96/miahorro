@@ -34,8 +34,8 @@ function Repair-DockerDesktop {
     # AF_UNIX socket files ("El sistema no tiene acceso al archivo") and stops. Renaming the
     # folders that hold them lets it start cleanly; it recreates them.
     Write-Host 'Docker no responde: reiniciando Docker Desktop...'
-    Get-Process 'Docker Desktop', 'com.docker.backend', 'com.docker.build' -ErrorAction SilentlyContinue |
-        Stop-Process -Force
+    # Every Docker process: one left running recreates the locked files before the restart.
+    Get-Process | Where-Object { $_.ProcessName -match 'docker' } | Stop-Process -Force -ErrorAction SilentlyContinue
     Start-Sleep -Seconds 3
     $stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
     foreach ($dir in @("$env:LOCALAPPDATA\Docker\run", "$env:LOCALAPPDATA\docker-secrets-engine")) {

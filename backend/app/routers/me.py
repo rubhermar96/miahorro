@@ -15,5 +15,7 @@ def read_me(user: CurrentUser, db: DbSession) -> UserOut:
 def update_preferences(body: PreferencesUpdate, user: CurrentUser, db: DbSession) -> UserOut:
     for field, value in body.model_dump(exclude_none=True).items():
         setattr(user, field, value)
+    if "savings_rate_target" in body.model_fields_set:  # null removes it
+        user.savings_rate_target = body.savings_rate_target
     db.commit()
     return UserOut.from_user(db, user)

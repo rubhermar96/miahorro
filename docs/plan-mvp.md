@@ -214,7 +214,7 @@ Las iteraciones 5–9 dependen sobre todo de la 2. Si alguna te corre más prisa
 **Objetivo:** saber si vas en camino hacia tus metas.
 
 **Entregables**
-- Objetivos con nombre, importe, fecha, prioridad e imagen.
+- Objetivos con nombre, importe, fecha, prioridad e imagen (un emoji; la foto propia llegará con los adjuntos, F2).
 - Aportación mensual necesaria y fecha estimada con tu ritmo real.
 - Financiación con cuentas completas o huchas virtuales; el saldo disponible de cada cuenta descuenta lo reservado.
 - Tasa de ahorro objetivo con seguimiento por mes financiero.

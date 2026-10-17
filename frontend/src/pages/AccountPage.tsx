@@ -94,6 +94,14 @@ function AccountDetails({ account }: { account: Account }) {
           <p className="total">
             <Money value={account.balance} currency={account.currency} />
           </p>
+          {account.reserved !== '0.00' && (
+            <p className="muted small">
+              {t('accounts.reservedLine', {
+                reserved: formatAmount(account.reserved, account.currency),
+                available: formatAmount(account.available, account.currency),
+              })}
+            </p>
+          )}
           {account.maturity_date && (
             <p className="muted small">
               {t('home.maturity', { name: account.name, date: formatDate(account.maturity_date) })}

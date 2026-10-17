@@ -205,6 +205,8 @@ Las iteraciones 5–9 dependen sobre todo de la 2. Si alguna te corre más prisa
   - [ ] Importar después el extracto y comprobar que se fusiona sin duplicar.
   - [ ] Revocar el token y comprobar que el Atajo deja de poder enviar pagos.
 
+> **Aplazado al despliegue (17/10/2026):** la captura está hecha y probada con tests, pero probarla con un pago real necesita la dirección definitiva (`miahorro.octogas.es`): con el túnel cambia en cada prueba. Pasa a la iteración 11 junto con el Atajo compartido.
+
 ---
 
 ### Iteración 5 · Objetivos de ahorro (M)
@@ -349,6 +351,10 @@ Las iteraciones 5–9 dependen sobre todo de la 2. Si alguna te corre más prisa
 - Revisión de seguridad: dependencias, cabeceras y tests de autorización.
 - Simulacro completo de recuperación en otra máquina.
 - Documentación de uso y de operación.
+- **Apple Pay en real** (aplazado desde la iteración 4), ya con la dirección definitiva:
+  - Atajo compartido por enlace de iCloud, que al instalarlo solo pide el código de cada persona.
+  - En Captura de pagos: botones «Instalar el Atajo» y «Copiar mi código», y los pasos de la automatización.
+  - Aceptación: pagar con el iPhone y con el Watch, importar el extracto y que se una sin duplicar, y revocar el token.
 
 **Requisitos:** RNF-02 (sin conexión), RNF-08, RNF-11, revisión de RNF-05 y RNF-07.
 

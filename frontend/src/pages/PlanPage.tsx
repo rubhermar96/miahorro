@@ -5,6 +5,7 @@ import { Link } from 'react-router'
 import { authApi, SESSION_KEY, type SessionInfo, useSession } from '../api/auth'
 import { type Goal, goalKeys, useGoals, useSavingsRate } from '../api/goals'
 import { goalStatusText } from '../lib/goals'
+import { BudgetSummaryCard } from '../components/BudgetSummaryCard'
 import { Meter } from '../components/Meter'
 import { Money } from '../components/Money'
 import { PageHeader } from '../components/PageHeader'
@@ -23,6 +24,8 @@ export function PlanPage() {
     <>
       <PageHeader title={t('plan.title')} />
       <div className="stack">
+        <BudgetSummaryCard />
+
         <section className="stack stack--tight" aria-labelledby="goals-title">
           <div className="section-title">
             <h2 id="goals-title">{t('goals.title')}</h2>

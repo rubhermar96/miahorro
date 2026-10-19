@@ -4,6 +4,7 @@ import { RequireSession } from './components/RequireSession'
 import { AccountFormPage } from './pages/AccountFormPage'
 import { AccountPage } from './pages/AccountPage'
 import { ArchivedAccountsPage } from './pages/ArchivedAccountsPage'
+import { BudgetPage } from './pages/BudgetPage'
 import { CapturePage } from './pages/CapturePage'
 import { CategoriesPage } from './pages/CategoriesPage'
 import { GoalFormPage } from './pages/GoalFormPage'
@@ -38,6 +39,7 @@ export const routes: RouteObject[] = [
       { path: 'cuentas/:id', element: <AccountPage /> },
       { path: 'cuentas/:id/editar', element: <AccountFormPage /> },
       { path: 'planificar', element: <PlanPage /> },
+      { path: 'planificar/presupuesto', element: <BudgetPage /> },
       { path: 'planificar/objetivos/nuevo', element: <GoalFormPage /> },
       { path: 'planificar/objetivos/:id', element: <GoalPage /> },
       { path: 'planificar/objetivos/:id/editar', element: <GoalFormPage /> },

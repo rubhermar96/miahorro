@@ -1,6 +1,6 @@
 # MiAhorro: requisitos y funcionalidades
 
-> **Estado:** v1.3 · 16/10/2026 · **Definición cerrada; en desarrollo** (ver [plan-mvp.md](plan-mvp.md)).
+> **Estado:** v1.4 · 19/10/2026 · **Definición cerrada; en desarrollo** (ver [plan-mvp.md](plan-mvp.md)).
 >
 > Este documento es la referencia del proyecto y se irá actualizando. Cada requisito tiene un ID para poder comentarlo con precisión (por ejemplo, "quita RF-CTA-11" o "sube RF-PRE-06 al MVP").
 
@@ -425,6 +425,7 @@ Todo lo que depende de IA: lectura de tickets y PDF, preguntas en lenguaje natur
 | D23 | Face ID primero: en el alta se ofrece crear una passkey (un toque) y, como alternativa, la app de códigos. Tras una contraseña, la passkey vale como segundo factor. Con passkey, los códigos de recuperación pasan a ser opcionales. Si alguien pierde el acceso sin códigos, el administrador lo resuelve con `reset-mfa`. | 16/10/2026 |
 | D24 | Se adelanta la importación de extractos PDF (RF-IMP-03) para Bankinter y Cajamar, porque es el formato que se consigue con facilidad. Cada banco tiene su propio lector, sin IA: solo PDF digitales (no escaneados), y solo se acepta el extracto si cada saldo cuadra con el anterior más el importe; si no, no se importa nada. El signo de cada importe sale del cambio de saldo. | 16/10/2026 |
 | D25 | El saldo inicial de una cuenta es un ancla: lo que había al empezar su fecha. Los movimientos desde esa fecha mueven el saldo; los anteriores (historial importado) ya están dentro y solo sirven para conocer saldos pasados, que se calculan hacia atrás. Así se puede crear la cuenta con el saldo de hoy e importar meses anteriores sin descuadrarla. | 16/10/2026 |
+| D26 | Presupuesto: los dos modos guardan lo mismo (lo puesto en cada categoría y mes), así que cambiar de modo no pierde nada. En límites, un tope se mantiene hasta que se cambia; en base cero se asigna cada mes y el saldo de cada categoría siempre se arrastra. «Por asignar» = dinero de las cuentas del día a día (corriente, ahorro, efectivo, monedero y tarjeta) menos lo apartado para objetivos menos lo que tienen las categorías. La línea de una categoría principal incluye sus subcategorías salvo las que tengan línea propia. | 19/10/2026 |
 
 ### 9.2 Preguntas abiertas
 
@@ -502,3 +503,4 @@ Con este volumen, PostgreSQL, la API y Caddy juntos deberían quedarse por debaj
 | 1.1 | 16/10/2026 | D22: registro abierto con salvaguardas (RF-PLT-03 pasa al MVP; RF-PLT-10 actualizado). D23: Face ID como método principal (RF-USR-01). |
 | 1.2 | 16/10/2026 | D24: extractos PDF de Bankinter y Cajamar en el MVP (RF-IMP-03), con comprobación de saldos. D25: el saldo inicial es un ancla en su fecha. Saldo tras cada movimiento (RF-MOV-15) e informes por mes, año o fechas a elegir (RF-INF-03). El lector de Cajamar queda pendiente hasta tener un extracto de ejemplo. |
 | 1.3 | 16/10/2026 | RF-MOV-07: reglas que convierten un movimiento en transferencia entre cuentas propias. |
+| 1.4 | 19/10/2026 | D26: cómo funcionan los dos modos de presupuesto y «Por asignar». |

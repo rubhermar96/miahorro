@@ -755,7 +755,13 @@ fieldset.card legend {
 
 .search {
   display: flex;
+  align-items: flex-end; /* the button lines up with the input, not with its label */
   gap: 8px;
+}
+
+.search > .field {
+  flex: 1;
+  min-width: 0;
 }
 
 .segmented--two {
@@ -971,4 +977,37 @@ label.row {
 .rate-list__value {
   text-align: right;
   font-variant-numeric: tabular-nums;
+}
+
+/* Budget */
+.month-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.month-nav__label {
+  font-weight: 600;
+}
+
+.budget-line__summary {
+  width: 100%;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.budget-line__summary .meter {
+  margin-top: 6px;
+}
+
+.budget-line__editor {
+  padding: 0 16px 14px 62px;
+}
+
+li + li > .budget-line {
+  border-top: 1px solid var(--border);
 }

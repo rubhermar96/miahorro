@@ -1059,6 +1059,90 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/budget": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Budget
+         * @description The financial month that contains `date` (today by default).
+         */
+        get: operations["read_budget_api_budget_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/budget/lines/{category_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Set Line
+         * @description Set the limit (from this month on) or what is assigned this month.
+         */
+        put: operations["set_line_api_budget_lines__category_id__put"];
+        post?: never;
+        /**
+         * Remove Line
+         * @description Limits: no limit from this month on. Zero-based: only an empty line can go.
+         */
+        delete: operations["remove_line_api_budget_lines__category_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/budget/move": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Move Money
+         * @description Zero-based: move available money from one category to another.
+         */
+        post: operations["move_money_api_budget_move_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/budget/copy-previous": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Copy Previous
+         * @description Zero-based: assign this month what was assigned last month, where nothing is yet.
+         */
+        post: operations["copy_previous_api_budget_copy_previous_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1256,6 +1340,19 @@ export interface components {
             /** Archived */
             archived?: boolean | null;
         };
+        /** AmountIn */
+        AmountIn: {
+            /**
+             * Date
+             * @description Any day of the month; today if null
+             */
+            date?: string | null;
+            /**
+             * Amount
+             * @example -12.50
+             */
+            amount: string;
+        };
         /** Applied */
         Applied: {
             /** Applied */
@@ -1315,6 +1412,72 @@ export interface components {
             mapping?: string | null;
             /** Template Id */
             template_id?: string | null;
+        };
+        /** BudgetOut */
+        BudgetOut: {
+            /**
+             * Mode
+             * @description Null until the user chooses
+             */
+            mode: ("limits" | "zero_based") | null;
+            /**
+             * Rollover
+             * @description Leftovers carry over (always in zero-based)
+             */
+            rollover: boolean;
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            /**
+             * End
+             * Format: date
+             */
+            end: string;
+            /**
+             * Previous Start
+             * Format: date
+             */
+            previous_start: string;
+            /**
+             * Next Start
+             * Format: date
+             */
+            next_start: string;
+            /** Lines */
+            lines: components["schemas"]["LineOut"][];
+            /**
+             * Unbudgeted
+             * @description Spent in categories without a line, or uncategorised
+             * @example -12.50
+             */
+            unbudgeted: string;
+            /**
+             * Assigned
+             * @example -12.50
+             */
+            assigned: string;
+            /**
+             * Activity
+             * @example -12.50
+             */
+            activity: string;
+            /**
+             * Available
+             * @example -12.50
+             */
+            available: string;
+            /**
+             * Cash
+             * @description Zero-based: everyday money minus what goals hold
+             */
+            cash: string | null;
+            /**
+             * To Assign
+             * @description Zero-based: cash not yet in any line
+             */
+            to_assign: string | null;
         };
         /** BulkEdit */
         BulkEdit: {
@@ -1731,6 +1894,38 @@ export interface components {
              */
             overdue: components["schemas"]["Upcoming"][];
         };
+        /** LineOut */
+        LineOut: {
+            /**
+             * Category Id
+             * Format: uuid
+             */
+            category_id: string;
+            /**
+             * Assigned
+             * @description Limit (limits) or assigned this month (zero-based)
+             * @example -12.50
+             */
+            assigned: string;
+            /**
+             * Activity
+             * @description Spent (negative) or refunded this month
+             * @example -12.50
+             */
+            activity: string;
+            /**
+             * Carried
+             * @description Left over (or overspent) from earlier months
+             * @example -12.50
+             */
+            carried: string;
+            /**
+             * Available
+             * @description carried + assigned + activity
+             * @example -12.50
+             */
+            available: string;
+        };
         /** LoginRequest */
         LoginRequest: {
             /** Email */
@@ -1789,6 +1984,31 @@ export interface components {
             code?: string | null;
             /** Recovery Code */
             recovery_code?: string | null;
+        };
+        /** MonthIn */
+        MonthIn: {
+            /** Date */
+            date?: string | null;
+        };
+        /** MoveIn */
+        MoveIn: {
+            /** Date */
+            date?: string | null;
+            /**
+             * From Category Id
+             * Format: uuid
+             */
+            from_category_id: string;
+            /**
+             * To Category Id
+             * Format: uuid
+             */
+            to_category_id: string;
+            /**
+             * Amount
+             * @example -12.50
+             */
+            amount: string;
         };
         /** NewToken */
         NewToken: {
@@ -1925,6 +2145,17 @@ export interface components {
              * @description Percent of income to save; null if not set
              */
             savings_rate_target?: number | null;
+            /**
+             * Budget Mode
+             * @description Null until chosen
+             */
+            budget_mode?: ("limits" | "zero_based") | null;
+            /**
+             * Budget Rollover
+             * @description Limits mode: carry leftovers
+             * @default false
+             */
+            budget_rollover: boolean;
         };
         /** PreferencesUpdate */
         PreferencesUpdate: {
@@ -1941,6 +2172,10 @@ export interface components {
              * @description Send null to remove the target
              */
             savings_rate_target?: number | null;
+            /** Budget Mode */
+            budget_mode?: ("limits" | "zero_based") | null;
+            /** Budget Rollover */
+            budget_rollover?: boolean | null;
         };
         /** PreviewRow */
         PreviewRow: {
@@ -4828,6 +5063,171 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SavingsRate"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_budget_api_budget_get: {
+        parameters: {
+            query?: {
+                date?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BudgetOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    set_line_api_budget_lines__category_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                category_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AmountIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BudgetOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    remove_line_api_budget_lines__category_id__delete: {
+        parameters: {
+            query?: {
+                date?: string | null;
+            };
+            header?: never;
+            path: {
+                category_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BudgetOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    move_money_api_budget_move_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MoveIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BudgetOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    copy_previous_api_budget_copy_previous_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MonthIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BudgetOut"];
                 };
             };
             /** @description Validation Error */

@@ -15,7 +15,8 @@ from app.models.user import User
 SessionLevel = Literal["full", "mfa_pending", "mfa_setup"]
 Theme = Literal["system", "light", "dark"]
 Language = Literal["es"]
-Currency = Literal["EUR", "USD", "GBP", "CHF"]  # same list as app.models.user.CURRENCIES
+Currency = Literal["EUR", "USD", "GBP", "CHF"]
+BudgetMode = Literal["limits", "zero_based"]  # same list as app.models.user.CURRENCIES
 
 
 class Preferences(BaseModel):
@@ -26,6 +27,8 @@ class Preferences(BaseModel):
     savings_rate_target: int | None = Field(
         default=None, ge=1, le=90, description="Percent of income to save; null if not set"
     )
+    budget_mode: BudgetMode | None = Field(default=None, description="Null until chosen")
+    budget_rollover: bool = Field(default=False, description="Limits mode: carry leftovers")
 
 
 class PreferencesUpdate(BaseModel):
@@ -36,6 +39,8 @@ class PreferencesUpdate(BaseModel):
     savings_rate_target: int | None = Field(
         default=None, ge=1, le=90, description="Send null to remove the target"
     )
+    budget_mode: BudgetMode | None = None
+    budget_rollover: bool | None = None
 
 
 class UserOut(BaseModel):
@@ -64,6 +69,8 @@ class UserOut(BaseModel):
                 theme=user.theme,
                 language=user.language,
                 savings_rate_target=user.savings_rate_target,
+                budget_mode=user.budget_mode,  # constrained in the database
+                budget_rollover=user.budget_rollover,
             ),
         )
 

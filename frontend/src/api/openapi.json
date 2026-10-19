@@ -3127,6 +3127,254 @@
           }
         }
       }
+    },
+    "/api/budget": {
+      "get": {
+        "tags": [
+          "budget"
+        ],
+        "summary": "Read Budget",
+        "description": "The financial month that contains `date` (today by default).",
+        "operationId": "read_budget_api_budget_get",
+        "parameters": [
+          {
+            "name": "date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BudgetOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/budget/lines/{category_id}": {
+      "put": {
+        "tags": [
+          "budget"
+        ],
+        "summary": "Set Line",
+        "description": "Set the limit (from this month on) or what is assigned this month.",
+        "operationId": "set_line_api_budget_lines__category_id__put",
+        "parameters": [
+          {
+            "name": "category_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Category Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AmountIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BudgetOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "budget"
+        ],
+        "summary": "Remove Line",
+        "description": "Limits: no limit from this month on. Zero-based: only an empty line can go.",
+        "operationId": "remove_line_api_budget_lines__category_id__delete",
+        "parameters": [
+          {
+            "name": "category_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Category Id"
+            }
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BudgetOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/budget/move": {
+      "post": {
+        "tags": [
+          "budget"
+        ],
+        "summary": "Move Money",
+        "description": "Zero-based: move available money from one category to another.",
+        "operationId": "move_money_api_budget_move_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MoveIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BudgetOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/budget/copy-previous": {
+      "post": {
+        "tags": [
+          "budget"
+        ],
+        "summary": "Copy Previous",
+        "description": "Zero-based: assign this month what was assigned last month, where nothing is yet.",
+        "operationId": "copy_previous_api_budget_copy_previous_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MonthIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BudgetOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -3686,6 +3934,36 @@
         "type": "object",
         "title": "AccountUpdate"
       },
+      "AmountIn": {
+        "properties": {
+          "date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date",
+            "description": "Any day of the month; today if null"
+          },
+          "amount": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Amount",
+            "examples": [
+              "-12.50"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "amount"
+        ],
+        "title": "AmountIn"
+      },
       "Applied": {
         "properties": {
           "applied": {
@@ -3817,6 +4095,140 @@
           "account_id"
         ],
         "title": "Body_preview_import_api_imports_preview_post"
+      },
+      "BudgetOut": {
+        "properties": {
+          "mode": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "limits",
+                  "zero_based"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mode",
+            "description": "Null until the user chooses"
+          },
+          "rollover": {
+            "type": "boolean",
+            "title": "Rollover",
+            "description": "Leftovers carry over (always in zero-based)"
+          },
+          "start": {
+            "type": "string",
+            "format": "date",
+            "title": "Start"
+          },
+          "end": {
+            "type": "string",
+            "format": "date",
+            "title": "End"
+          },
+          "previous_start": {
+            "type": "string",
+            "format": "date",
+            "title": "Previous Start"
+          },
+          "next_start": {
+            "type": "string",
+            "format": "date",
+            "title": "Next Start"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/LineOut"
+            },
+            "type": "array",
+            "title": "Lines"
+          },
+          "unbudgeted": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Unbudgeted",
+            "description": "Spent in categories without a line, or uncategorised",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "assigned": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Assigned",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "activity": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Activity",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "available": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Available",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "cash": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+                "examples": [
+                  "-12.50"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cash",
+            "description": "Zero-based: everyday money minus what goals hold"
+          },
+          "to_assign": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+                "examples": [
+                  "-12.50"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "To Assign",
+            "description": "Zero-based: cash not yet in any line"
+          }
+        },
+        "type": "object",
+        "required": [
+          "mode",
+          "rollover",
+          "start",
+          "end",
+          "previous_start",
+          "next_start",
+          "lines",
+          "unbudgeted",
+          "assigned",
+          "activity",
+          "available",
+          "cash",
+          "to_assign"
+        ],
+        "title": "BudgetOut"
       },
       "BulkEdit": {
         "properties": {
@@ -4933,6 +5345,60 @@
         ],
         "title": "Inbox"
       },
+      "LineOut": {
+        "properties": {
+          "category_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Category Id"
+          },
+          "assigned": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Assigned",
+            "description": "Limit (limits) or assigned this month (zero-based)",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "activity": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Activity",
+            "description": "Spent (negative) or refunded this month",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "carried": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Carried",
+            "description": "Left over (or overspent) from earlier months",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "available": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Available",
+            "description": "carried + assigned + activity",
+            "examples": [
+              "-12.50"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "category_id",
+          "assigned",
+          "activity",
+          "carried",
+          "available"
+        ],
+        "title": "LineOut"
+      },
       "LoginRequest": {
         "properties": {
           "email": {
@@ -5104,6 +5570,65 @@
         },
         "type": "object",
         "title": "MfaRequest"
+      },
+      "MonthIn": {
+        "properties": {
+          "date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date"
+          }
+        },
+        "type": "object",
+        "title": "MonthIn"
+      },
+      "MoveIn": {
+        "properties": {
+          "date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date"
+          },
+          "from_category_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "From Category Id"
+          },
+          "to_category_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "To Category Id"
+          },
+          "amount": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Amount",
+            "examples": [
+              "-12.50"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "from_category_id",
+          "to_category_id",
+          "amount"
+        ],
+        "title": "MoveIn"
       },
       "NewToken": {
         "properties": {
@@ -5350,6 +5875,28 @@
             ],
             "title": "Savings Rate Target",
             "description": "Percent of income to save; null if not set"
+          },
+          "budget_mode": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "limits",
+                  "zero_based"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Budget Mode",
+            "description": "Null until chosen"
+          },
+          "budget_rollover": {
+            "type": "boolean",
+            "title": "Budget Rollover",
+            "description": "Limits mode: carry leftovers",
+            "default": false
           }
         },
         "type": "object",
@@ -5434,6 +5981,32 @@
             ],
             "title": "Savings Rate Target",
             "description": "Send null to remove the target"
+          },
+          "budget_mode": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "limits",
+                  "zero_based"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Budget Mode"
+          },
+          "budget_rollover": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Budget Rollover"
           }
         },
         "type": "object",

@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import BigInteger, CheckConstraint, SmallInteger, String, Text
+from sqlalchemy import BigInteger, CheckConstraint, SmallInteger, String, Text, false
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db import Base
@@ -21,6 +21,10 @@ class User(TimestampMixin, Base):
         CheckConstraint(
             "savings_rate_target IS NULL OR savings_rate_target BETWEEN 1 AND 90",
             name="savings_rate_target_range",
+        ),
+        CheckConstraint(
+            "budget_mode IS NULL OR budget_mode IN ('limits', 'zero_based')",
+            name="budget_mode_valid",
         ),
     )
 
@@ -45,6 +49,10 @@ class User(TimestampMixin, Base):
     month_start_day: Mapped[int] = mapped_column(SmallInteger, default=1)
     # Share of income to save each financial month, in percent (RF-OBJ-06); None: not set.
     savings_rate_target: Mapped[int | None] = mapped_column(SmallInteger)
+    # Budget (RF-PRS-01): "limits" or "zero_based"; None until the user chooses. In limits
+    # mode the leftover or overspending can carry to the next month (RF-PRS-04).
+    budget_mode: Mapped[str | None] = mapped_column(String(12))
+    budget_rollover: Mapped[bool] = mapped_column(default=False, server_default=false())
     theme: Mapped[str] = mapped_column(String(10), default="system")
     language: Mapped[str] = mapped_column(String(5), default="es")
 

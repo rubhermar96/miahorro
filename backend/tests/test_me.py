@@ -31,6 +31,8 @@ def test_profile_includes_default_preferences(ana: TestClient) -> None:
         "theme": "system",
         "language": "es",
         "savings_rate_target": None,
+        "budget_mode": None,
+        "budget_rollover": False,
     }
 
 
@@ -44,6 +46,8 @@ def test_update_some_preferences(ana: TestClient) -> None:
         "theme": "dark",
         "language": "es",
         "savings_rate_target": None,
+        "budget_mode": None,
+        "budget_rollover": False,
     }
     assert ana.get("/api/me").json()["preferences"]["month_start_day"] == 25
 

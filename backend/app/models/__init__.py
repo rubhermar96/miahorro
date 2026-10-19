@@ -2,6 +2,7 @@
 
 from app.models.accounts import Account, AccountRate
 from app.models.auth import AuthChallenge, AuthSession, PasskeyCredential, RecoveryCode
+from app.models.budgets import BudgetAssignment
 from app.models.capture import CaptureCard, CaptureToken, RecurringItem
 from app.models.goals import GoalAccount, GoalContribution, SavingsGoal
 from app.models.imports import CategoryRule, ImportBatch, ImportTemplate
@@ -13,6 +14,7 @@ __all__ = [
     "AccountRate",
     "AuthChallenge",
     "AuthSession",
+    "BudgetAssignment",
     "CaptureCard",
     "CaptureToken",
     "Category",

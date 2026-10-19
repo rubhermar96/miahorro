@@ -11,6 +11,7 @@ from app.logging_setup import configure_logging, register_access_log
 from app.routers import (
     accounts,
     auth,
+    budgets,
     capture,
     categories,
     goals,
@@ -56,6 +57,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(capture.router)
     app.include_router(recurring.router)
     app.include_router(goals.router)
+    app.include_router(budgets.router)
     mount_admin(app, engine, session_factory, settings)
     return app
 

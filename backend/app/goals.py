@@ -17,6 +17,7 @@ from app.models.transactions import Transaction
 from app.models.user import User
 from finance.goals import estimated_date, monthly_pace, required_monthly
 from finance.money import round_cents
+from finance.periods import last_periods
 
 # The pace is what the goal grew in this window (or since it was created, if later).
 PACE_WINDOW = dt.timedelta(days=90)
@@ -148,31 +149,11 @@ class Period:
         return (self.saved * 100 / self.income).quantize(Decimal("0.1"))
 
 
-def _month_start(year: int, month: int, day: int) -> dt.date:
-    return dt.date(year + (month - 1) // 12, (month - 1) % 12 + 1, day)
-
-
-def financial_months(today: dt.date, start_day: int, count: int) -> list[tuple[dt.date, dt.date]]:
-    """The last `count` financial months, oldest first; each starts on `start_day` (the
-    payday) and the current one ends today."""
-    first = (
-        _month_start(today.year, today.month, start_day)
-        if today.day >= start_day
-        else _month_start(today.year, today.month - 1, start_day)
-    )
-    periods = []
-    for back in range(count):
-        start = _month_start(first.year, first.month - back, start_day)
-        following = _month_start(start.year, start.month + 1, start_day)
-        periods.append((start, min(following - dt.timedelta(days=1), today)))
-    return list(reversed(periods))
-
-
 def savings_periods(db: Session, user: User, today: dt.date, count: int) -> list[Period]:
     """Income and expenses per financial month. Transfers between own accounts and balance
     adjustments are neither, so they never count."""
     result = []
-    for start, end in financial_months(today, user.month_start_day, count):
+    for start, end in last_periods(today, user.month_start_day, count):
         income, expenses = db.execute(
             select(
                 func.coalesce(func.sum(Transaction.amount).filter(Transaction.kind == "income"), 0),

@@ -6,6 +6,7 @@ from app.models.budgets import BudgetAssignment
 from app.models.capture import CaptureCard, CaptureToken, RecurringItem
 from app.models.goals import GoalAccount, GoalContribution, SavingsGoal
 from app.models.imports import CategoryRule, ImportBatch, ImportTemplate
+from app.models.loans import Loan, LoanPrepayment, ReferenceRate
 from app.models.transactions import Category, Transaction
 from app.models.user import User
 
@@ -23,9 +24,12 @@ __all__ = [
     "GoalContribution",
     "ImportBatch",
     "ImportTemplate",
+    "Loan",
+    "LoanPrepayment",
     "PasskeyCredential",
     "RecoveryCode",
     "RecurringItem",
+    "ReferenceRate",
     "SavingsGoal",
     "Transaction",
     "User",

@@ -17,6 +17,7 @@ from app.routers import (
     goals,
     health,
     imports,
+    loans,
     me,
     recurring,
     rules,
@@ -58,6 +59,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(recurring.router)
     app.include_router(goals.router)
     app.include_router(budgets.router)
+    app.include_router(loans.router)
     mount_admin(app, engine, session_factory, settings)
     return app
 

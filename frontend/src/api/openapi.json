@@ -3375,6 +3375,592 @@
           }
         }
       }
+    },
+    "/api/loans": {
+      "get": {
+        "tags": [
+          "loans"
+        ],
+        "summary": "List Loans",
+        "operationId": "list_loans_api_loans_get",
+        "parameters": [
+          {
+            "name": "include_archived",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Include Archived"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LoanOut"
+                  },
+                  "title": "Response List Loans Api Loans Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "loans"
+        ],
+        "summary": "Create Loan",
+        "operationId": "create_loan_api_loans_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoanFields"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoanOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/loans/{loan_id}": {
+      "get": {
+        "tags": [
+          "loans"
+        ],
+        "summary": "Read Loan",
+        "operationId": "read_loan_api_loans__loan_id__get",
+        "parameters": [
+          {
+            "name": "loan_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Loan Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoanOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "loans"
+        ],
+        "summary": "Update Loan",
+        "operationId": "update_loan_api_loans__loan_id__patch",
+        "parameters": [
+          {
+            "name": "loan_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Loan Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoanUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoanOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "loans"
+        ],
+        "summary": "Delete Loan",
+        "operationId": "delete_loan_api_loans__loan_id__delete",
+        "parameters": [
+          {
+            "name": "loan_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Loan Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/loans/{loan_id}/schedule": {
+      "get": {
+        "tags": [
+          "loans"
+        ],
+        "summary": "Loan Schedule",
+        "description": "The amortization table, recalculated with every review and early repayment.",
+        "operationId": "loan_schedule_api_loans__loan_id__schedule_get",
+        "parameters": [
+          {
+            "name": "loan_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Loan Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/InstallmentOut"
+                  },
+                  "title": "Response Loan Schedule Api Loans  Loan Id  Schedule Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/loans/{loan_id}/simulate": {
+      "post": {
+        "tags": [
+          "loans"
+        ],
+        "summary": "Simulate",
+        "description": "What an early repayment would cost and save. Stores nothing.",
+        "operationId": "simulate_api_loans__loan_id__simulate_post",
+        "parameters": [
+          {
+            "name": "loan_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Loan Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SimulationIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SimulationOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/loans/{loan_id}/prepayments": {
+      "get": {
+        "tags": [
+          "loans"
+        ],
+        "summary": "List Prepayments",
+        "operationId": "list_prepayments_api_loans__loan_id__prepayments_get",
+        "parameters": [
+          {
+            "name": "loan_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Loan Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PrepaymentOut"
+                  },
+                  "title": "Response List Prepayments Api Loans  Loan Id  Prepayments Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "loans"
+        ],
+        "summary": "Add Prepayment",
+        "description": "Record an early repayment: the table is recalculated from it on.",
+        "operationId": "add_prepayment_api_loans__loan_id__prepayments_post",
+        "parameters": [
+          {
+            "name": "loan_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Loan Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SimulationIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoanOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/loans/{loan_id}/prepayments/{prepayment_id}": {
+      "delete": {
+        "tags": [
+          "loans"
+        ],
+        "summary": "Delete Prepayment",
+        "operationId": "delete_prepayment_api_loans__loan_id__prepayments__prepayment_id__delete",
+        "parameters": [
+          {
+            "name": "loan_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Loan Id"
+            }
+          },
+          {
+            "name": "prepayment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Prepayment Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reference-rates": {
+      "get": {
+        "tags": [
+          "loans"
+        ],
+        "summary": "List Reference Rates",
+        "description": "Monthly values, newest first. Shared by everyone: it is public data.",
+        "operationId": "list_reference_rates_api_reference_rates_get",
+        "parameters": [
+          {
+            "name": "index",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "const": "euribor_12m",
+              "type": "string",
+              "default": "euribor_12m",
+              "title": "Index"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ReferenceRateOut"
+                  },
+                  "title": "Response List Reference Rates Api Reference Rates Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "loans"
+        ],
+        "summary": "Set Reference Rate",
+        "operationId": "set_reference_rate_api_reference_rates_put",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReferenceRateIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReferenceRateOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reference-rates/{rate_id}": {
+      "delete": {
+        "tags": [
+          "loans"
+        ],
+        "summary": "Delete Reference Rate",
+        "description": "Only whoever typed it in, or an administrator: everyone's loans use it.",
+        "operationId": "delete_reference_rate_api_reference_rates__rate_id__delete",
+        "parameters": [
+          {
+            "name": "rate_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Rate Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -5345,6 +5931,82 @@
         ],
         "title": "Inbox"
       },
+      "InstallmentOut": {
+        "properties": {
+          "number": {
+            "type": "integer",
+            "title": "Number"
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date"
+          },
+          "rate": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,4})?$",
+            "title": "Rate",
+            "examples": [
+              "2.15"
+            ]
+          },
+          "payment": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Payment",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "interest": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Interest",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "principal": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Principal",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "outstanding": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Outstanding",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "paid": {
+            "type": "boolean",
+            "title": "Paid",
+            "description": "Its date has passed"
+          },
+          "review": {
+            "type": "boolean",
+            "title": "Review",
+            "description": "The rate changes from this instalment"
+          }
+        },
+        "type": "object",
+        "required": [
+          "number",
+          "date",
+          "rate",
+          "payment",
+          "interest",
+          "principal",
+          "outstanding",
+          "paid",
+          "review"
+        ],
+        "title": "InstallmentOut"
+      },
       "LineOut": {
         "properties": {
           "category_id": {
@@ -5398,6 +6060,831 @@
           "available"
         ],
         "title": "LineOut"
+      },
+      "LoanFields": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 60,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "mortgage",
+              "personal",
+              "car",
+              "consumer",
+              "credit_line",
+              "p2p_owe",
+              "p2p_lent"
+            ],
+            "title": "Kind",
+            "default": "personal"
+          },
+          "lender": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 60
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lender",
+            "description": "Bank or person"
+          },
+          "principal": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Principal",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "signed_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Signed On"
+          },
+          "first_payment": {
+            "type": "string",
+            "format": "date",
+            "title": "First Payment"
+          },
+          "term_months": {
+            "type": "integer",
+            "maximum": 600.0,
+            "minimum": 1.0,
+            "title": "Term Months"
+          },
+          "system": {
+            "type": "string",
+            "enum": [
+              "french",
+              "linear"
+            ],
+            "title": "System",
+            "default": "french"
+          },
+          "grace_months": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Grace Months",
+            "default": 0
+          },
+          "rate_type": {
+            "type": "string",
+            "enum": [
+              "fixed",
+              "variable",
+              "mixed"
+            ],
+            "title": "Rate Type",
+            "default": "fixed"
+          },
+          "fixed_rate": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,4})?$",
+            "title": "Fixed Rate",
+            "description": "TIN; for variable or mixed, the initial rate",
+            "examples": [
+              "2.15"
+            ]
+          },
+          "fixed_months": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Fixed Months",
+            "description": "Months at the initial rate",
+            "default": 0
+          },
+          "index": {
+            "anyOf": [
+              {
+                "type": "string",
+                "const": "euribor_12m"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Index"
+          },
+          "spread": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d+(\\.\\d{1,4})?$",
+                "examples": [
+                  "2.15"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spread",
+            "description": "Diferencial over the index"
+          },
+          "review_months": {
+            "type": "integer",
+            "enum": [
+              6,
+              12
+            ],
+            "title": "Review Months",
+            "default": 12
+          },
+          "tae": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d+(\\.\\d{1,4})?$",
+                "examples": [
+                  "2.15"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tae"
+          },
+          "opening_fee": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+                "examples": [
+                  "-12.50"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Opening Fee"
+          },
+          "early_repayment_fee": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,4})?$",
+            "title": "Early Repayment Fee",
+            "description": "Percent in the contract",
+            "default": "0",
+            "examples": [
+              "2.15"
+            ]
+          },
+          "account_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Account Id",
+            "description": "Account it is paid from"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "principal",
+          "signed_on",
+          "first_payment",
+          "term_months",
+          "fixed_rate"
+        ],
+        "title": "LoanFields"
+      },
+      "LoanOut": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 60,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "mortgage",
+              "personal",
+              "car",
+              "consumer",
+              "credit_line",
+              "p2p_owe",
+              "p2p_lent"
+            ],
+            "title": "Kind",
+            "default": "personal"
+          },
+          "lender": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 60
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lender",
+            "description": "Bank or person"
+          },
+          "principal": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Principal",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "signed_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Signed On"
+          },
+          "first_payment": {
+            "type": "string",
+            "format": "date",
+            "title": "First Payment"
+          },
+          "term_months": {
+            "type": "integer",
+            "maximum": 600.0,
+            "minimum": 1.0,
+            "title": "Term Months"
+          },
+          "system": {
+            "type": "string",
+            "enum": [
+              "french",
+              "linear"
+            ],
+            "title": "System",
+            "default": "french"
+          },
+          "grace_months": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Grace Months",
+            "default": 0
+          },
+          "rate_type": {
+            "type": "string",
+            "enum": [
+              "fixed",
+              "variable",
+              "mixed"
+            ],
+            "title": "Rate Type",
+            "default": "fixed"
+          },
+          "fixed_rate": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,4})?$",
+            "title": "Fixed Rate",
+            "description": "TIN; for variable or mixed, the initial rate",
+            "examples": [
+              "2.15"
+            ]
+          },
+          "fixed_months": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Fixed Months",
+            "description": "Months at the initial rate",
+            "default": 0
+          },
+          "index": {
+            "anyOf": [
+              {
+                "type": "string",
+                "const": "euribor_12m"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Index"
+          },
+          "spread": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d+(\\.\\d{1,4})?$",
+                "examples": [
+                  "2.15"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spread",
+            "description": "Diferencial over the index"
+          },
+          "review_months": {
+            "type": "integer",
+            "enum": [
+              6,
+              12
+            ],
+            "title": "Review Months",
+            "default": 12
+          },
+          "tae": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d+(\\.\\d{1,4})?$",
+                "examples": [
+                  "2.15"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tae"
+          },
+          "opening_fee": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+                "examples": [
+                  "-12.50"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Opening Fee"
+          },
+          "early_repayment_fee": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,4})?$",
+            "title": "Early Repayment Fee",
+            "description": "Percent in the contract",
+            "default": "0.0000",
+            "examples": [
+              "2.15"
+            ]
+          },
+          "account_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Account Id",
+            "description": "Account it is paid from"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "archived": {
+            "type": "boolean",
+            "title": "Archived"
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "owe",
+              "owed"
+            ],
+            "title": "Direction",
+            "description": "owed: someone owes the user"
+          },
+          "outstanding": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Outstanding",
+            "description": "Capital left today",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "principal_paid": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Principal Paid",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "interest_paid": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Interest Paid",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "interest_left": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Interest Left",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "next_payment": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/NextPayment"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "end_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Date"
+          },
+          "payments_left": {
+            "type": "integer",
+            "title": "Payments Left"
+          },
+          "current_rate": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,4})?$",
+            "title": "Current Rate",
+            "examples": [
+              "2.15"
+            ]
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings",
+            "description": "E.g. a review without its index value"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "principal",
+          "signed_on",
+          "first_payment",
+          "term_months",
+          "fixed_rate",
+          "id",
+          "archived",
+          "direction",
+          "outstanding",
+          "principal_paid",
+          "interest_paid",
+          "interest_left",
+          "next_payment",
+          "end_date",
+          "payments_left",
+          "current_rate",
+          "warnings"
+        ],
+        "title": "LoanOut"
+      },
+      "LoanUpdate": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "kind": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "mortgage",
+                  "personal",
+                  "car",
+                  "consumer",
+                  "credit_line",
+                  "p2p_owe",
+                  "p2p_lent"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kind"
+          },
+          "lender": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lender"
+          },
+          "principal": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+                "examples": [
+                  "-12.50"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Principal"
+          },
+          "signed_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Signed On"
+          },
+          "first_payment": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Payment"
+          },
+          "term_months": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 600.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Term Months"
+          },
+          "system": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "french",
+                  "linear"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "System"
+          },
+          "grace_months": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grace Months"
+          },
+          "rate_type": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "fixed",
+                  "variable",
+                  "mixed"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rate Type"
+          },
+          "fixed_rate": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d+(\\.\\d{1,4})?$",
+                "examples": [
+                  "2.15"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fixed Rate"
+          },
+          "fixed_months": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fixed Months"
+          },
+          "index": {
+            "anyOf": [
+              {
+                "type": "string",
+                "const": "euribor_12m"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Index"
+          },
+          "spread": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d+(\\.\\d{1,4})?$",
+                "examples": [
+                  "2.15"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spread"
+          },
+          "review_months": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "enum": [
+                  6,
+                  12
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Review Months"
+          },
+          "tae": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d+(\\.\\d{1,4})?$",
+                "examples": [
+                  "2.15"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tae"
+          },
+          "opening_fee": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+                "examples": [
+                  "-12.50"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Opening Fee"
+          },
+          "early_repayment_fee": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d+(\\.\\d{1,4})?$",
+                "examples": [
+                  "2.15"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Early Repayment Fee"
+          },
+          "account_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Account Id"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "archived": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Archived"
+          }
+        },
+        "type": "object",
+        "title": "LoanUpdate",
+        "description": "Any of the fields; `archived` hides a finished loan."
       },
       "LoginRequest": {
         "properties": {
@@ -5653,6 +7140,29 @@
           "url"
         ],
         "title": "NewToken"
+      },
+      "NextPayment": {
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date"
+          },
+          "amount": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Amount",
+            "examples": [
+              "-12.50"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "date",
+          "amount"
+        ],
+        "title": "NextPayment"
       },
       "PasskeyAssertion": {
         "properties": {
@@ -6011,6 +7521,53 @@
         },
         "type": "object",
         "title": "PreferencesUpdate"
+      },
+      "PrepaymentOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date"
+          },
+          "amount": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Amount",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "reduce_payment",
+              "reduce_term"
+            ],
+            "title": "Mode"
+          },
+          "fee": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Fee",
+            "examples": [
+              "-12.50"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "date",
+          "amount",
+          "mode",
+          "fee"
+        ],
+        "title": "PrepaymentOut"
       },
       "PreviewRow": {
         "properties": {
@@ -6432,6 +7989,71 @@
           "last_transaction_id"
         ],
         "title": "RecurringOut"
+      },
+      "ReferenceRateIn": {
+        "properties": {
+          "index": {
+            "type": "string",
+            "const": "euribor_12m",
+            "title": "Index",
+            "default": "euribor_12m"
+          },
+          "month": {
+            "type": "string",
+            "format": "date",
+            "title": "Month",
+            "description": "Any day of the month"
+          },
+          "value": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,4})?$",
+            "title": "Value",
+            "examples": [
+              "2.15"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "month",
+          "value"
+        ],
+        "title": "ReferenceRateIn"
+      },
+      "ReferenceRateOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "index": {
+            "type": "string",
+            "const": "euribor_12m",
+            "title": "Index"
+          },
+          "month": {
+            "type": "string",
+            "format": "date",
+            "title": "Month"
+          },
+          "value": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,4})?$",
+            "title": "Value",
+            "examples": [
+              "2.15"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "index",
+          "month",
+          "value"
+        ],
+        "title": "ReferenceRateOut"
       },
       "RegisterRequest": {
         "properties": {
@@ -6908,6 +8530,153 @@
           "user"
         ],
         "title": "SessionOut"
+      },
+      "SimulationIn": {
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date"
+          },
+          "amount": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Amount",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "reduce_payment",
+              "reduce_term"
+            ],
+            "title": "Mode",
+            "default": "reduce_term"
+          }
+        },
+        "type": "object",
+        "required": [
+          "date",
+          "amount"
+        ],
+        "title": "SimulationIn"
+      },
+      "SimulationOut": {
+        "properties": {
+          "fee": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Fee",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "fee_percent": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,4})?$",
+            "title": "Fee Percent",
+            "examples": [
+              "2.15"
+            ]
+          },
+          "legal_cap": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d+(\\.\\d{1,4})?$",
+                "examples": [
+                  "2.15"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Legal Cap",
+            "description": "Maximum the law allows; null if none"
+          },
+          "interest_saved": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Interest Saved",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "payment_before": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+                "examples": [
+                  "-12.50"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Payment Before"
+          },
+          "payment_after": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+                "examples": [
+                  "-12.50"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Payment After"
+          },
+          "end_before": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Before"
+          },
+          "end_after": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End After"
+          },
+          "payments_saved": {
+            "type": "integer",
+            "title": "Payments Saved"
+          }
+        },
+        "type": "object",
+        "required": [
+          "fee",
+          "fee_percent",
+          "legal_cap",
+          "interest_saved",
+          "payment_before",
+          "payment_after",
+          "end_before",
+          "end_after",
+          "payments_saved"
+        ],
+        "title": "SimulationOut"
       },
       "SkippedRowOut": {
         "properties": {

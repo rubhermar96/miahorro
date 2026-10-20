@@ -1143,6 +1143,162 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/loans": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Loans */
+        get: operations["list_loans_api_loans_get"];
+        put?: never;
+        /** Create Loan */
+        post: operations["create_loan_api_loans_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/loans/{loan_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Loan */
+        get: operations["read_loan_api_loans__loan_id__get"];
+        put?: never;
+        post?: never;
+        /** Delete Loan */
+        delete: operations["delete_loan_api_loans__loan_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update Loan */
+        patch: operations["update_loan_api_loans__loan_id__patch"];
+        trace?: never;
+    };
+    "/api/loans/{loan_id}/schedule": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Loan Schedule
+         * @description The amortization table, recalculated with every review and early repayment.
+         */
+        get: operations["loan_schedule_api_loans__loan_id__schedule_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/loans/{loan_id}/simulate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Simulate
+         * @description What an early repayment would cost and save. Stores nothing.
+         */
+        post: operations["simulate_api_loans__loan_id__simulate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/loans/{loan_id}/prepayments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Prepayments */
+        get: operations["list_prepayments_api_loans__loan_id__prepayments_get"];
+        put?: never;
+        /**
+         * Add Prepayment
+         * @description Record an early repayment: the table is recalculated from it on.
+         */
+        post: operations["add_prepayment_api_loans__loan_id__prepayments_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/loans/{loan_id}/prepayments/{prepayment_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Prepayment */
+        delete: operations["delete_prepayment_api_loans__loan_id__prepayments__prepayment_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/reference-rates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Reference Rates
+         * @description Monthly values, newest first. Shared by everyone: it is public data.
+         */
+        get: operations["list_reference_rates_api_reference_rates_get"];
+        /** Set Reference Rate */
+        put: operations["set_reference_rate_api_reference_rates_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/reference-rates/{rate_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete Reference Rate
+         * @description Only whoever typed it in, or an administrator: everyone's loans use it.
+         */
+        delete: operations["delete_reference_rate_api_reference_rates__rate_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1894,6 +2050,51 @@ export interface components {
              */
             overdue: components["schemas"]["Upcoming"][];
         };
+        /** InstallmentOut */
+        InstallmentOut: {
+            /** Number */
+            number: number;
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /**
+             * Rate
+             * @example 2.15
+             */
+            rate: string;
+            /**
+             * Payment
+             * @example -12.50
+             */
+            payment: string;
+            /**
+             * Interest
+             * @example -12.50
+             */
+            interest: string;
+            /**
+             * Principal
+             * @example -12.50
+             */
+            principal: string;
+            /**
+             * Outstanding
+             * @example -12.50
+             */
+            outstanding: string;
+            /**
+             * Paid
+             * @description Its date has passed
+             */
+            paid: boolean;
+            /**
+             * Review
+             * @description The rate changes from this instalment
+             */
+            review: boolean;
+        };
         /** LineOut */
         LineOut: {
             /**
@@ -1925,6 +2126,289 @@ export interface components {
              * @example -12.50
              */
             available: string;
+        };
+        /** LoanFields */
+        LoanFields: {
+            /** Name */
+            name: string;
+            /**
+             * Kind
+             * @default personal
+             * @enum {string}
+             */
+            kind: "mortgage" | "personal" | "car" | "consumer" | "credit_line" | "p2p_owe" | "p2p_lent";
+            /**
+             * Lender
+             * @description Bank or person
+             */
+            lender?: string | null;
+            /**
+             * Principal
+             * @example -12.50
+             */
+            principal: string;
+            /**
+             * Signed On
+             * Format: date
+             */
+            signed_on: string;
+            /**
+             * First Payment
+             * Format: date
+             */
+            first_payment: string;
+            /** Term Months */
+            term_months: number;
+            /**
+             * System
+             * @default french
+             * @enum {string}
+             */
+            system: "french" | "linear";
+            /**
+             * Grace Months
+             * @default 0
+             */
+            grace_months: number;
+            /**
+             * Rate Type
+             * @default fixed
+             * @enum {string}
+             */
+            rate_type: "fixed" | "variable" | "mixed";
+            /**
+             * Fixed Rate
+             * @description TIN; for variable or mixed, the initial rate
+             * @example 2.15
+             */
+            fixed_rate: string;
+            /**
+             * Fixed Months
+             * @description Months at the initial rate
+             * @default 0
+             */
+            fixed_months: number;
+            /** Index */
+            index?: "euribor_12m" | null;
+            /**
+             * Spread
+             * @description Diferencial over the index
+             */
+            spread?: string | null;
+            /**
+             * Review Months
+             * @default 12
+             * @enum {integer}
+             */
+            review_months: 6 | 12;
+            /** Tae */
+            tae?: string | null;
+            /** Opening Fee */
+            opening_fee?: string | null;
+            /**
+             * Early Repayment Fee
+             * @description Percent in the contract
+             * @default 0
+             * @example 2.15
+             */
+            early_repayment_fee: string;
+            /**
+             * Account Id
+             * @description Account it is paid from
+             */
+            account_id?: string | null;
+            /** Note */
+            note?: string | null;
+        };
+        /** LoanOut */
+        LoanOut: {
+            /** Name */
+            name: string;
+            /**
+             * Kind
+             * @default personal
+             * @enum {string}
+             */
+            kind: "mortgage" | "personal" | "car" | "consumer" | "credit_line" | "p2p_owe" | "p2p_lent";
+            /**
+             * Lender
+             * @description Bank or person
+             */
+            lender?: string | null;
+            /**
+             * Principal
+             * @example -12.50
+             */
+            principal: string;
+            /**
+             * Signed On
+             * Format: date
+             */
+            signed_on: string;
+            /**
+             * First Payment
+             * Format: date
+             */
+            first_payment: string;
+            /** Term Months */
+            term_months: number;
+            /**
+             * System
+             * @default french
+             * @enum {string}
+             */
+            system: "french" | "linear";
+            /**
+             * Grace Months
+             * @default 0
+             */
+            grace_months: number;
+            /**
+             * Rate Type
+             * @default fixed
+             * @enum {string}
+             */
+            rate_type: "fixed" | "variable" | "mixed";
+            /**
+             * Fixed Rate
+             * @description TIN; for variable or mixed, the initial rate
+             * @example 2.15
+             */
+            fixed_rate: string;
+            /**
+             * Fixed Months
+             * @description Months at the initial rate
+             * @default 0
+             */
+            fixed_months: number;
+            /** Index */
+            index?: "euribor_12m" | null;
+            /**
+             * Spread
+             * @description Diferencial over the index
+             */
+            spread?: string | null;
+            /**
+             * Review Months
+             * @default 12
+             * @enum {integer}
+             */
+            review_months: 6 | 12;
+            /** Tae */
+            tae?: string | null;
+            /** Opening Fee */
+            opening_fee?: string | null;
+            /**
+             * Early Repayment Fee
+             * @description Percent in the contract
+             * @default 0.0000
+             * @example 2.15
+             */
+            early_repayment_fee: string;
+            /**
+             * Account Id
+             * @description Account it is paid from
+             */
+            account_id?: string | null;
+            /** Note */
+            note?: string | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Archived */
+            archived: boolean;
+            /**
+             * Direction
+             * @description owed: someone owes the user
+             * @enum {string}
+             */
+            direction: "owe" | "owed";
+            /**
+             * Outstanding
+             * @description Capital left today
+             * @example -12.50
+             */
+            outstanding: string;
+            /**
+             * Principal Paid
+             * @example -12.50
+             */
+            principal_paid: string;
+            /**
+             * Interest Paid
+             * @example -12.50
+             */
+            interest_paid: string;
+            /**
+             * Interest Left
+             * @example -12.50
+             */
+            interest_left: string;
+            next_payment: components["schemas"]["NextPayment"] | null;
+            /** End Date */
+            end_date: string | null;
+            /** Payments Left */
+            payments_left: number;
+            /**
+             * Current Rate
+             * @example 2.15
+             */
+            current_rate: string;
+            /**
+             * Warnings
+             * @description E.g. a review without its index value
+             */
+            warnings: string[];
+        };
+        /**
+         * LoanUpdate
+         * @description Any of the fields; `archived` hides a finished loan.
+         */
+        LoanUpdate: {
+            /** Name */
+            name?: string | null;
+            /** Kind */
+            kind?: ("mortgage" | "personal" | "car" | "consumer" | "credit_line" | "p2p_owe" | "p2p_lent") | null;
+            /** Lender */
+            lender?: string | null;
+            /** Principal */
+            principal?: string | null;
+            /** Signed On */
+            signed_on?: string | null;
+            /** First Payment */
+            first_payment?: string | null;
+            /** Term Months */
+            term_months?: number | null;
+            /** System */
+            system?: ("french" | "linear") | null;
+            /** Grace Months */
+            grace_months?: number | null;
+            /** Rate Type */
+            rate_type?: ("fixed" | "variable" | "mixed") | null;
+            /** Fixed Rate */
+            fixed_rate?: string | null;
+            /** Fixed Months */
+            fixed_months?: number | null;
+            /** Index */
+            index?: "euribor_12m" | null;
+            /** Spread */
+            spread?: string | null;
+            /** Review Months */
+            review_months?: (6 | 12) | null;
+            /** Tae */
+            tae?: string | null;
+            /** Opening Fee */
+            opening_fee?: string | null;
+            /** Early Repayment Fee */
+            early_repayment_fee?: string | null;
+            /** Account Id */
+            account_id?: string | null;
+            /** Note */
+            note?: string | null;
+            /** Archived */
+            archived?: boolean | null;
         };
         /** LoginRequest */
         LoginRequest: {
@@ -2023,6 +2507,19 @@ export interface components {
              * @description Where the Shortcut sends payments (path)
              */
             url: string;
+        };
+        /** NextPayment */
+        NextPayment: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /**
+             * Amount
+             * @example -12.50
+             */
+            amount: string;
         };
         /** PasskeyAssertion */
         PasskeyAssertion: {
@@ -2176,6 +2673,34 @@ export interface components {
             budget_mode?: ("limits" | "zero_based") | null;
             /** Budget Rollover */
             budget_rollover?: boolean | null;
+        };
+        /** PrepaymentOut */
+        PrepaymentOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /**
+             * Amount
+             * @example -12.50
+             */
+            amount: string;
+            /**
+             * Mode
+             * @enum {string}
+             */
+            mode: "reduce_payment" | "reduce_term";
+            /**
+             * Fee
+             * @example -12.50
+             */
+            fee: string;
         };
         /** PreviewRow */
         PreviewRow: {
@@ -2362,6 +2887,49 @@ export interface components {
             /** Last Transaction Id */
             last_transaction_id: string | null;
         };
+        /** ReferenceRateIn */
+        ReferenceRateIn: {
+            /**
+             * Index
+             * @default euribor_12m
+             * @constant
+             */
+            index: "euribor_12m";
+            /**
+             * Month
+             * Format: date
+             * @description Any day of the month
+             */
+            month: string;
+            /**
+             * Value
+             * @example 2.15
+             */
+            value: string;
+        };
+        /** ReferenceRateOut */
+        ReferenceRateOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Index
+             * @constant
+             */
+            index: "euribor_12m";
+            /**
+             * Month
+             * Format: date
+             */
+            month: string;
+            /**
+             * Value
+             * @example 2.15
+             */
+            value: string;
+        };
         /** RegisterRequest */
         RegisterRequest: {
             /** Display Name */
@@ -2542,6 +3110,58 @@ export interface components {
              */
             level: "full" | "mfa_pending" | "mfa_setup";
             user: components["schemas"]["UserOut"];
+        };
+        /** SimulationIn */
+        SimulationIn: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /**
+             * Amount
+             * @example -12.50
+             */
+            amount: string;
+            /**
+             * Mode
+             * @default reduce_term
+             * @enum {string}
+             */
+            mode: "reduce_payment" | "reduce_term";
+        };
+        /** SimulationOut */
+        SimulationOut: {
+            /**
+             * Fee
+             * @example -12.50
+             */
+            fee: string;
+            /**
+             * Fee Percent
+             * @example 2.15
+             */
+            fee_percent: string;
+            /**
+             * Legal Cap
+             * @description Maximum the law allows; null if none
+             */
+            legal_cap: string | null;
+            /**
+             * Interest Saved
+             * @example -12.50
+             */
+            interest_saved: string;
+            /** Payment Before */
+            payment_before: string | null;
+            /** Payment After */
+            payment_after: string | null;
+            /** End Before */
+            end_before: string | null;
+            /** End After */
+            end_after: string | null;
+            /** Payments Saved */
+            payments_saved: number;
         };
         /** SkippedRowOut */
         SkippedRowOut: {
@@ -5229,6 +5849,420 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["BudgetOut"];
                 };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_loans_api_loans_get: {
+        parameters: {
+            query?: {
+                include_archived?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LoanOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_loan_api_loans_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LoanFields"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LoanOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_loan_api_loans__loan_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                loan_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LoanOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_loan_api_loans__loan_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                loan_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_loan_api_loans__loan_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                loan_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LoanUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LoanOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    loan_schedule_api_loans__loan_id__schedule_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                loan_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InstallmentOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    simulate_api_loans__loan_id__simulate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                loan_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SimulationIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SimulationOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_prepayments_api_loans__loan_id__prepayments_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                loan_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PrepaymentOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    add_prepayment_api_loans__loan_id__prepayments_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                loan_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SimulationIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LoanOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_prepayment_api_loans__loan_id__prepayments__prepayment_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                loan_id: string;
+                prepayment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_reference_rates_api_reference_rates_get: {
+        parameters: {
+            query?: {
+                index?: "euribor_12m";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReferenceRateOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    set_reference_rate_api_reference_rates_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReferenceRateIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReferenceRateOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_reference_rate_api_reference_rates__rate_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                rate_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {

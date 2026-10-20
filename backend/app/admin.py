@@ -1,7 +1,8 @@
 """Administration panel at /admin (RF-PLT-02, RF-PLT-08).
 
 It reuses the app's own sign-in: only a fully signed-in administrator gets in. It never shows
-financial data or secrets; reference tables are added here as later iterations need them.
+financial data or secrets. The reference tables (ITP, AJD, tax scales, Euribor…) are edited
+here: to change a value from a date, add a row with that `valid_from` and keep the old one.
 """
 
 from typing import Any
@@ -17,7 +18,9 @@ from starlette.responses import PlainTextResponse, RedirectResponse, Response
 from app.auth import sessions
 from app.config import Settings
 from app.models.auth import LEVEL_FULL
+from app.models.calculators import ReferenceValue
 from app.models.imports import ImportTemplate
+from app.models.loans import ReferenceRate
 from app.models.user import User
 
 
@@ -109,6 +112,76 @@ class ImportTemplateAdmin(ModelView, model=ImportTemplate):
     form_columns = [ImportTemplate.name]
 
 
+class ReferenceValueAdmin(ModelView, model=ReferenceValue):
+    """Shared values the calculators use: each one with the date it applies from and its
+    source (RF-PLT-02)."""
+
+    name = "Valor de referencia"
+    name_plural = "Valores de referencia"
+    icon = "fa-solid fa-scale-balanced"
+    column_list = [
+        ReferenceValue.table_name,
+        ReferenceValue.key,
+        ReferenceValue.value,
+        ReferenceValue.valid_from,
+        ReferenceValue.source,
+    ]
+    column_details_list = [
+        ReferenceValue.table_name,
+        ReferenceValue.key,
+        ReferenceValue.value,
+        ReferenceValue.extra,
+        ReferenceValue.valid_from,
+        ReferenceValue.source,
+        ReferenceValue.note,
+        ReferenceValue.updated_at,
+    ]
+    column_searchable_list = [ReferenceValue.table_name, ReferenceValue.key]
+    column_sortable_list = [
+        ReferenceValue.table_name,
+        ReferenceValue.key,
+        ReferenceValue.valid_from,
+    ]
+    column_default_sort = [(ReferenceValue.table_name, False), (ReferenceValue.key, False)]
+    page_size = 100
+    column_labels = {
+        ReferenceValue.table_name: "Tabla",
+        ReferenceValue.key: "Clave",
+        ReferenceValue.value: "Valor (% o €)",
+        ReferenceValue.extra: "Escala (JSON)",
+        ReferenceValue.valid_from: "Vigente desde",
+        ReferenceValue.source: "Fuente",
+        ReferenceValue.note: "Nota",
+        ReferenceValue.updated_at: "Última modificación",
+    }
+    form_columns = [
+        ReferenceValue.table_name,
+        ReferenceValue.key,
+        ReferenceValue.value,
+        ReferenceValue.extra,
+        ReferenceValue.valid_from,
+        ReferenceValue.source,
+        ReferenceValue.note,
+    ]
+
+
+class ReferenceRateAdmin(ModelView, model=ReferenceRate):
+    """Monthly Euribor values; users can also add them from the app."""
+
+    name = "Euribor"
+    name_plural = "Euribor"
+    icon = "fa-solid fa-chart-line"
+    column_list = [ReferenceRate.index, ReferenceRate.month, ReferenceRate.value]
+    column_sortable_list = [ReferenceRate.month]
+    column_default_sort = [(ReferenceRate.month, True)]
+    column_labels = {
+        ReferenceRate.index: "Índice",
+        ReferenceRate.month: "Mes",
+        ReferenceRate.value: "Valor (%)",
+    }
+    form_columns = [ReferenceRate.index, ReferenceRate.month, ReferenceRate.value]
+
+
 def mount_admin(
     app: FastAPI, engine: Engine, session_factory: sessionmaker[Session], settings: Settings
 ) -> None:
@@ -122,3 +195,5 @@ def mount_admin(
     )
     admin.add_view(UserAdmin)
     admin.add_view(ImportTemplateAdmin)
+    admin.add_view(ReferenceValueAdmin)
+    admin.add_view(ReferenceRateAdmin)

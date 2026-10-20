@@ -9,6 +9,7 @@ from app.cli import cli
 from app.config import get_settings
 from app.models.auth import AuthSession
 from app.models.user import User
+from app.reference_data import SEED
 from tests.conftest import FakeClock
 from tests.helpers import create_user, sign_in
 
@@ -99,3 +100,12 @@ def test_list_users(app: FastAPI) -> None:
 
     assert "ana@example.com" in result.output
     assert "admin, 2FA" in result.output
+
+
+def test_sync_reference_values_adds_only_what_is_missing() -> None:
+    first = runner.invoke(cli, ["sync-reference-values"])
+    again = runner.invoke(cli, ["sync-reference-values"])
+
+    assert first.exit_code == 0
+    assert f"añadidos: {len(SEED)}" in first.output
+    assert "añadidos: 0" in again.output

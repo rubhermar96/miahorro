@@ -6,6 +6,7 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
+from app import reference
 from tests.conftest import FakeClock
 from tests.helpers import create_user, sign_in
 
@@ -85,3 +86,15 @@ def test_admin_panel_lists_shared_import_templates(admin_client: TestClient) -> 
 
     assert page.status_code == 200
     assert "Bankinter" in page.text
+
+
+def test_admin_panel_edits_reference_tables(app: FastAPI, admin_client: TestClient) -> None:
+    with app.state.session_factory() as db:
+        reference.sync(db)
+
+    values = admin_client.get("/admin/reference-value/list")
+    euribor = admin_client.get("/admin/reference-rate/list")
+
+    assert values.status_code == 200
+    assert "guiafiscal.es" in values.text
+    assert euribor.status_code == 200

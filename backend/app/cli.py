@@ -11,6 +11,7 @@ import typer
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
+from app import reference
 from app.auth import sessions
 from app.config import get_settings
 from app.db import create_db_engine
@@ -116,6 +117,14 @@ def list_users() -> None:
                 "" if user.is_active else "desactivado",
             ]
             typer.echo(f"{user.email}  {user.display_name}  [{', '.join(f for f in flags if f)}]")
+
+
+@cli.command("sync-reference-values")
+def sync_reference_values() -> None:
+    """Añade los valores de referencia que falten (ITP, AJD, escalas…); no toca los que ya hay."""
+    with _db() as db:
+        added = reference.sync(db)
+    typer.echo(f"Valores de referencia añadidos: {added}.")
 
 
 if __name__ == "__main__":

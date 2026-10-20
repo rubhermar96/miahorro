@@ -284,7 +284,7 @@ Las iteraciones 5–9 dependen sobre todo de la 2. Si alguna te corre más prisa
 - Calculadoras de ahorro e interés compuesto, meta de ahorro, hipoteca, compra de vivienda, compra de coche, préstamo personal y fondo de emergencia.
 - Escenarios guardables y comparables lado a lado.
 - Precarga de tus datos reales: ingresos medios, ahorro mensual, liquidez y gastos esenciales.
-- Tablas de referencia editables desde `/admin`, cada valor con fecha de vigencia y fuente: ITP y AJD por comunidad autónoma, IVA, impuesto de matriculación, límites de la Ley 5/2019, tramos de la base del ahorro y Euribor.
+- Tablas de referencia editables desde `/admin`, cada valor con fecha de vigencia y fuente: ITP y AJD por comunidad autónoma, IVA, impuesto de matriculación, tramos de la base del ahorro, gastos de compraventa estimados y Euribor. Los límites de la Ley 5/2019 quedan en el código (D27).
 - Aviso de que los resultados son orientativos.
 
 **Requisitos:** RF-CAL-01, 02, 03, 04, 07, 09, 10 · RF-PLT-02 (contenido de las tablas).

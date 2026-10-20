@@ -5,6 +5,7 @@ import { Link } from 'react-router'
 import { authApi, SESSION_KEY, type SessionInfo, useSession } from '../api/auth'
 import { type Goal, goalKeys, useGoals, useSavingsRate } from '../api/goals'
 import { goalStatusText } from '../lib/goals'
+import { CALCULATORS } from '../calculators'
 import { BudgetSummaryCard } from '../components/BudgetSummaryCard'
 import { LoansSection } from '../components/LoansSection'
 import { Meter } from '../components/Meter'
@@ -58,6 +59,8 @@ export function PlanPage() {
         <LoansSection />
 
         <SavingsRateCard />
+
+        <CalculatorsCard />
       </div>
     </>
   )
@@ -161,6 +164,28 @@ function SavingsRateCard() {
         </select>
         <small className="muted">{t('savingsRate.help')}</small>
       </label>
+    </section>
+  )
+}
+
+function CalculatorsCard() {
+  const { t } = useTranslation()
+  return (
+    <section className="card stack stack--tight" aria-labelledby="calculators-title">
+      <div className="section-title">
+        <h2 id="calculators-title">{t('calc.title')}</h2>
+        <Link to="/planificar/calculadoras">{t('calc.all')}</Link>
+      </div>
+      <p className="muted small">{t('calc.intro')}</p>
+      <ul className="chips">
+        {CALCULATORS.map((calculator) => (
+          <li key={calculator.name}>
+            <Link className="chip" to={`/planificar/calculadoras/${calculator.slug}`}>
+              <span aria-hidden="true">{calculator.icon}</span> {t(`calc.${calculator.name}.short`)}
+            </Link>
+          </li>
+        ))}
+      </ul>
     </section>
   )
 }

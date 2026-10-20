@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { type FormEvent, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useParams } from 'react-router'
+import { useNavigate, useParams, useSearchParams } from 'react-router'
 
 import { type Account, refreshFinance, useAccounts } from '../api/finance'
 import { type Goal, goalKeys, goalsApi, useGoal, useGoals } from '../api/goals'
@@ -46,10 +46,14 @@ function GoalForm({
   const { t } = useTranslation()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const [name, setName] = useState(goal?.name ?? '')
+  // A calculator can propose a new goal: /planificar/objetivos/nuevo?nombre=…&importe=…&fecha=…
+  const [params] = useSearchParams()
+  const [name, setName] = useState(goal?.name ?? params.get('nombre') ?? '')
   const [icon, setIcon] = useState(goal?.icon ?? '🎯')
-  const [amountText, setAmountText] = useState(goal ? amountToInput(goal.target_amount) : '')
-  const [date, setDate] = useState(goal?.target_date ?? '')
+  const [amountText, setAmountText] = useState(
+    goal ? amountToInput(goal.target_amount) : (params.get('importe') ?? ''),
+  )
+  const [date, setDate] = useState(goal?.target_date ?? params.get('fecha') ?? '')
   const [priority, setPriority] = useState<1 | 2 | 3>(goal?.priority ?? 2)
   const [whole, setWhole] = useState<string[]>(goal?.account_ids ?? [])
   const [note, setNote] = useState(goal?.note ?? '')

@@ -5,6 +5,8 @@ import { AccountFormPage } from './pages/AccountFormPage'
 import { AccountPage } from './pages/AccountPage'
 import { ArchivedAccountsPage } from './pages/ArchivedAccountsPage'
 import { BudgetPage } from './pages/BudgetPage'
+import { CalculatorPage } from './pages/CalculatorPage'
+import { CalculatorsPage } from './pages/CalculatorsPage'
 import { CapturePage } from './pages/CapturePage'
 import { CategoriesPage } from './pages/CategoriesPage'
 import { EuriborPage } from './pages/EuriborPage'
@@ -47,6 +49,8 @@ export const routes: RouteObject[] = [
       { path: 'planificar/prestamos/:id', element: <LoanPage /> },
       { path: 'planificar/prestamos/:id/editar', element: <LoanFormPage /> },
       { path: 'planificar/euribor', element: <EuriborPage /> },
+      { path: 'planificar/calculadoras', element: <CalculatorsPage /> },
+      { path: 'planificar/calculadoras/:slug', element: <CalculatorPage /> },
       { path: 'planificar/objetivos/nuevo', element: <GoalFormPage /> },
       { path: 'planificar/objetivos/:id', element: <GoalPage /> },
       { path: 'planificar/objetivos/:id/editar', element: <GoalFormPage /> },

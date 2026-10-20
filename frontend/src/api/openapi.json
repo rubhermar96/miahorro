@@ -3961,6 +3961,569 @@
           }
         }
       }
+    },
+    "/api/calculators/compound": {
+      "post": {
+        "tags": [
+          "calculators"
+        ],
+        "summary": "Compound",
+        "description": "How savings grow with compound interest, after taxes and in today's money.",
+        "operationId": "compound_api_calculators_compound_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompoundIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompoundOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/calculators/savings-goal": {
+      "post": {
+        "tags": [
+          "calculators"
+        ],
+        "summary": "Savings Goal",
+        "description": "How much to save a month to reach a target, or when it is reached.",
+        "operationId": "savings_goal_api_calculators_savings_goal_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SavingsGoalIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SavingsGoalOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/calculators/emergency": {
+      "post": {
+        "tags": [
+          "calculators"
+        ],
+        "summary": "Emergency",
+        "description": "How many months of essential expenses are covered, and what is missing.",
+        "operationId": "emergency_api_calculators_emergency_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmergencyIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmergencyOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/calculators/mortgage": {
+      "post": {
+        "tags": [
+          "calculators"
+        ],
+        "summary": "Mortgage Calculator",
+        "description": "Compare mortgage offers under several Euribor scenarios, with and without the\ndiscounts for linked products.",
+        "operationId": "mortgage_calculator_api_calculators_mortgage_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MortgageIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MortgageOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/calculators/home": {
+      "post": {
+        "tags": [
+          "calculators"
+        ],
+        "summary": "Home Purchase",
+        "description": "What buying a home costs in taxes and fees, the savings it takes and whether the\nincome bears the mortgage.",
+        "operationId": "home_purchase_api_calculators_home_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HomeIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HomeOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/calculators/car": {
+      "post": {
+        "tags": [
+          "calculators"
+        ],
+        "summary": "Car Calculator",
+        "description": "Total cost of owning a car, per year and per km, for each way of paying for it.",
+        "operationId": "car_calculator_api_calculators_car_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CarIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CarOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/calculators/personal-loan": {
+      "post": {
+        "tags": [
+          "calculators"
+        ],
+        "summary": "Personal Loan",
+        "description": "Instalment, real TAE and total cost of loan offers, side by side.",
+        "operationId": "personal_loan_api_calculators_personal_loan_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PersonalLoanIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PersonalLoanOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/calculators/context": {
+      "get": {
+        "tags": [
+          "calculators"
+        ],
+        "summary": "Context",
+        "description": "Averages of the last three complete financial months, to prefill the calculators.",
+        "operationId": "context_api_calculators_context_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/calculators/references": {
+      "get": {
+        "tags": [
+          "calculators"
+        ],
+        "summary": "References",
+        "description": "Reference values in force today, with their date and source.",
+        "operationId": "references_api_calculators_references_get",
+        "parameters": [
+          {
+            "name": "table",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Only these tables",
+              "title": "Table"
+            },
+            "description": "Only these tables"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ReferenceOut"
+                  },
+                  "title": "Response References Api Calculators References Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/scenarios": {
+      "get": {
+        "tags": [
+          "calculators"
+        ],
+        "summary": "List Scenarios",
+        "operationId": "list_scenarios_api_scenarios_get",
+        "parameters": [
+          {
+            "name": "calculator",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "compound",
+                    "savings_goal",
+                    "mortgage",
+                    "home",
+                    "car",
+                    "personal_loan",
+                    "emergency"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Calculator"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ScenarioOut"
+                  },
+                  "title": "Response List Scenarios Api Scenarios Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "calculators"
+        ],
+        "summary": "Create Scenario",
+        "operationId": "create_scenario_api_scenarios_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScenarioIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScenarioOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/scenarios/{scenario_id}": {
+      "patch": {
+        "tags": [
+          "calculators"
+        ],
+        "summary": "Update Scenario",
+        "operationId": "update_scenario_api_scenarios__scenario_id__patch",
+        "parameters": [
+          {
+            "name": "scenario_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Scenario Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScenarioUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScenarioOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "calculators"
+        ],
+        "summary": "Delete Scenario",
+        "operationId": "delete_scenario_api_scenarios__scenario_id__delete",
+        "parameters": [
+          {
+            "name": "scenario_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Scenario Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -4928,6 +5491,385 @@
         ],
         "title": "Captured"
       },
+      "CarIn": {
+        "properties": {
+          "price": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Price",
+            "description": "Price with VAT",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "co2": {
+            "type": "integer",
+            "maximum": 999.0,
+            "minimum": 0.0,
+            "title": "Co2",
+            "description": "WLTP emissions, g/km"
+          },
+          "registration_included": {
+            "type": "boolean",
+            "title": "Registration Included",
+            "description": "The price already includes the registration tax",
+            "default": true
+          },
+          "years": {
+            "type": "integer",
+            "maximum": 25.0,
+            "minimum": 1.0,
+            "title": "Years",
+            "description": "Years you will use the car"
+          },
+          "km_per_year": {
+            "type": "integer",
+            "maximum": 200000.0,
+            "minimum": 0.0,
+            "title": "Km Per Year"
+          },
+          "consumption": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,4})?$",
+            "title": "Consumption",
+            "description": "Litres or kWh per 100 km",
+            "examples": [
+              "2.15"
+            ]
+          },
+          "energy_price": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,4})?$",
+            "title": "Energy Price",
+            "description": "€ per litre or kWh",
+            "examples": [
+              "2.15"
+            ]
+          },
+          "insurance": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Insurance",
+            "default": "0",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "road_tax": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Road Tax",
+            "description": "IVTM a year",
+            "default": "0",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "maintenance": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Maintenance",
+            "description": "A year",
+            "default": "0",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "itv_cost": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Itv Cost",
+            "default": "45",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "resale_value": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+                "examples": [
+                  "-12.50"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resale Value",
+            "description": "Null: estimated"
+          },
+          "options": {
+            "items": {
+              "$ref": "#/components/schemas/CarOptionIn"
+            },
+            "type": "array",
+            "maxItems": 4,
+            "minItems": 1,
+            "title": "Options"
+          }
+        },
+        "type": "object",
+        "required": [
+          "price",
+          "co2",
+          "years",
+          "km_per_year",
+          "consumption",
+          "energy_price",
+          "options"
+        ],
+        "title": "CarIn"
+      },
+      "CarOptionIn": {
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/OptionKind"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 40,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "down_payment": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Down Payment",
+            "description": "Entrada; renting: initial",
+            "default": "0",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "rate": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,4})?$",
+            "title": "Rate",
+            "description": "TIN",
+            "default": "0",
+            "examples": [
+              "2.15"
+            ]
+          },
+          "months": {
+            "type": "integer",
+            "maximum": 120.0,
+            "minimum": 0.0,
+            "title": "Months",
+            "default": 0
+          },
+          "opening_fee_percent": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,4})?$",
+            "title": "Opening Fee Percent",
+            "default": "0",
+            "examples": [
+              "2.15"
+            ]
+          },
+          "final_payment": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Final Payment",
+            "description": "PCP: cuota final",
+            "default": "0",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "keep": {
+            "type": "boolean",
+            "title": "Keep",
+            "description": "PCP: pay the final instalment and keep it",
+            "default": true
+          },
+          "monthly_fee": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Monthly Fee",
+            "description": "Renting fee a month",
+            "default": "0",
+            "examples": [
+              "-12.50"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "name"
+        ],
+        "title": "CarOptionIn"
+      },
+      "CarOut": {
+        "properties": {
+          "registration": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Registration",
+            "description": "Registration tax of this car",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "registration_rate": {
+            "type": "string",
+            "title": "Registration Rate"
+          },
+          "resale_estimated": {
+            "type": "boolean",
+            "title": "Resale Estimated"
+          },
+          "options": {
+            "items": {
+              "$ref": "#/components/schemas/CarOutcomeOut"
+            },
+            "type": "array",
+            "title": "Options"
+          },
+          "cheapest": {
+            "type": "integer",
+            "title": "Cheapest",
+            "description": "Option with the lowest cost a year"
+          },
+          "references": {
+            "items": {
+              "$ref": "#/components/schemas/ReferenceOut"
+            },
+            "type": "array",
+            "title": "References"
+          }
+        },
+        "type": "object",
+        "required": [
+          "registration",
+          "registration_rate",
+          "resale_estimated",
+          "options",
+          "cheapest",
+          "references"
+        ],
+        "title": "CarOut"
+      },
+      "CarOutcomeOut": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/OptionKind"
+          },
+          "months": {
+            "type": "integer",
+            "title": "Months",
+            "description": "Time the costs cover"
+          },
+          "upfront": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Upfront",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "monthly": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Monthly",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "final_payment": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Final Payment",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "financing": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Financing",
+            "description": "Interest and fees",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "running": {
+            "$ref": "#/components/schemas/RunningOut"
+          },
+          "resale": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Resale",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "total": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Total",
+            "description": "Net cost over `months`",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "per_year": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Per Year",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "per_km": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Per Km"
+          },
+          "apr": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Apr",
+            "description": "TAE"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "kind",
+          "months",
+          "upfront",
+          "monthly",
+          "final_payment",
+          "financing",
+          "running",
+          "resale",
+          "total",
+          "per_year",
+          "per_km",
+          "apr"
+        ],
+        "title": "CarOutcomeOut"
+      },
       "CardOut": {
         "properties": {
           "id": {
@@ -5085,6 +6027,55 @@
         ],
         "title": "CategoryOut"
       },
+      "CategorySpend": {
+        "properties": {
+          "category_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category Id",
+            "description": "Null: uncategorised"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "icon": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Icon"
+          },
+          "monthly": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Monthly",
+            "description": "Average spent a month, positive",
+            "examples": [
+              "-12.50"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "category_id",
+          "name",
+          "icon",
+          "monthly"
+        ],
+        "title": "CategorySpend"
+      },
       "CategoryUpdate": {
         "properties": {
           "name": {
@@ -5140,6 +6131,311 @@
           "code"
         ],
         "title": "CodeRequest"
+      },
+      "CompoundIn": {
+        "properties": {
+          "initial": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Initial",
+            "default": "0",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "monthly": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Monthly",
+            "description": "Contribution at each month's start",
+            "default": "0",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "annual_return": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,4})?$",
+            "title": "Annual Return",
+            "description": "Expected yearly return, TAE",
+            "examples": [
+              "2.15"
+            ]
+          },
+          "years": {
+            "type": "integer",
+            "maximum": 60.0,
+            "minimum": 1.0,
+            "title": "Years"
+          },
+          "inflation": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,4})?$",
+            "title": "Inflation",
+            "default": "0",
+            "examples": [
+              "2.15"
+            ]
+          },
+          "yearly_increase": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,4})?$",
+            "title": "Yearly Increase",
+            "description": "Contribution growth a year",
+            "default": "0",
+            "examples": [
+              "2.15"
+            ]
+          },
+          "tax_mode": {
+            "$ref": "#/components/schemas/TaxMode",
+            "description": "none · yearly (deposits) · end (funds, when sold)",
+            "default": "end"
+          }
+        },
+        "type": "object",
+        "required": [
+          "annual_return",
+          "years"
+        ],
+        "title": "CompoundIn"
+      },
+      "CompoundOut": {
+        "properties": {
+          "years": {
+            "items": {
+              "$ref": "#/components/schemas/CompoundYearOut"
+            },
+            "type": "array",
+            "title": "Years"
+          },
+          "contributed": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Contributed",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "gains": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Gains",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "tax": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Tax",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "final": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Final",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "final_real": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Final Real",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "references": {
+            "items": {
+              "$ref": "#/components/schemas/ReferenceOut"
+            },
+            "type": "array",
+            "title": "References"
+          }
+        },
+        "type": "object",
+        "required": [
+          "years",
+          "contributed",
+          "gains",
+          "tax",
+          "final",
+          "final_real",
+          "references"
+        ],
+        "title": "CompoundOut"
+      },
+      "CompoundYearOut": {
+        "properties": {
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "contributed": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Contributed",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "gains": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Gains",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "tax": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Tax",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "balance": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Balance",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "real_balance": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Real Balance",
+            "examples": [
+              "-12.50"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "year",
+          "contributed",
+          "gains",
+          "tax",
+          "balance",
+          "real_balance"
+        ],
+        "title": "CompoundYearOut"
+      },
+      "ContextOut": {
+        "properties": {
+          "months": {
+            "type": "integer",
+            "title": "Months",
+            "description": "Complete financial months with movements averaged"
+          },
+          "start": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start"
+          },
+          "end": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End"
+          },
+          "income": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Income",
+            "description": "Average a month",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "expenses": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Expenses",
+            "description": "Average a month, positive",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "saved": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Saved",
+            "description": "Average a month",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "liquidity": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Liquidity",
+            "description": "Everyday accounts, minus what goals hold",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "loan_payments": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Loan Payments",
+            "description": "Next instalment of each loan owed, added up",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "categories": {
+            "items": {
+              "$ref": "#/components/schemas/CategorySpend"
+            },
+            "type": "array",
+            "title": "Categories",
+            "description": "Top-level expense categories"
+          },
+          "euribor": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EuriborOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "months",
+          "start",
+          "end",
+          "income",
+          "expenses",
+          "saved",
+          "liquidity",
+          "loan_payments",
+          "categories",
+          "euribor"
+        ],
+        "title": "ContextOut"
       },
       "ContributionIn": {
         "properties": {
@@ -5253,6 +6549,131 @@
           "ymd",
           "mdy"
         ]
+      },
+      "EmergencyIn": {
+        "properties": {
+          "essential_monthly": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Essential Monthly",
+            "description": "Essential expenses a month",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "months": {
+            "type": "integer",
+            "maximum": 24.0,
+            "minimum": 1.0,
+            "title": "Months",
+            "description": "Months the fund should cover",
+            "default": 6
+          },
+          "current": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Current",
+            "description": "Money already set aside",
+            "default": "0",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "monthly_saving": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Monthly Saving",
+            "default": "0",
+            "examples": [
+              "-12.50"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "essential_monthly"
+        ],
+        "title": "EmergencyIn"
+      },
+      "EmergencyOut": {
+        "properties": {
+          "target": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Target",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "covered_months": {
+            "type": "string",
+            "title": "Covered Months",
+            "description": "Months the current fund covers, one decimal"
+          },
+          "missing": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Missing",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "months_to_complete": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Months To Complete"
+          },
+          "date_complete": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date Complete"
+          }
+        },
+        "type": "object",
+        "required": [
+          "target",
+          "covered_months",
+          "missing",
+          "months_to_complete",
+          "date_complete"
+        ],
+        "title": "EmergencyOut"
+      },
+      "EuriborOut": {
+        "properties": {
+          "month": {
+            "type": "string",
+            "format": "date",
+            "title": "Month"
+          },
+          "value": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,4})?$",
+            "title": "Value",
+            "examples": [
+              "2.15"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "month",
+          "value"
+        ],
+        "title": "EuriborOut"
       },
       "GoalIn": {
         "properties": {
@@ -5674,6 +7095,452 @@
           "database"
         ],
         "title": "HealthResponse"
+      },
+      "HomeIn": {
+        "properties": {
+          "price": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Price",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "region": {
+            "type": "string",
+            "enum": [
+              "andalucia",
+              "aragon",
+              "asturias",
+              "baleares",
+              "canarias",
+              "cantabria",
+              "castilla_la_mancha",
+              "castilla_y_leon",
+              "cataluna",
+              "valencia",
+              "extremadura",
+              "galicia",
+              "madrid",
+              "murcia",
+              "navarra",
+              "pais_vasco",
+              "la_rioja"
+            ],
+            "title": "Region"
+          },
+          "new_build": {
+            "type": "boolean",
+            "title": "New Build",
+            "default": false
+          },
+          "tax_rate": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d+(\\.\\d{1,4})?$",
+                "examples": [
+                  "2.15"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tax Rate",
+            "description": "A reduced rate that applies to you (young, large family…)"
+          },
+          "financed_percent": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,4})?$",
+            "title": "Financed Percent",
+            "description": "Of the price",
+            "default": "80",
+            "examples": [
+              "2.15"
+            ]
+          },
+          "annual_rate": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,4})?$",
+            "title": "Annual Rate",
+            "description": "TIN of the mortgage",
+            "default": "3",
+            "examples": [
+              "2.15"
+            ]
+          },
+          "years": {
+            "type": "integer",
+            "maximum": 40.0,
+            "minimum": 1.0,
+            "title": "Years",
+            "default": 30
+          },
+          "notary": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+                "examples": [
+                  "-12.50"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notary",
+            "description": "Null: the table's estimate"
+          },
+          "registry": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+                "examples": [
+                  "-12.50"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Registry"
+          },
+          "gestoria": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+                "examples": [
+                  "-12.50"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gestoria"
+          },
+          "appraisal": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+                "examples": [
+                  "-12.50"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Appraisal"
+          },
+          "agency_percent": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,4})?$",
+            "title": "Agency Percent",
+            "default": "0",
+            "examples": [
+              "2.15"
+            ]
+          },
+          "net_income": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Net Income",
+            "description": "Net a month, household",
+            "default": "0",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "other_debts": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Other Debts",
+            "description": "Other loan payments a month",
+            "default": "0",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "max_ratio": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,4})?$",
+            "title": "Max Ratio",
+            "description": "Of net income for debts",
+            "default": "35",
+            "examples": [
+              "2.15"
+            ]
+          },
+          "savings": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+                "examples": [
+                  "-12.50"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Savings",
+            "description": "Money available for the purchase"
+          },
+          "monthly_saving": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Monthly Saving",
+            "default": "0",
+            "examples": [
+              "-12.50"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "price",
+          "region"
+        ],
+        "title": "HomeIn"
+      },
+      "HomeOut": {
+        "properties": {
+          "tax_name": {
+            "type": "string",
+            "enum": [
+              "ITP",
+              "IVA",
+              "IGIC"
+            ],
+            "title": "Tax Name"
+          },
+          "tax": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Tax",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "ajd": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Ajd",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "notary": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Notary",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "registry": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Registry",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "gestoria": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Gestoria",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "appraisal": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Appraisal",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "agency": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Agency",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "costs": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Costs",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "total": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Total",
+            "description": "Price plus costs",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "mortgage": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Mortgage",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "down_payment": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Down Payment",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "cash_needed": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Cash Needed",
+            "description": "Down payment plus costs",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "payment": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Payment",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "debt_ratio": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Debt Ratio",
+            "description": "Percent of net income, other debts included"
+          },
+          "max_payment": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Max Payment",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "max_price": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+                "examples": [
+                  "-12.50"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Price"
+          },
+          "limited_by": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "income",
+                  "savings"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Limited By"
+          },
+          "months_to_buy": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Months To Buy"
+          },
+          "buy_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Buy Date"
+          },
+          "references": {
+            "items": {
+              "$ref": "#/components/schemas/ReferenceOut"
+            },
+            "type": "array",
+            "title": "References"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tax_name",
+          "tax",
+          "ajd",
+          "notary",
+          "registry",
+          "gestoria",
+          "appraisal",
+          "agency",
+          "costs",
+          "total",
+          "mortgage",
+          "down_payment",
+          "cash_needed",
+          "payment",
+          "debt_ratio",
+          "max_payment",
+          "max_price",
+          "limited_by",
+          "months_to_buy",
+          "buy_date",
+          "references",
+          "warnings"
+        ],
+        "title": "HomeOut"
       },
       "ImportOut": {
         "properties": {
@@ -6274,6 +8141,164 @@
           "fixed_rate"
         ],
         "title": "LoanFields"
+      },
+      "LoanOfferIn": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 40,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "amount": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Amount",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "tin": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,4})?$",
+            "title": "Tin",
+            "examples": [
+              "2.15"
+            ]
+          },
+          "months": {
+            "type": "integer",
+            "maximum": 120.0,
+            "minimum": 1.0,
+            "title": "Months"
+          },
+          "opening_fee_percent": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,4})?$",
+            "title": "Opening Fee Percent",
+            "default": "0",
+            "examples": [
+              "2.15"
+            ]
+          },
+          "upfront_costs": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Upfront Costs",
+            "description": "Other costs at the start",
+            "default": "0",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "monthly_costs": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Monthly Costs",
+            "description": "Linked insurance and the like",
+            "default": "0",
+            "examples": [
+              "-12.50"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "amount",
+          "tin",
+          "months"
+        ],
+        "title": "LoanOfferIn"
+      },
+      "LoanOfferOut": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "payment": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Payment",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "monthly_total": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Monthly Total",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "interest": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Interest",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "fees": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Fees",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "extras": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Extras",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "total_cost": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Total Cost",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "total_paid": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Total Paid",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "apr": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Apr",
+            "description": "TAE with the official formula"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "payment",
+          "monthly_total",
+          "interest",
+          "fees",
+          "extras",
+          "total_cost",
+          "total_paid",
+          "apr"
+        ],
+        "title": "LoanOfferOut"
       },
       "LoanOut": {
         "properties": {
@@ -7076,6 +9101,156 @@
         "type": "object",
         "title": "MonthIn"
       },
+      "MortgageIn": {
+        "properties": {
+          "principal": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Principal",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "years": {
+            "type": "integer",
+            "maximum": 40.0,
+            "minimum": 1.0,
+            "title": "Years"
+          },
+          "offers": {
+            "items": {
+              "$ref": "#/components/schemas/MortgageOfferIn"
+            },
+            "type": "array",
+            "maxItems": 3,
+            "minItems": 1,
+            "title": "Offers"
+          },
+          "euribor": {
+            "items": {
+              "type": "string",
+              "pattern": "^\\d+(\\.\\d{1,4})?$",
+              "examples": [
+                "2.15"
+              ]
+            },
+            "type": "array",
+            "maxItems": 3,
+            "minItems": 1,
+            "title": "Euribor",
+            "description": "Scenarios: Euribor from the first review on"
+          }
+        },
+        "type": "object",
+        "required": [
+          "principal",
+          "years",
+          "offers",
+          "euribor"
+        ],
+        "title": "MortgageIn"
+      },
+      "MortgageOfferIn": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 40,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "rate_type": {
+            "$ref": "#/components/schemas/RateType",
+            "default": "fixed"
+          },
+          "fixed_rate": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,4})?$",
+            "title": "Fixed Rate",
+            "description": "TIN, or the rate of the initial period",
+            "examples": [
+              "2.15"
+            ]
+          },
+          "fixed_months": {
+            "type": "integer",
+            "maximum": 480.0,
+            "minimum": 0.0,
+            "title": "Fixed Months",
+            "description": "Initial period, months",
+            "default": 0
+          },
+          "spread": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,4})?$",
+            "title": "Spread",
+            "description": "Diferencial over the Euribor",
+            "default": "0",
+            "examples": [
+              "2.15"
+            ]
+          },
+          "discount": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,4})?$",
+            "title": "Discount",
+            "description": "Points off with linked products",
+            "default": "0",
+            "examples": [
+              "2.15"
+            ]
+          },
+          "linked_yearly_cost": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Linked Yearly Cost",
+            "description": "Their cost a year",
+            "default": "0",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "upfront_costs": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Upfront Costs",
+            "default": "0",
+            "examples": [
+              "-12.50"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "fixed_rate"
+        ],
+        "title": "MortgageOfferIn"
+      },
+      "MortgageOut": {
+        "properties": {
+          "offers": {
+            "items": {
+              "$ref": "#/components/schemas/OfferOut"
+            },
+            "type": "array",
+            "title": "Offers"
+          },
+          "cheapest": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Cheapest",
+            "description": "For each scenario, the offer that costs least"
+          }
+        },
+        "type": "object",
+        "required": [
+          "offers",
+          "cheapest"
+        ],
+        "title": "MortgageOut"
+      },
       "MoveIn": {
         "properties": {
           "date": {
@@ -7163,6 +9338,110 @@
           "amount"
         ],
         "title": "NextPayment"
+      },
+      "OfferOut": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "rate_type": {
+            "$ref": "#/components/schemas/RateType"
+          },
+          "scenarios": {
+            "items": {
+              "$ref": "#/components/schemas/ScenarioOutcome"
+            },
+            "type": "array",
+            "title": "Scenarios"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "rate_type",
+          "scenarios"
+        ],
+        "title": "OfferOut"
+      },
+      "OptionKind": {
+        "type": "string",
+        "enum": [
+          "cash",
+          "loan",
+          "pcp",
+          "renting"
+        ]
+      },
+      "OutcomeOut": {
+        "properties": {
+          "first_payment": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "First Payment",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "later_payment": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+                "examples": [
+                  "-12.50"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Later Payment",
+            "description": "After the initial period"
+          },
+          "interest": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Interest",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "linked_cost": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Linked Cost",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "total_cost": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Total Cost",
+            "description": "Interest + linked products + upfront costs",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "years": {
+            "items": {
+              "$ref": "#/components/schemas/YearOut"
+            },
+            "type": "array",
+            "title": "Years"
+          }
+        },
+        "type": "object",
+        "required": [
+          "first_payment",
+          "later_payment",
+          "interest",
+          "linked_cost",
+          "total_cost",
+          "years"
+        ],
+        "title": "OutcomeOut"
       },
       "PasskeyAssertion": {
         "properties": {
@@ -7316,6 +9595,46 @@
         ],
         "title": "Payment",
         "description": "What the Shortcut's \"Transaction\" automation knows about a payment."
+      },
+      "PersonalLoanIn": {
+        "properties": {
+          "offers": {
+            "items": {
+              "$ref": "#/components/schemas/LoanOfferIn"
+            },
+            "type": "array",
+            "maxItems": 3,
+            "minItems": 1,
+            "title": "Offers"
+          }
+        },
+        "type": "object",
+        "required": [
+          "offers"
+        ],
+        "title": "PersonalLoanIn"
+      },
+      "PersonalLoanOut": {
+        "properties": {
+          "offers": {
+            "items": {
+              "$ref": "#/components/schemas/LoanOfferOut"
+            },
+            "type": "array",
+            "title": "Offers"
+          },
+          "cheapest": {
+            "type": "integer",
+            "title": "Cheapest",
+            "description": "Offer with the lowest total cost"
+          }
+        },
+        "type": "object",
+        "required": [
+          "offers",
+          "cheapest"
+        ],
+        "title": "PersonalLoanOut"
       },
       "Pot": {
         "properties": {
@@ -7721,6 +10040,14 @@
         ],
         "title": "RateTier"
       },
+      "RateType": {
+        "type": "string",
+        "enum": [
+          "fixed",
+          "variable",
+          "mixed"
+        ]
+      },
       "ReconcileIn": {
         "properties": {
           "balance": {
@@ -7989,6 +10316,76 @@
           "last_transaction_id"
         ],
         "title": "RecurringOut"
+      },
+      "ReferenceOut": {
+        "properties": {
+          "table": {
+            "type": "string",
+            "title": "Table"
+          },
+          "table_label": {
+            "type": "string",
+            "title": "Table Label"
+          },
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "value": {
+            "type": "string",
+            "title": "Value"
+          },
+          "extra": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Extra"
+          },
+          "valid_from": {
+            "type": "string",
+            "format": "date",
+            "title": "Valid From"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "type": "object",
+        "required": [
+          "table",
+          "table_label",
+          "key",
+          "label",
+          "value",
+          "extra",
+          "valid_from",
+          "source",
+          "note"
+        ],
+        "title": "ReferenceOut",
+        "description": "A reference value a result used, so the user can see and check it."
       },
       "ReferenceRateIn": {
         "properties": {
@@ -8419,6 +10816,224 @@
         "type": "object",
         "title": "RuleUpdate"
       },
+      "RunningOut": {
+        "properties": {
+          "energy": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Energy",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "insurance": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Insurance",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "road_tax": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Road Tax",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "maintenance": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Maintenance",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "itv": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Itv",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "total": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Total",
+            "examples": [
+              "-12.50"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "energy",
+          "insurance",
+          "road_tax",
+          "maintenance",
+          "itv",
+          "total"
+        ],
+        "title": "RunningOut"
+      },
+      "SavingsGoalIn": {
+        "properties": {
+          "target": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Target",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "initial": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Initial",
+            "default": "0",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "annual_return": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,4})?$",
+            "title": "Annual Return",
+            "default": "0",
+            "examples": [
+              "2.15"
+            ]
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "monthly",
+              "date"
+            ],
+            "title": "Mode",
+            "description": "monthly: how much a month to get there in `months` · date: when it is reached saving `monthly`"
+          },
+          "months": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 1200.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Months"
+          },
+          "monthly": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+                "examples": [
+                  "-12.50"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Monthly"
+          }
+        },
+        "type": "object",
+        "required": [
+          "target",
+          "mode"
+        ],
+        "title": "SavingsGoalIn"
+      },
+      "SavingsGoalOut": {
+        "properties": {
+          "monthly": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+                "examples": [
+                  "-12.50"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Monthly",
+            "description": "Saving a month; null if never reached"
+          },
+          "months": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Months",
+            "description": "Months to reach it; null if never"
+          },
+          "date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date"
+          },
+          "contributed": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+                "examples": [
+                  "-12.50"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contributed"
+          },
+          "gains": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+                "examples": [
+                  "-12.50"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gains"
+          }
+        },
+        "type": "object",
+        "required": [
+          "monthly",
+          "months",
+          "date",
+          "contributed",
+          "gains"
+        ],
+        "title": "SavingsGoalOut"
+      },
       "SavingsPeriod": {
         "properties": {
           "start": {
@@ -8508,6 +11123,159 @@
           "periods"
         ],
         "title": "SavingsRate"
+      },
+      "ScenarioIn": {
+        "properties": {
+          "calculator": {
+            "type": "string",
+            "enum": [
+              "compound",
+              "savings_goal",
+              "mortgage",
+              "home",
+              "car",
+              "personal_loan",
+              "emergency"
+            ],
+            "title": "Calculator"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 60,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "inputs": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Inputs",
+            "description": "The calculator's request body"
+          }
+        },
+        "type": "object",
+        "required": [
+          "calculator",
+          "name",
+          "inputs"
+        ],
+        "title": "ScenarioIn"
+      },
+      "ScenarioOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "calculator": {
+            "type": "string",
+            "enum": [
+              "compound",
+              "savings_goal",
+              "mortgage",
+              "home",
+              "car",
+              "personal_loan",
+              "emergency"
+            ],
+            "title": "Calculator"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "inputs": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Inputs"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "calculator",
+          "name",
+          "inputs",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "ScenarioOut"
+      },
+      "ScenarioOutcome": {
+        "properties": {
+          "euribor": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,4})?$",
+            "title": "Euribor",
+            "examples": [
+              "2.15"
+            ]
+          },
+          "with_discount": {
+            "$ref": "#/components/schemas/OutcomeOut"
+          },
+          "without_discount": {
+            "$ref": "#/components/schemas/OutcomeOut"
+          },
+          "discount_saves": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Discount Saves",
+            "description": "Positive: the linked products pay off",
+            "examples": [
+              "-12.50"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "euribor",
+          "with_discount",
+          "without_discount",
+          "discount_saves"
+        ],
+        "title": "ScenarioOutcome"
+      },
+      "ScenarioUpdate": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 60,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "inputs": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inputs"
+          }
+        },
+        "type": "object",
+        "title": "ScenarioUpdate"
       },
       "SessionOut": {
         "properties": {
@@ -8718,6 +11486,14 @@
           "count"
         ],
         "title": "TagCount"
+      },
+      "TaxMode": {
+        "type": "string",
+        "enum": [
+          "none",
+          "yearly",
+          "end"
+        ]
       },
       "TemplateIn": {
         "properties": {
@@ -9419,6 +12195,55 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "YearOut": {
+        "properties": {
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "payment": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Payment",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "interest": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Interest",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "principal": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Principal",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "outstanding": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Outstanding",
+            "examples": [
+              "-12.50"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "year",
+          "payment",
+          "interest",
+          "principal",
+          "outstanding"
+        ],
+        "title": "YearOut"
       }
     }
   }

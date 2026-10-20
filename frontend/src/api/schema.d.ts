@@ -1299,6 +1299,224 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/calculators/compound": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Compound
+         * @description How savings grow with compound interest, after taxes and in today's money.
+         */
+        post: operations["compound_api_calculators_compound_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/calculators/savings-goal": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Savings Goal
+         * @description How much to save a month to reach a target, or when it is reached.
+         */
+        post: operations["savings_goal_api_calculators_savings_goal_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/calculators/emergency": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Emergency
+         * @description How many months of essential expenses are covered, and what is missing.
+         */
+        post: operations["emergency_api_calculators_emergency_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/calculators/mortgage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Mortgage Calculator
+         * @description Compare mortgage offers under several Euribor scenarios, with and without the
+         *     discounts for linked products.
+         */
+        post: operations["mortgage_calculator_api_calculators_mortgage_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/calculators/home": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Home Purchase
+         * @description What buying a home costs in taxes and fees, the savings it takes and whether the
+         *     income bears the mortgage.
+         */
+        post: operations["home_purchase_api_calculators_home_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/calculators/car": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Car Calculator
+         * @description Total cost of owning a car, per year and per km, for each way of paying for it.
+         */
+        post: operations["car_calculator_api_calculators_car_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/calculators/personal-loan": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Personal Loan
+         * @description Instalment, real TAE and total cost of loan offers, side by side.
+         */
+        post: operations["personal_loan_api_calculators_personal_loan_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/calculators/context": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Context
+         * @description Averages of the last three complete financial months, to prefill the calculators.
+         */
+        get: operations["context_api_calculators_context_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/calculators/references": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * References
+         * @description Reference values in force today, with their date and source.
+         */
+        get: operations["references_api_calculators_references_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/scenarios": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Scenarios */
+        get: operations["list_scenarios_api_scenarios_get"];
+        put?: never;
+        /** Create Scenario */
+        post: operations["create_scenario_api_scenarios_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/scenarios/{scenario_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Scenario */
+        delete: operations["delete_scenario_api_scenarios__scenario_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update Scenario */
+        patch: operations["update_scenario_api_scenarios__scenario_id__patch"];
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1685,6 +1903,207 @@ export interface components {
              */
             message: string;
         };
+        /** CarIn */
+        CarIn: {
+            /**
+             * Price
+             * @description Price with VAT
+             * @example -12.50
+             */
+            price: string;
+            /**
+             * Co2
+             * @description WLTP emissions, g/km
+             */
+            co2: number;
+            /**
+             * Registration Included
+             * @description The price already includes the registration tax
+             * @default true
+             */
+            registration_included: boolean;
+            /**
+             * Years
+             * @description Years you will use the car
+             */
+            years: number;
+            /** Km Per Year */
+            km_per_year: number;
+            /**
+             * Consumption
+             * @description Litres or kWh per 100 km
+             * @example 2.15
+             */
+            consumption: string;
+            /**
+             * Energy Price
+             * @description € per litre or kWh
+             * @example 2.15
+             */
+            energy_price: string;
+            /**
+             * Insurance
+             * @default 0
+             * @example -12.50
+             */
+            insurance: string;
+            /**
+             * Road Tax
+             * @description IVTM a year
+             * @default 0
+             * @example -12.50
+             */
+            road_tax: string;
+            /**
+             * Maintenance
+             * @description A year
+             * @default 0
+             * @example -12.50
+             */
+            maintenance: string;
+            /**
+             * Itv Cost
+             * @default 45
+             * @example -12.50
+             */
+            itv_cost: string;
+            /**
+             * Resale Value
+             * @description Null: estimated
+             */
+            resale_value?: string | null;
+            /** Options */
+            options: components["schemas"]["CarOptionIn"][];
+        };
+        /** CarOptionIn */
+        CarOptionIn: {
+            kind: components["schemas"]["OptionKind"];
+            /** Name */
+            name: string;
+            /**
+             * Down Payment
+             * @description Entrada; renting: initial
+             * @default 0
+             * @example -12.50
+             */
+            down_payment: string;
+            /**
+             * Rate
+             * @description TIN
+             * @default 0
+             * @example 2.15
+             */
+            rate: string;
+            /**
+             * Months
+             * @default 0
+             */
+            months: number;
+            /**
+             * Opening Fee Percent
+             * @default 0
+             * @example 2.15
+             */
+            opening_fee_percent: string;
+            /**
+             * Final Payment
+             * @description PCP: cuota final
+             * @default 0
+             * @example -12.50
+             */
+            final_payment: string;
+            /**
+             * Keep
+             * @description PCP: pay the final instalment and keep it
+             * @default true
+             */
+            keep: boolean;
+            /**
+             * Monthly Fee
+             * @description Renting fee a month
+             * @default 0
+             * @example -12.50
+             */
+            monthly_fee: string;
+        };
+        /** CarOut */
+        CarOut: {
+            /**
+             * Registration
+             * @description Registration tax of this car
+             * @example -12.50
+             */
+            registration: string;
+            /** Registration Rate */
+            registration_rate: string;
+            /** Resale Estimated */
+            resale_estimated: boolean;
+            /** Options */
+            options: components["schemas"]["CarOutcomeOut"][];
+            /**
+             * Cheapest
+             * @description Option with the lowest cost a year
+             */
+            cheapest: number;
+            /** References */
+            references: components["schemas"]["ReferenceOut"][];
+        };
+        /** CarOutcomeOut */
+        CarOutcomeOut: {
+            /** Name */
+            name: string;
+            kind: components["schemas"]["OptionKind"];
+            /**
+             * Months
+             * @description Time the costs cover
+             */
+            months: number;
+            /**
+             * Upfront
+             * @example -12.50
+             */
+            upfront: string;
+            /**
+             * Monthly
+             * @example -12.50
+             */
+            monthly: string;
+            /**
+             * Final Payment
+             * @example -12.50
+             */
+            final_payment: string;
+            /**
+             * Financing
+             * @description Interest and fees
+             * @example -12.50
+             */
+            financing: string;
+            running: components["schemas"]["RunningOut"];
+            /**
+             * Resale
+             * @example -12.50
+             */
+            resale: string;
+            /**
+             * Total
+             * @description Net cost over `months`
+             * @example -12.50
+             */
+            total: string;
+            /**
+             * Per Year
+             * @example -12.50
+             */
+            per_year: string;
+            /** Per Km */
+            per_km: string | null;
+            /**
+             * Apr
+             * @description TAE
+             */
+            apr: string | null;
+        };
         /** CardOut */
         CardOut: {
             /**
@@ -1753,6 +2172,24 @@ export interface components {
              */
             recent_uses: number;
         };
+        /** CategorySpend */
+        CategorySpend: {
+            /**
+             * Category Id
+             * @description Null: uncategorised
+             */
+            category_id: string | null;
+            /** Name */
+            name: string;
+            /** Icon */
+            icon: string | null;
+            /**
+             * Monthly
+             * @description Average spent a month, positive
+             * @example -12.50
+             */
+            monthly: string;
+        };
         /** CategoryUpdate */
         CategoryUpdate: {
             /** Name */
@@ -1766,6 +2203,158 @@ export interface components {
         CodeRequest: {
             /** Code */
             code: string;
+        };
+        /** CompoundIn */
+        CompoundIn: {
+            /**
+             * Initial
+             * @default 0
+             * @example -12.50
+             */
+            initial: string;
+            /**
+             * Monthly
+             * @description Contribution at each month's start
+             * @default 0
+             * @example -12.50
+             */
+            monthly: string;
+            /**
+             * Annual Return
+             * @description Expected yearly return, TAE
+             * @example 2.15
+             */
+            annual_return: string;
+            /** Years */
+            years: number;
+            /**
+             * Inflation
+             * @default 0
+             * @example 2.15
+             */
+            inflation: string;
+            /**
+             * Yearly Increase
+             * @description Contribution growth a year
+             * @default 0
+             * @example 2.15
+             */
+            yearly_increase: string;
+            /**
+             * @description none · yearly (deposits) · end (funds, when sold)
+             * @default end
+             */
+            tax_mode: components["schemas"]["TaxMode"];
+        };
+        /** CompoundOut */
+        CompoundOut: {
+            /** Years */
+            years: components["schemas"]["CompoundYearOut"][];
+            /**
+             * Contributed
+             * @example -12.50
+             */
+            contributed: string;
+            /**
+             * Gains
+             * @example -12.50
+             */
+            gains: string;
+            /**
+             * Tax
+             * @example -12.50
+             */
+            tax: string;
+            /**
+             * Final
+             * @example -12.50
+             */
+            final: string;
+            /**
+             * Final Real
+             * @example -12.50
+             */
+            final_real: string;
+            /** References */
+            references: components["schemas"]["ReferenceOut"][];
+        };
+        /** CompoundYearOut */
+        CompoundYearOut: {
+            /** Year */
+            year: number;
+            /**
+             * Contributed
+             * @example -12.50
+             */
+            contributed: string;
+            /**
+             * Gains
+             * @example -12.50
+             */
+            gains: string;
+            /**
+             * Tax
+             * @example -12.50
+             */
+            tax: string;
+            /**
+             * Balance
+             * @example -12.50
+             */
+            balance: string;
+            /**
+             * Real Balance
+             * @example -12.50
+             */
+            real_balance: string;
+        };
+        /** ContextOut */
+        ContextOut: {
+            /**
+             * Months
+             * @description Complete financial months with movements averaged
+             */
+            months: number;
+            /** Start */
+            start: string | null;
+            /** End */
+            end: string | null;
+            /**
+             * Income
+             * @description Average a month
+             * @example -12.50
+             */
+            income: string;
+            /**
+             * Expenses
+             * @description Average a month, positive
+             * @example -12.50
+             */
+            expenses: string;
+            /**
+             * Saved
+             * @description Average a month
+             * @example -12.50
+             */
+            saved: string;
+            /**
+             * Liquidity
+             * @description Everyday accounts, minus what goals hold
+             * @example -12.50
+             */
+            liquidity: string;
+            /**
+             * Loan Payments
+             * @description Next instalment of each loan owed, added up
+             * @example -12.50
+             */
+            loan_payments: string;
+            /**
+             * Categories
+             * @description Top-level expense categories
+             */
+            categories: components["schemas"]["CategorySpend"][];
+            euribor: components["schemas"]["EuriborOut"] | null;
         };
         /** ContributionIn */
         ContributionIn: {
@@ -1819,6 +2408,69 @@ export interface components {
         };
         /** @enum {string} */
         DateOrder: "dmy" | "ymd" | "mdy";
+        /** EmergencyIn */
+        EmergencyIn: {
+            /**
+             * Essential Monthly
+             * @description Essential expenses a month
+             * @example -12.50
+             */
+            essential_monthly: string;
+            /**
+             * Months
+             * @description Months the fund should cover
+             * @default 6
+             */
+            months: number;
+            /**
+             * Current
+             * @description Money already set aside
+             * @default 0
+             * @example -12.50
+             */
+            current: string;
+            /**
+             * Monthly Saving
+             * @default 0
+             * @example -12.50
+             */
+            monthly_saving: string;
+        };
+        /** EmergencyOut */
+        EmergencyOut: {
+            /**
+             * Target
+             * @example -12.50
+             */
+            target: string;
+            /**
+             * Covered Months
+             * @description Months the current fund covers, one decimal
+             */
+            covered_months: string;
+            /**
+             * Missing
+             * @example -12.50
+             */
+            missing: string;
+            /** Months To Complete */
+            months_to_complete: number | null;
+            /** Date Complete */
+            date_complete: string | null;
+        };
+        /** EuriborOut */
+        EuriborOut: {
+            /**
+             * Month
+             * Format: date
+             */
+            month: string;
+            /**
+             * Value
+             * @example 2.15
+             */
+            value: string;
+        };
         /** GoalIn */
         GoalIn: {
             /** Name */
@@ -1952,6 +2604,194 @@ export interface components {
              * @enum {string}
              */
             database: "ok" | "unavailable";
+        };
+        /** HomeIn */
+        HomeIn: {
+            /**
+             * Price
+             * @example -12.50
+             */
+            price: string;
+            /**
+             * Region
+             * @enum {string}
+             */
+            region: "andalucia" | "aragon" | "asturias" | "baleares" | "canarias" | "cantabria" | "castilla_la_mancha" | "castilla_y_leon" | "cataluna" | "valencia" | "extremadura" | "galicia" | "madrid" | "murcia" | "navarra" | "pais_vasco" | "la_rioja";
+            /**
+             * New Build
+             * @default false
+             */
+            new_build: boolean;
+            /**
+             * Tax Rate
+             * @description A reduced rate that applies to you (young, large family…)
+             */
+            tax_rate?: string | null;
+            /**
+             * Financed Percent
+             * @description Of the price
+             * @default 80
+             * @example 2.15
+             */
+            financed_percent: string;
+            /**
+             * Annual Rate
+             * @description TIN of the mortgage
+             * @default 3
+             * @example 2.15
+             */
+            annual_rate: string;
+            /**
+             * Years
+             * @default 30
+             */
+            years: number;
+            /**
+             * Notary
+             * @description Null: the table's estimate
+             */
+            notary?: string | null;
+            /** Registry */
+            registry?: string | null;
+            /** Gestoria */
+            gestoria?: string | null;
+            /** Appraisal */
+            appraisal?: string | null;
+            /**
+             * Agency Percent
+             * @default 0
+             * @example 2.15
+             */
+            agency_percent: string;
+            /**
+             * Net Income
+             * @description Net a month, household
+             * @default 0
+             * @example -12.50
+             */
+            net_income: string;
+            /**
+             * Other Debts
+             * @description Other loan payments a month
+             * @default 0
+             * @example -12.50
+             */
+            other_debts: string;
+            /**
+             * Max Ratio
+             * @description Of net income for debts
+             * @default 35
+             * @example 2.15
+             */
+            max_ratio: string;
+            /**
+             * Savings
+             * @description Money available for the purchase
+             */
+            savings?: string | null;
+            /**
+             * Monthly Saving
+             * @default 0
+             * @example -12.50
+             */
+            monthly_saving: string;
+        };
+        /** HomeOut */
+        HomeOut: {
+            /**
+             * Tax Name
+             * @enum {string}
+             */
+            tax_name: "ITP" | "IVA" | "IGIC";
+            /**
+             * Tax
+             * @example -12.50
+             */
+            tax: string;
+            /**
+             * Ajd
+             * @example -12.50
+             */
+            ajd: string;
+            /**
+             * Notary
+             * @example -12.50
+             */
+            notary: string;
+            /**
+             * Registry
+             * @example -12.50
+             */
+            registry: string;
+            /**
+             * Gestoria
+             * @example -12.50
+             */
+            gestoria: string;
+            /**
+             * Appraisal
+             * @example -12.50
+             */
+            appraisal: string;
+            /**
+             * Agency
+             * @example -12.50
+             */
+            agency: string;
+            /**
+             * Costs
+             * @example -12.50
+             */
+            costs: string;
+            /**
+             * Total
+             * @description Price plus costs
+             * @example -12.50
+             */
+            total: string;
+            /**
+             * Mortgage
+             * @example -12.50
+             */
+            mortgage: string;
+            /**
+             * Down Payment
+             * @example -12.50
+             */
+            down_payment: string;
+            /**
+             * Cash Needed
+             * @description Down payment plus costs
+             * @example -12.50
+             */
+            cash_needed: string;
+            /**
+             * Payment
+             * @example -12.50
+             */
+            payment: string;
+            /**
+             * Debt Ratio
+             * @description Percent of net income, other debts included
+             */
+            debt_ratio: string | null;
+            /**
+             * Max Payment
+             * @example -12.50
+             */
+            max_payment: string;
+            /** Max Price */
+            max_price: string | null;
+            /** Limited By */
+            limited_by: ("income" | "savings") | null;
+            /** Months To Buy */
+            months_to_buy: number | null;
+            /** Buy Date */
+            buy_date: string | null;
+            /** References */
+            references: components["schemas"]["ReferenceOut"][];
+            /** Warnings */
+            warnings: string[];
         };
         /** ImportOut */
         ImportOut: {
@@ -2220,6 +3060,88 @@ export interface components {
             /** Note */
             note?: string | null;
         };
+        /** LoanOfferIn */
+        LoanOfferIn: {
+            /** Name */
+            name: string;
+            /**
+             * Amount
+             * @example -12.50
+             */
+            amount: string;
+            /**
+             * Tin
+             * @example 2.15
+             */
+            tin: string;
+            /** Months */
+            months: number;
+            /**
+             * Opening Fee Percent
+             * @default 0
+             * @example 2.15
+             */
+            opening_fee_percent: string;
+            /**
+             * Upfront Costs
+             * @description Other costs at the start
+             * @default 0
+             * @example -12.50
+             */
+            upfront_costs: string;
+            /**
+             * Monthly Costs
+             * @description Linked insurance and the like
+             * @default 0
+             * @example -12.50
+             */
+            monthly_costs: string;
+        };
+        /** LoanOfferOut */
+        LoanOfferOut: {
+            /** Name */
+            name: string;
+            /**
+             * Payment
+             * @example -12.50
+             */
+            payment: string;
+            /**
+             * Monthly Total
+             * @example -12.50
+             */
+            monthly_total: string;
+            /**
+             * Interest
+             * @example -12.50
+             */
+            interest: string;
+            /**
+             * Fees
+             * @example -12.50
+             */
+            fees: string;
+            /**
+             * Extras
+             * @example -12.50
+             */
+            extras: string;
+            /**
+             * Total Cost
+             * @example -12.50
+             */
+            total_cost: string;
+            /**
+             * Total Paid
+             * @example -12.50
+             */
+            total_paid: string;
+            /**
+             * Apr
+             * @description TAE with the official formula
+             */
+            apr: string | null;
+        };
         /** LoanOut */
         LoanOut: {
             /** Name */
@@ -2474,6 +3396,79 @@ export interface components {
             /** Date */
             date?: string | null;
         };
+        /** MortgageIn */
+        MortgageIn: {
+            /**
+             * Principal
+             * @example -12.50
+             */
+            principal: string;
+            /** Years */
+            years: number;
+            /** Offers */
+            offers: components["schemas"]["MortgageOfferIn"][];
+            /**
+             * Euribor
+             * @description Scenarios: Euribor from the first review on
+             */
+            euribor: string[];
+        };
+        /** MortgageOfferIn */
+        MortgageOfferIn: {
+            /** Name */
+            name: string;
+            /** @default fixed */
+            rate_type: components["schemas"]["RateType"];
+            /**
+             * Fixed Rate
+             * @description TIN, or the rate of the initial period
+             * @example 2.15
+             */
+            fixed_rate: string;
+            /**
+             * Fixed Months
+             * @description Initial period, months
+             * @default 0
+             */
+            fixed_months: number;
+            /**
+             * Spread
+             * @description Diferencial over the Euribor
+             * @default 0
+             * @example 2.15
+             */
+            spread: string;
+            /**
+             * Discount
+             * @description Points off with linked products
+             * @default 0
+             * @example 2.15
+             */
+            discount: string;
+            /**
+             * Linked Yearly Cost
+             * @description Their cost a year
+             * @default 0
+             * @example -12.50
+             */
+            linked_yearly_cost: string;
+            /**
+             * Upfront Costs
+             * @default 0
+             * @example -12.50
+             */
+            upfront_costs: string;
+        };
+        /** MortgageOut */
+        MortgageOut: {
+            /** Offers */
+            offers: components["schemas"]["OfferOut"][];
+            /**
+             * Cheapest
+             * @description For each scenario, the offer that costs least
+             */
+            cheapest: number[];
+        };
         /** MoveIn */
         MoveIn: {
             /** Date */
@@ -2520,6 +3515,47 @@ export interface components {
              * @example -12.50
              */
             amount: string;
+        };
+        /** OfferOut */
+        OfferOut: {
+            /** Name */
+            name: string;
+            rate_type: components["schemas"]["RateType"];
+            /** Scenarios */
+            scenarios: components["schemas"]["ScenarioOutcome"][];
+        };
+        /** @enum {string} */
+        OptionKind: "cash" | "loan" | "pcp" | "renting";
+        /** OutcomeOut */
+        OutcomeOut: {
+            /**
+             * First Payment
+             * @example -12.50
+             */
+            first_payment: string;
+            /**
+             * Later Payment
+             * @description After the initial period
+             */
+            later_payment: string | null;
+            /**
+             * Interest
+             * @example -12.50
+             */
+            interest: string;
+            /**
+             * Linked Cost
+             * @example -12.50
+             */
+            linked_cost: string;
+            /**
+             * Total Cost
+             * @description Interest + linked products + upfront costs
+             * @example -12.50
+             */
+            total_cost: string;
+            /** Years */
+            years: components["schemas"]["YearOut"][];
         };
         /** PasskeyAssertion */
         PasskeyAssertion: {
@@ -2604,6 +3640,21 @@ export interface components {
              * @enum {string}
              */
             kind: "expense" | "income";
+        };
+        /** PersonalLoanIn */
+        PersonalLoanIn: {
+            /** Offers */
+            offers: components["schemas"]["LoanOfferIn"][];
+        };
+        /** PersonalLoanOut */
+        PersonalLoanOut: {
+            /** Offers */
+            offers: components["schemas"]["LoanOfferOut"][];
+            /**
+             * Cheapest
+             * @description Offer with the lowest total cost
+             */
+            cheapest: number;
         };
         /** Pot */
         Pot: {
@@ -2763,6 +3814,8 @@ export interface components {
              */
             rate: string;
         };
+        /** @enum {string} */
+        RateType: "fixed" | "variable" | "mixed";
         /** ReconcileIn */
         ReconcileIn: {
             /**
@@ -2886,6 +3939,35 @@ export interface components {
             id: string;
             /** Last Transaction Id */
             last_transaction_id: string | null;
+        };
+        /**
+         * ReferenceOut
+         * @description A reference value a result used, so the user can see and check it.
+         */
+        ReferenceOut: {
+            /** Table */
+            table: string;
+            /** Table Label */
+            table_label: string;
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /** Value */
+            value: string;
+            /** Extra */
+            extra: {
+                [key: string]: unknown;
+            } | null;
+            /**
+             * Valid From
+             * Format: date
+             */
+            valid_from: string;
+            /** Source */
+            source: string;
+            /** Note */
+            note: string | null;
         };
         /** ReferenceRateIn */
         ReferenceRateIn: {
@@ -3056,6 +4138,88 @@ export interface components {
              */
             position?: number | null;
         };
+        /** RunningOut */
+        RunningOut: {
+            /**
+             * Energy
+             * @example -12.50
+             */
+            energy: string;
+            /**
+             * Insurance
+             * @example -12.50
+             */
+            insurance: string;
+            /**
+             * Road Tax
+             * @example -12.50
+             */
+            road_tax: string;
+            /**
+             * Maintenance
+             * @example -12.50
+             */
+            maintenance: string;
+            /**
+             * Itv
+             * @example -12.50
+             */
+            itv: string;
+            /**
+             * Total
+             * @example -12.50
+             */
+            total: string;
+        };
+        /** SavingsGoalIn */
+        SavingsGoalIn: {
+            /**
+             * Target
+             * @example -12.50
+             */
+            target: string;
+            /**
+             * Initial
+             * @default 0
+             * @example -12.50
+             */
+            initial: string;
+            /**
+             * Annual Return
+             * @default 0
+             * @example 2.15
+             */
+            annual_return: string;
+            /**
+             * Mode
+             * @description monthly: how much a month to get there in `months` · date: when it is reached saving `monthly`
+             * @enum {string}
+             */
+            mode: "monthly" | "date";
+            /** Months */
+            months?: number | null;
+            /** Monthly */
+            monthly?: string | null;
+        };
+        /** SavingsGoalOut */
+        SavingsGoalOut: {
+            /**
+             * Monthly
+             * @description Saving a month; null if never reached
+             */
+            monthly: string | null;
+            /**
+             * Months
+             * @description Months to reach it; null if never
+             */
+            months: number | null;
+            /** Date */
+            date: string | null;
+            /** Contributed */
+            contributed: string | null;
+            /** Gains */
+            gains: string | null;
+        };
         /** SavingsPeriod */
         SavingsPeriod: {
             /**
@@ -3101,6 +4265,77 @@ export interface components {
              * @description Financial months, oldest first
              */
             periods: components["schemas"]["SavingsPeriod"][];
+        };
+        /** ScenarioIn */
+        ScenarioIn: {
+            /**
+             * Calculator
+             * @enum {string}
+             */
+            calculator: "compound" | "savings_goal" | "mortgage" | "home" | "car" | "personal_loan" | "emergency";
+            /** Name */
+            name: string;
+            /**
+             * Inputs
+             * @description The calculator's request body
+             */
+            inputs: {
+                [key: string]: unknown;
+            };
+        };
+        /** ScenarioOut */
+        ScenarioOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Calculator
+             * @enum {string}
+             */
+            calculator: "compound" | "savings_goal" | "mortgage" | "home" | "car" | "personal_loan" | "emergency";
+            /** Name */
+            name: string;
+            /** Inputs */
+            inputs: {
+                [key: string]: unknown;
+            };
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** ScenarioOutcome */
+        ScenarioOutcome: {
+            /**
+             * Euribor
+             * @example 2.15
+             */
+            euribor: string;
+            with_discount: components["schemas"]["OutcomeOut"];
+            without_discount: components["schemas"]["OutcomeOut"];
+            /**
+             * Discount Saves
+             * @description Positive: the linked products pay off
+             * @example -12.50
+             */
+            discount_saves: string;
+        };
+        /** ScenarioUpdate */
+        ScenarioUpdate: {
+            /** Name */
+            name?: string | null;
+            /** Inputs */
+            inputs?: {
+                [key: string]: unknown;
+            } | null;
         };
         /** SessionOut */
         SessionOut: {
@@ -3179,6 +4414,8 @@ export interface components {
             /** Count */
             count: number;
         };
+        /** @enum {string} */
+        TaxMode: "none" | "yearly" | "end";
         /** TemplateIn */
         TemplateIn: {
             /** Name */
@@ -3482,6 +4719,31 @@ export interface components {
             input?: unknown;
             /** Context */
             ctx?: Record<string, never>;
+        };
+        /** YearOut */
+        YearOut: {
+            /** Year */
+            year: number;
+            /**
+             * Payment
+             * @example -12.50
+             */
+            payment: string;
+            /**
+             * Interest
+             * @example -12.50
+             */
+            interest: string;
+            /**
+             * Principal
+             * @example -12.50
+             */
+            principal: string;
+            /**
+             * Outstanding
+             * @example -12.50
+             */
+            outstanding: string;
         };
     };
     responses: never;
@@ -6263,6 +7525,417 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    compound_api_calculators_compound_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CompoundIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompoundOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    savings_goal_api_calculators_savings_goal_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SavingsGoalIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SavingsGoalOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    emergency_api_calculators_emergency_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EmergencyIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmergencyOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    mortgage_calculator_api_calculators_mortgage_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MortgageIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MortgageOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    home_purchase_api_calculators_home_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HomeIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HomeOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    car_calculator_api_calculators_car_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CarIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CarOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    personal_loan_api_calculators_personal_loan_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PersonalLoanIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PersonalLoanOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    context_api_calculators_context_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContextOut"];
+                };
+            };
+        };
+    };
+    references_api_calculators_references_get: {
+        parameters: {
+            query?: {
+                /** @description Only these tables */
+                table?: string[] | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReferenceOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_scenarios_api_scenarios_get: {
+        parameters: {
+            query?: {
+                calculator?: ("compound" | "savings_goal" | "mortgage" | "home" | "car" | "personal_loan" | "emergency") | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScenarioOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_scenario_api_scenarios_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ScenarioIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScenarioOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_scenario_api_scenarios__scenario_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                scenario_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_scenario_api_scenarios__scenario_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                scenario_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ScenarioUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScenarioOut"];
+                };
             };
             /** @description Validation Error */
             422: {

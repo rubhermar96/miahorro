@@ -87,7 +87,8 @@ describe('loans', () => {
   it('lists loans on Planificar with what is left and the next instalment', async () => {
     renderApp('/planificar')
 
-    const card = await screen.findByRole('link', { name: /Coche/ })
+    const loans = await screen.findByRole('region', { name: 'Préstamos' })
+    const card = await within(loans).findByRole('link', { name: /Coche/ })
     expect(card).toHaveAttribute('href', '/planificar/prestamos/loan-1')
     expect(card).toHaveTextContent('9.963,23 €')
     expect(card).toHaveTextContent('Próxima cuota: 281,82 € el 5 nov 2026')

@@ -1036,3 +1036,202 @@ li + li > .budget-line {
 .loan-table__review td {
   font-weight: 600;
 }
+
+/* Calculators */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.link-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--primary);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.calc-list {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.calc-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.calc-card__icon {
+  font-size: 1.75rem;
+}
+
+.calc-card__text {
+  display: grid;
+  gap: 2px;
+}
+
+.calc-card__text .muted {
+  font-weight: 400;
+}
+
+ul.chips {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+a.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+}
+
+.calc-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.calc-fields .field--wide,
+.calc-fields .check {
+  grid-column: 1 / -1;
+}
+
+/* Labels take up to two lines, so the inputs of a row line up even when one label wraps. */
+.calc-fields > .field {
+  align-content: start;
+}
+
+.calc-fields > .field:not(.field--wide) > label {
+  display: flex;
+  align-items: flex-end;
+  min-height: 2.6em;
+  line-height: 1.3;
+}
+
+.calc-item {
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.calc-item h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.calc-result h3 {
+  margin: 8px 0 0;
+  font-size: 1.0625rem;
+}
+
+.calc-save {
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.details__strong dt,
+.details__strong dd {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.compare th[scope='row'] {
+  position: sticky;
+  left: 0;
+  max-width: 9.5rem;
+  background: var(--surface);
+  color: var(--text-muted);
+  font-weight: 400;
+  white-space: normal;
+}
+
+.compare td {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.compare thead th {
+  vertical-align: bottom;
+  text-align: right;
+}
+
+.compare thead .tag {
+  display: table;
+  margin: 4px 0 0 auto;
+}
+
+.compare__best {
+  background: color-mix(in srgb, var(--primary) 8%, transparent);
+}
+
+.refs {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Growth of savings: what was put in, and on top of it what it earned. */
+.growth {
+  margin: 0;
+}
+
+.growth__bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 140px;
+}
+
+.growth__bar {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: 100%;
+}
+
+.growth__gains {
+  background: var(--chart-fill);
+  border-radius: 3px 3px 0 0;
+}
+
+.growth__contributed {
+  background: var(--chart-track);
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-top: 8px;
+}
+
+.legend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend__swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+.compare thead th:first-child {
+  position: sticky;
+  left: 0;
+}

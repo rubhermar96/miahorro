@@ -27,4 +27,10 @@ export default defineConfig([
       globals: globals.browser,
     },
   },
+  {
+    // Calculator definitions export data (fields, defaults) next to the components that show
+    // their results; they are not pages, so fast refresh reloading them whole is fine.
+    files: ['src/calculators/**/*.tsx'],
+    rules: { 'react-refresh/only-export-components': 'off' },
+  },
 ])

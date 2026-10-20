@@ -12,6 +12,7 @@ test('presupuesto por límites y cambio a base cero sin perder nada', async ({ p
 
   await page.goto('/planificar/presupuesto')
   await page.getByRole('button', { name: 'Usar límites por categoría' }).click()
+  await expect(page.getByRole('heading', { name: 'Añadir categoría' })).toBeVisible()
   await page.getByLabel('Categoría').selectOption({ label: '🎉 Ocio' })
   await page.getByLabel('Límite al mes').fill('100')
   await page.getByRole('button', { name: 'Añadir', exact: true }).click()

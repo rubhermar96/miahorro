@@ -6,6 +6,7 @@ import { authApi, SESSION_KEY, type SessionInfo, useSession } from '../api/auth'
 import { type Goal, goalKeys, useGoals, useSavingsRate } from '../api/goals'
 import { goalStatusText } from '../lib/goals'
 import { BudgetSummaryCard } from '../components/BudgetSummaryCard'
+import { LoansSection } from '../components/LoansSection'
 import { Meter } from '../components/Meter'
 import { Money } from '../components/Money'
 import { PageHeader } from '../components/PageHeader'
@@ -29,7 +30,9 @@ export function PlanPage() {
         <section className="stack stack--tight" aria-labelledby="goals-title">
           <div className="section-title">
             <h2 id="goals-title">{t('goals.title')}</h2>
-            <Link to="/planificar/objetivos/nuevo">{t('goals.new')}</Link>
+            <Link to="/planificar/objetivos/nuevo" aria-label={t('goals.newTitle')}>
+              {t('goals.new')}
+            </Link>
           </div>
           {goals.isSuccess && goals.data.length === 0 && (
             <div className="card stack stack--tight">
@@ -51,6 +54,8 @@ export function PlanPage() {
             </>
           )}
         </section>
+
+        <LoansSection />
 
         <SavingsRateCard />
       </div>

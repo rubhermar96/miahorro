@@ -7,10 +7,13 @@ import { ArchivedAccountsPage } from './pages/ArchivedAccountsPage'
 import { BudgetPage } from './pages/BudgetPage'
 import { CapturePage } from './pages/CapturePage'
 import { CategoriesPage } from './pages/CategoriesPage'
+import { EuriborPage } from './pages/EuriborPage'
 import { GoalFormPage } from './pages/GoalFormPage'
 import { GoalPage } from './pages/GoalPage'
 import { HomePage } from './pages/HomePage'
 import { ImportPage } from './pages/ImportPage'
+import { LoanFormPage } from './pages/LoanFormPage'
+import { LoanPage } from './pages/LoanPage'
 import { LoginPage } from './pages/LoginPage'
 import { MorePage } from './pages/MorePage'
 import { NotFoundPage } from './pages/NotFoundPage'
@@ -40,6 +43,10 @@ export const routes: RouteObject[] = [
       { path: 'cuentas/:id/editar', element: <AccountFormPage /> },
       { path: 'planificar', element: <PlanPage /> },
       { path: 'planificar/presupuesto', element: <BudgetPage /> },
+      { path: 'planificar/prestamos/nuevo', element: <LoanFormPage /> },
+      { path: 'planificar/prestamos/:id', element: <LoanPage /> },
+      { path: 'planificar/prestamos/:id/editar', element: <LoanFormPage /> },
+      { path: 'planificar/euribor', element: <EuriborPage /> },
       { path: 'planificar/objetivos/nuevo', element: <GoalFormPage /> },
       { path: 'planificar/objetivos/:id', element: <GoalPage /> },
       { path: 'planificar/objetivos/:id/editar', element: <GoalFormPage /> },

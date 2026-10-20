@@ -136,6 +136,13 @@ button {
   gap: 16px;
 }
 
+/* Grid items do not shrink below their content unless told: without this a wide table
+   (amortization, imported file) widens the whole page instead of scrolling in its box. */
+.stack > *,
+.card > * {
+  min-width: 0;
+}
+
 .card {
   display: grid;
   gap: 8px;
@@ -1010,4 +1017,22 @@ label.row {
 
 li + li > .budget-line {
   border-top: 1px solid var(--border);
+}
+
+/* Amortization table */
+.loan-table td {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.loan-table td:nth-child(2) {
+  text-align: left;
+}
+
+.loan-table__paid td {
+  color: var(--text-muted);
+}
+
+.loan-table__review td {
+  font-weight: 600;
 }

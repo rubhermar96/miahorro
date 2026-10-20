@@ -12,7 +12,7 @@ test('crear un objetivo, apartar dinero y ver lo disponible en la cuenta', async
   await expect(page.getByRole('heading', { level: 1, name: account })).toBeVisible()
 
   await page.getByRole('link', { name: 'Planificar', exact: true }).click()
-  await page.getByRole('link', { name: 'Nuevo', exact: true }).click()
+  await page.getByRole('link', { name: 'Nuevo objetivo' }).click()
   await page.getByLabel('Nombre').fill(goal)
   await page.getByRole('button', { name: 'Imagen ✈️' }).click()
   await page.getByLabel('Importe').fill('2.000')

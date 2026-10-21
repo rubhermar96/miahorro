@@ -6,12 +6,13 @@ import { formatAmount } from '../lib/format'
 import { Meter } from './Meter'
 import { Money } from './Money'
 
-/** This month's budget at a glance, on Planificar. */
-export function BudgetSummaryCard() {
+/** This month's budget at a glance, on Planificar and the dashboard. With `onlyIfSet`, nothing
+ * shows until a budget mode is chosen. */
+export function BudgetSummaryCard({ onlyIfSet = false }: { onlyIfSet?: boolean }) {
   const { t } = useTranslation()
   const budget = useBudget('')
   const data = budget.data
-  if (!data) {
+  if (!data || (onlyIfSet && !data.mode)) {
     return null
   }
   const spent = data.activity.startsWith('-') ? data.activity.slice(1) : '0.00'

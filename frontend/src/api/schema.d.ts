@@ -1679,6 +1679,129 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/dashboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Dashboard
+         * @description How things stand today, at a glance.
+         */
+        get: operations["dashboard_api_dashboard_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/reports/net-worth": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Net Worth Report
+         * @description Net worth at the end of each month: by default the last twelve, from the first day
+         *     there is data.
+         */
+        get: operations["net_worth_report_api_reports_net_worth_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/reports/cash-flow": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Cash Flow Report
+         * @description Income, expenses and the share saved by financial month, by year or for the whole
+         *     range. By default, the last twelve financial months.
+         */
+        get: operations["cash_flow_report_api_reports_cash_flow_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/reports/spending": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Spending Report
+         * @description Where the money went, next to the previous period and the same dates a year before. By
+         *     default, this financial month so far.
+         */
+        get: operations["spending_report_api_reports_spending_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/export.json": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export Json
+         * @description All your data in one JSON file, with exact amounts.
+         */
+        get: operations["export_json_api_export_json_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/export.zip": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export Zip
+         * @description All your data as CSV files (one per table) in a ZIP, for a spreadsheet.
+         */
+        get: operations["export_zip_api_export_zip_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2294,6 +2417,14 @@ export interface components {
              */
             account_id: string;
         };
+        /** CashFlowReport */
+        CashFlowReport: {
+            /** Periods */
+            periods: components["schemas"]["PeriodOut"][];
+            total: components["schemas"]["PeriodOut"];
+            /** Savings Target */
+            savings_target: number | null;
+        };
         /** CategoryIn */
         CategoryIn: {
             /** Name */
@@ -2567,6 +2698,33 @@ export interface components {
             amount: string;
             /** Note */
             note: string | null;
+        };
+        /** DashboardOut */
+        DashboardOut: {
+            /**
+             * Today
+             * Format: date
+             */
+            today: string;
+            net_worth: components["schemas"]["NetWorthOut"];
+            /** @description At the end of last month, to compare */
+            previous: components["schemas"]["NetWorthOut"] | null;
+            /**
+             * Available
+             * @description Everyday money, minus what goals hold in it
+             * @example -12.50
+             */
+            available: string;
+            /**
+             * Reserved
+             * @description Set aside for goals
+             * @example -12.50
+             */
+            reserved: string;
+            /** @description This financial month so far */
+            month: components["schemas"]["PeriodOut"];
+            /** Savings Target */
+            savings_target: number | null;
         };
         /** @enum {string} */
         DateOrder: "dmy" | "ymd" | "mdy";
@@ -3942,6 +4100,63 @@ export interface components {
              */
             amount: string;
         };
+        /** NetWorthOut */
+        NetWorthOut: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /**
+             * Accounts
+             * @description Accounts in the main currency
+             * @example -12.50
+             */
+            accounts: string;
+            /**
+             * Investments
+             * @description Investments with a price
+             * @example -12.50
+             */
+            investments: string;
+            /**
+             * Lent
+             * @description What others owe you
+             * @example -12.50
+             */
+            lent: string;
+            /**
+             * Debts
+             * @description Capital left on your loans
+             * @example -12.50
+             */
+            debts: string;
+            /**
+             * Total
+             * @example -12.50
+             */
+            total: string;
+            /**
+             * Other Currencies
+             * @description Accounts in other currencies
+             */
+            other_currencies: {
+                [key: string]: string;
+            };
+        };
+        /** NetWorthReport */
+        NetWorthReport: {
+            /**
+             * Start
+             * @description First date with data; null without any
+             */
+            start: string | null;
+            /**
+             * Points
+             * @description End of each month, and the last date
+             */
+            points: components["schemas"]["NetWorthOut"][];
+        };
         /** NewToken */
         NewToken: {
             token: components["schemas"]["TokenOut"];
@@ -4223,6 +4438,40 @@ export interface components {
              */
             kind: "expense" | "income";
         };
+        /** PeriodOut */
+        PeriodOut: {
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            /**
+             * End
+             * Format: date
+             */
+            end: string;
+            /**
+             * Income
+             * @example -12.50
+             */
+            income: string;
+            /**
+             * Expenses
+             * @description Negative
+             * @example -12.50
+             */
+            expenses: string;
+            /**
+             * Saved
+             * @example -12.50
+             */
+            saved: string;
+            /**
+             * Rate
+             * @description Percent of income saved; null without income
+             */
+            rate: string | null;
+        };
         /** PersonalLoanIn */
         PersonalLoanIn: {
             /** Offers */
@@ -4459,6 +4708,19 @@ export interface components {
              * Format: uuid
              */
             id: string;
+        };
+        /** RangeOut */
+        RangeOut: {
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            /**
+             * End
+             * Format: date
+             */
+            end: string;
         };
         /** RateTier */
         RateTier: {
@@ -5157,6 +5419,67 @@ export interface components {
             reason: string;
             /** Text */
             text: string;
+        };
+        /** SpendLineOut */
+        SpendLineOut: {
+            /**
+             * Key
+             * @description Category id, merchant or tag
+             */
+            key: string;
+            /** Label */
+            label: string;
+            /** Icon */
+            icon: string | null;
+            /**
+             * Amount
+             * @description Spent in the range, positive
+             * @example -12.50
+             */
+            amount: string;
+            /**
+             * Previous
+             * @description In the previous period
+             * @example -12.50
+             */
+            previous: string;
+            /**
+             * Last Year
+             * @description Same dates a year earlier
+             * @example -12.50
+             */
+            last_year: string;
+            /**
+             * Children
+             * @description Subcategories
+             */
+            children: components["schemas"]["SpendLineOut"][];
+        };
+        /** @enum {string} */
+        SpendingBy: "category" | "merchant" | "tag";
+        /** SpendingReport */
+        SpendingReport: {
+            by: components["schemas"]["SpendingBy"];
+            current: components["schemas"]["RangeOut"];
+            previous: components["schemas"]["RangeOut"];
+            last_year: components["schemas"]["RangeOut"];
+            /**
+             * Total
+             * @example -12.50
+             */
+            total: string;
+            /**
+             * Total Previous
+             * @example -12.50
+             */
+            total_previous: string;
+            /**
+             * Total Last Year
+             * @example -12.50
+             */
+            total_last_year: string;
+            /** Lines */
+            lines: components["schemas"]["SpendLineOut"][];
         };
         /** TagCount */
         TagCount: {
@@ -9180,6 +9503,164 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    dashboard_api_dashboard_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardOut"];
+                };
+            };
+        };
+    };
+    net_worth_report_api_reports_net_worth_get: {
+        parameters: {
+            query?: {
+                start?: string | null;
+                end?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NetWorthReport"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cash_flow_report_api_reports_cash_flow_get: {
+        parameters: {
+            query?: {
+                start?: string | null;
+                end?: string | null;
+                group?: "month" | "year" | "total";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CashFlowReport"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    spending_report_api_reports_spending_get: {
+        parameters: {
+            query?: {
+                start?: string | null;
+                end?: string | null;
+                by?: "category" | "merchant" | "tag";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpendingReport"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    export_json_api_export_json_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description All your data */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    export_zip_api_export_zip_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description A CSV per table */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/zip": unknown;
                 };
             };
         };

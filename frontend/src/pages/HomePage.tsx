@@ -4,57 +4,88 @@ import { Link } from 'react-router'
 import { useSession } from '../api/auth'
 import { useInbox, useUpcoming } from '../api/capture'
 import { ACCOUNT_KINDS, type Account, useAccounts } from '../api/finance'
-import { useInvestments, usePortfolio } from '../api/investments'
+import { useInvestments } from '../api/investments'
+import { useLoans } from '../api/loans'
+import { useDashboard } from '../api/reports'
+import { BudgetSummaryCard } from '../components/BudgetSummaryCard'
+import { GoalsSummary } from '../components/GoalsSummary'
 import { InvestmentRow } from '../components/InvestmentRow'
 import { Money } from '../components/Money'
+import { NetWorthCard } from '../components/NetWorthCard'
 import { PageHeader } from '../components/PageHeader'
 import { ServerStatusLine } from '../components/ServerStatusLine'
-import { sumAmounts } from '../lib/amount'
-import { formatAmount, formatDate, todayIso } from '../lib/format'
+import { negateAmount } from '../lib/amount'
+import { formatAmount, formatDate, formatRate, todayIso } from '../lib/format'
 
 const MATURITY_WINDOW_DAYS = 90
+const UPCOMING_DAYS = 30
+const UPCOMING_SHOWN = 6
 
-/** Totals per currency; the main currency first. */
-function totalsByCurrency(accounts: Account[], main: string): [string, string][] {
-  const byCurrency = new Map<string, string[]>()
-  for (const account of accounts) {
-    byCurrency.set(account.currency, [...(byCurrency.get(account.currency) ?? []), account.balance])
-  }
-  return [...byCurrency.entries()]
-    .map(([currency, balances]): [string, string] => [currency, sumAmounts(balances)])
-    .sort(([a], [b]) => (a === main ? -1 : b === main ? 1 : a.localeCompare(b)))
+function daysFromToday(days: number): string {
+  const date = new Date(`${todayIso()}T12:00:00`)
+  date.setDate(date.getDate() + days)
+  return date.toISOString().slice(0, 10)
 }
 
 function upcomingMaturities(accounts: Account[]): Account[] {
   const today = todayIso()
-  const limit = new Date(`${today}T12:00:00`)
-  limit.setDate(limit.getDate() + MATURITY_WINDOW_DAYS)
-  const last = limit.toISOString().slice(0, 10)
+  const last = daysFromToday(MATURITY_WINDOW_DAYS)
   return accounts
     .filter((a) => a.maturity_date && a.maturity_date >= today && a.maturity_date <= last)
     .sort((a, b) => (a.maturity_date ?? '').localeCompare(b.maturity_date ?? ''))
 }
 
+type Coming = { key: string; name: string; date: string; amount: string; to: string }
+
+/** The dashboard (RF-INF-01): net worth, money available, this month, budget, goals, what is
+ * coming up, and the accounts and investments. */
 export function HomePage() {
   const { t } = useTranslation()
   const { data: session } = useSession()
   const accounts = useAccounts()
   const inbox = useInbox()
-  const upcoming = useUpcoming(30)
-  const mainCurrency = session?.user.preferences.currency ?? 'EUR'
-
-  const portfolio = usePortfolio()
+  const upcoming = useUpcoming(UPCOMING_DAYS)
+  const loans = useLoans()
+  const dashboard = useDashboard()
   const investments = useInvestments()
+
   const list = accounts.data ?? []
-  const [main, ...others] = totalsByCurrency(list, mainCurrency)
-  // The portfolio is valued in euros: it adds to the total when that is the main currency.
-  const invested = mainCurrency === 'EUR' ? (portfolio.data?.value ?? '0.00') : '0.00'
   // Only what is still held: an emptied fund stays in the portfolio page, not here.
   const held = (investments.data ?? []).filter((investment) => investment.units !== '0')
   const hasInvestments = (investments.data?.length ?? 0) > 0
   const maturities = upcomingMaturities(list)
   const toReview = (inbox.data?.unconfirmed.length ?? 0) + (inbox.data?.overdue.length ?? 0)
-  const nextUp = (upcoming.data ?? []).filter((item) => !item.overdue).slice(0, 5)
+  const until = daysFromToday(UPCOMING_DAYS)
+  const coming: Coming[] = [
+    ...(upcoming.data ?? [])
+      .filter((item) => !item.overdue)
+      .map((item) => ({
+        key: `${item.item_id}-${item.date}`,
+        name: item.name,
+        date: item.date,
+        amount: item.amount,
+        to: '/mas/recurrentes',
+      })),
+    ...(loans.data ?? []).flatMap((loan) => {
+      const next = loan.next_payment
+      if (!next || next.date > until) {
+        return []
+      }
+      return [
+        {
+          key: `loan-${loan.id}`,
+          name: loan.name,
+          date: next.date,
+          amount: loan.direction === 'owed' ? next.amount : negateAmount(next.amount),
+          to: `/planificar/prestamos/${loan.id}`,
+        },
+      ]
+    }),
+  ]
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .slice(0, UPCOMING_SHOWN)
+  const board = dashboard.data
+  const month = board?.month
 
   return (
     <>
@@ -74,30 +105,36 @@ export function HomePage() {
           </section>
         )}
 
-        {list.length > 0 && main && (
-          <section className="card" aria-labelledby="total-title">
-            <h2 id="total-title">{t('home.totalTitle')}</h2>
-            <p className="total">
-              <Money value={sumAmounts([main[1], invested])} currency={main[0]} />
-            </p>
-            {invested !== '0.00' && (
-              <p className="muted small">
-                {t('home.split', {
-                  accounts: formatAmount(main[1], main[0]),
-                  investments: formatAmount(invested),
+        {list.length > 0 && board && <NetWorthCard dashboard={board} />}
+
+        {list.length > 0 && board && month && (
+          <section className="kpis" aria-label={t('dashboard.kpis')}>
+            <div className="card kpi">
+              <span className="muted small">{t('dashboard.available')}</span>
+              <span className="kpi__value">
+                <Money value={board.available} />
+              </span>
+              {board.reserved !== '0.00' && (
+                <small className="muted">
+                  {t('dashboard.reserved', { amount: formatAmount(board.reserved) })}
+                </small>
+              )}
+            </div>
+            <Link className="card card--link kpi" to="/informes?vista=flujo">
+              <span className="muted small">{t('dashboard.savedThisMonth')}</span>
+              <span className="kpi__value">
+                <Money value={month.saved} signed />
+              </span>
+              <small className="muted">
+                {t('dashboard.monthLine', {
+                  income: formatAmount(month.income),
+                  expenses: formatAmount(negateAmount(month.expenses)),
                 })}
-              </p>
-            )}
-            {others.length > 0 && (
-              <p className="muted small">
-                {t('home.otherCurrencies', {
-                  amounts: others
-                    .map(([currency, total]) => formatAmount(total, currency))
-                    .join(', '),
-                })}
-              </p>
-            )}
-            <p className="muted small">{t('home.totalHelp')}</p>
+                {month.rate !== null &&
+                  month.rate !== undefined &&
+                  ` · ${t('dashboard.rate', { rate: formatRate(String(month.rate)) })}`}
+              </small>
+            </Link>
           </section>
         )}
 
@@ -107,20 +144,25 @@ export function HomePage() {
           </Link>
         )}
 
-        {nextUp.length > 0 && (
+        <BudgetSummaryCard onlyIfSet />
+        <GoalsSummary />
+
+        {coming.length > 0 && (
           <section className="stack stack--tight" aria-labelledby="upcoming-title">
             <div className="section-title">
               <h2 id="upcoming-title">{t('home.upcomingTitle')}</h2>
               <Link to="/mas/recurrentes">{t('home.upcomingAll')}</Link>
             </div>
             <ul className="list card card--flush">
-              {nextUp.map((item) => (
-                <li key={`${item.item_id}-${item.date}`} className="row">
-                  <span className="row__text">
-                    <span className="row__title">{item.name}</span>
-                    <small className="muted">{formatDate(item.date)}</small>
-                  </span>
-                  <Money value={item.amount} signed />
+              {coming.map((item) => (
+                <li key={item.key}>
+                  <Link className="row" to={item.to}>
+                    <span className="row__text">
+                      <span className="row__title">{item.name}</span>
+                      <small className="muted">{formatDate(item.date)}</small>
+                    </span>
+                    <Money value={item.amount} signed />
+                  </Link>
                 </li>
               ))}
             </ul>

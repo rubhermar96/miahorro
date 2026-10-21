@@ -46,6 +46,8 @@ export const financeKeys = {
   categories: ['categories'] as const,
   transactions: ['transactions'] as const,
   tags: ['tags'] as const,
+  // Reports and the dashboard are worked out from the same data.
+  reports: ['reports'] as const,
 }
 
 /** After any change to money, every derived view (balances, lists, usage) is refreshed. */

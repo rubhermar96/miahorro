@@ -97,12 +97,11 @@ afterEach(() => {
 })
 
 describe('investments', () => {
-  it('add up with the accounts on the home screen', async () => {
+  it('are listed on the home screen', async () => {
     renderApp('/')
 
-    expect(await screen.findByText('3.181,25 €')).toBeInTheDocument()
-    expect(screen.getByText('Cuentas 2.000,00 € · inversiones 1.181,25 €')).toBeInTheDocument()
-    const list = screen.getByRole('region', { name: 'Inversiones' })
+    const list = await screen.findByRole('region', { name: 'Inversiones' })
+    expect(await within(list).findByText('+12,23 %')).toBeInTheDocument()
     expect(within(list).getByRole('link', { name: /Fondo indexado/ })).toHaveAttribute(
       'href',
       '/inversiones/inv-1',

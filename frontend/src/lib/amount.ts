@@ -66,3 +66,11 @@ export function sumAmounts(values: string[]): string {
   const cents = (absolute % 100n).toString().padStart(2, '0')
   return `${negative ? '-' : ''}${units}.${cents}`
 }
+
+/** "12.50" ↔ "-12.50"; zero stays "0.00". */
+export function negateAmount(value: string): string {
+  if (/^-?0+(\.0+)?$/.test(value)) {
+    return value.replace('-', '')
+  }
+  return value.startsWith('-') ? value.slice(1) : `-${value}`
+}

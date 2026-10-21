@@ -4,6 +4,7 @@ import {
   formatAmount,
   formatDate,
   formatDay,
+  formatMonthTick,
   formatMonthYear,
   formatShortDate,
   formatSignedAmount,
@@ -86,5 +87,13 @@ describe('month and short dates', () => {
   it('formats forecasts and periods', () => {
     expect(formatMonthYear('2028-03-16')).toBe('marzo de 2028')
     expect(formatShortDate('2026-09-25')).toBe('25 sept')
+  })
+})
+
+describe('month ticks', () => {
+  it('carry the year on the first one and on January', () => {
+    expect(formatMonthTick('2025-10-31', true)).toBe('oct 25')
+    expect(formatMonthTick('2026-04-30', false)).toBe('abr')
+    expect(formatMonthTick('2026-01-31', false)).toBe('ene 26')
   })
 })

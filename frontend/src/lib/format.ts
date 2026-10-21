@@ -108,3 +108,13 @@ export function formatShortDate(isoDate: string): string {
 export function formatSignedPercent(value: string): string {
   return `${Number(value) > 0 ? '+' : ''}${formatRate(value)} %`
 }
+
+const MONTH_SHORT = new Intl.DateTimeFormat('es-ES', { month: 'short' })
+
+/** An axis tick for a month: "abr", or "oct 25" for the first one and every January, so the
+ * year is never in doubt. */
+export function formatMonthTick(isoDate: string, first: boolean): string {
+  const [year, month, day] = isoParts(isoDate)
+  const name = MONTH_SHORT.format(new Date(year, month - 1, day)).replace('.', '')
+  return first || month === 1 ? `${name} ${String(year).slice(2)}` : name
+}

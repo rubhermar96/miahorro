@@ -26,6 +26,7 @@ import { OperationFormPage } from './pages/OperationFormPage'
 import { PlanPage } from './pages/PlanPage'
 import { QuickAddPage } from './pages/QuickAddPage'
 import { RecurringPage } from './pages/RecurringPage'
+import { ReportsPage } from './pages/ReportsPage'
 import { ReviewPage } from './pages/ReviewPage'
 import { RulesPage } from './pages/RulesPage'
 import { TaxReportPage } from './pages/TaxReportPage'
@@ -66,6 +67,7 @@ export const routes: RouteObject[] = [
       { path: 'inversiones/:id/editar', element: <InvestmentFormPage /> },
       { path: 'inversiones/:id/operaciones/nueva', element: <OperationFormPage /> },
       { path: 'inversiones/:id/operaciones/:operationId', element: <OperationFormPage /> },
+      { path: 'informes', element: <ReportsPage /> },
       { path: 'mas', element: <MorePage /> },
       { path: 'mas/categorias', element: <CategoriesPage /> },
       { path: 'mas/reglas', element: <RulesPage /> },

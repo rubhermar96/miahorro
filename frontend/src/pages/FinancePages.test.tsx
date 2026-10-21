@@ -39,7 +39,36 @@ describe('home', () => {
     )
   })
 
-  it('adds up the accounts exactly and lists them by kind', async () => {
+  it('leads with net worth and lists the accounts by kind', async () => {
+    const worth = (fields: Record<string, unknown>) => ({
+      date: '2026-10-16',
+      accounts: '10000.30',
+      investments: '0.00',
+      lent: '0.00',
+      debts: '0.00',
+      total: '10000.30',
+      other_currencies: { USD: '50.00' },
+      ...fields,
+    })
+    api.on('GET /api/dashboard', {
+      status: 200,
+      body: {
+        today: '2026-10-16',
+        net_worth: worth({}),
+        previous: worth({ date: '2026-09-30', total: '9800.30' }),
+        available: '0.30',
+        reserved: '0.00',
+        month: {
+          start: '2026-10-01',
+          end: '2026-10-16',
+          income: '2000.00',
+          expenses: '-450.00',
+          saved: '1550.00',
+          rate: '77.5',
+        },
+        savings_target: null,
+      },
+    })
     api.on('GET /api/accounts', {
       status: 200,
       body: [
@@ -63,14 +92,81 @@ describe('home', () => {
     })
     renderApp('/')
 
-    const total = await screen.findByRole('region', { name: 'Tu dinero' })
-    expect(within(total).getByText('10.000,30 €')).toBeInTheDocument()
+    const total = await screen.findByRole('region', { name: 'Patrimonio neto' })
+    expect(within(total).getAllByText('10.000,30 €')).toHaveLength(2) // the total and accounts
+    expect(within(total).getByText('+200,00 €')).toBeInTheDocument()
+    expect(within(total).getByText('desde el 30 sept 2026')).toBeInTheDocument()
     expect(within(total).getByText('Además: 50,00 USD')).toBeInTheDocument()
+    const month = screen.getByRole('link', { name: /Ahorrado este mes/ })
+    expect(month).toHaveTextContent('+1.550,00 €')
+    expect(month).toHaveTextContent(
+      'Ingresos 2.000,00 € · gastos 450,00 € · 77,5 % de tus ingresos',
+    )
     expect(screen.getByRole('region', { name: 'Ahorro' })).toHaveTextContent('0,20 €')
     expect(screen.getByRole('link', { name: 'Depósito vence el 1 dic 2026' })).toHaveAttribute(
       'href',
       '/cuentas/acc-4',
     )
+  })
+})
+
+describe('dashboard', () => {
+  it('shows the first goals and the next loan instalment among what is coming', async () => {
+    api.on('GET /api/goals', {
+      status: 200,
+      body: [
+        {
+          id: 'goal-1',
+          name: 'Entrada del piso',
+          target_amount: '12000.00',
+          target_date: '2027-09-30',
+          priority: 1,
+          icon: '🏠',
+          note: null,
+          account_ids: [],
+          pots: [],
+          achieved: false,
+          saved: '3000.00',
+          remaining: '9000.00',
+          percent: 25,
+          required_monthly: '750.00',
+          pace: '800.00',
+          estimated_date: '2027-08-15',
+          status: 'on_track',
+        },
+      ],
+    })
+    api.on('GET /api/recurring/upcoming', {
+      status: 200,
+      body: [
+        { item_id: 'r1', name: 'Netflix', date: '2026-11-02', amount: '-12.99', overdue: false },
+      ],
+    })
+    api.on('GET /api/loans', {
+      status: 200,
+      body: [
+        {
+          id: 'loan-1',
+          name: 'Coche',
+          direction: 'owe',
+          next_payment: { date: '2026-11-05', amount: '281.82' },
+        },
+      ],
+    })
+    renderApp('/')
+
+    const goals = await screen.findByRole('region', { name: 'Objetivos' })
+    expect(within(goals).getByRole('progressbar', { name: /Entrada del piso/ })).toHaveAttribute(
+      'aria-valuenow',
+      '25',
+    )
+    const coming = await screen.findByRole('region', { name: 'Próximos 30 días' })
+    const rows = within(within(coming).getByRole('list')).getAllByRole('link')
+    expect(rows.map((row) => row.textContent?.replace(/\s/g, ' '))).toEqual([
+      'Netflix2 nov 2026-12,99 €',
+      'Coche5 nov 2026-281,82 €',
+    ])
+    expect(rows[1]).toHaveAttribute('href', '/planificar/prestamos/loan-1')
   })
 })
 

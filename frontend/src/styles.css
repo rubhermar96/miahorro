@@ -11,6 +11,9 @@
   /* Chart marks: validated for chroma, lightness and contrast on the surface. */
   --chart-fill: #0d9488;
   --chart-track: color-mix(in srgb, #0d9488 16%, var(--surface));
+  /* Second series (expenses next to income); validated against the light surface. */
+  --chart-expense: #eb6834;
+  --chart-grid: #e6ecea;
   --primary-strong: #0b5d57;
   --on-primary: #ffffff;
   --success: #067647;
@@ -41,8 +44,8 @@
     --primary: #2dd4bf;
     --chart-fill: #1aa595;
     --chart-track: color-mix(in srgb, #1aa595 22%, var(--surface));
-    --chart-fill: #1aa595;
-    --chart-track: color-mix(in srgb, #1aa595 22%, var(--surface));
+    --chart-expense: #d95926;
+    --chart-grid: #22302e;
     --primary-strong: #5eead4;
     --on-primary: #042f2c;
     --success: #4ade80;
@@ -62,6 +65,8 @@
   --primary: #2dd4bf;
   --chart-fill: #1aa595;
   --chart-track: color-mix(in srgb, #1aa595 22%, var(--surface));
+  --chart-expense: #d95926;
+  --chart-grid: #22302e;
   --primary-strong: #5eead4;
   --on-primary: #042f2c;
   --success: #4ade80;
@@ -687,7 +692,8 @@ select {
   cursor: pointer;
 }
 
-.chip[aria-pressed='true'] {
+.chip[aria-pressed='true'],
+.chip[aria-checked='true'] {
   border-color: var(--primary);
   background: var(--primary);
   color: var(--on-primary);
@@ -1249,4 +1255,198 @@ a.chip {
 
 .field .link-button {
   justify-self: start;
+}
+
+/* Charts (see the dataviz guide): thin marks, hairline grid, text in text colours. */
+.chart {
+  position: relative;
+}
+
+.chart svg {
+  display: block;
+  overflow: visible;
+}
+
+.chart svg:focus {
+  outline: none;
+}
+
+.chart svg:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+.chart__grid {
+  stroke: var(--chart-grid);
+  stroke-width: 1;
+}
+
+.chart__baseline {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.chart__axis {
+  fill: var(--text-muted);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.chart__line {
+  fill: none;
+  stroke: var(--chart-fill);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.chart__area {
+  fill: var(--chart-fill);
+  opacity: 0.1;
+}
+
+.chart__crosshair {
+  stroke: var(--text-muted);
+  stroke-width: 1;
+}
+
+.chart__dot {
+  fill: var(--chart-fill);
+  stroke: var(--surface);
+  stroke-width: 2;
+}
+
+.chart__value {
+  fill: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.chart__first {
+  fill: var(--chart-fill);
+  background: var(--chart-fill);
+}
+
+.chart__second {
+  fill: var(--chart-expense);
+  background: var(--chart-expense);
+}
+
+.chart__hit {
+  fill: transparent;
+}
+
+.chart__pair {
+  cursor: default;
+}
+
+.chart__pair:focus {
+  outline: none;
+}
+
+.chart__pair:focus-visible .chart__hit {
+  stroke: var(--primary);
+  stroke-width: 2;
+}
+
+.chart__pair.is-active .chart__hit {
+  fill: var(--chart-grid);
+  opacity: 0.6;
+}
+
+.chart__tooltip {
+  position: absolute;
+  top: 0;
+  display: grid;
+  gap: 2px;
+  min-width: 140px;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  font-size: 0.8125rem;
+  pointer-events: none;
+}
+
+.chart__key {
+  display: inline-block;
+  width: 12px;
+  height: 2px;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+ul.legend {
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+}
+
+/* Spending lines: one hue, the bar's length is the amount. */
+.spend-bar {
+  height: 8px;
+  border-radius: 0 4px 4px 0;
+  background: var(--chart-fill);
+}
+
+.spend-line {
+  display: grid;
+  gap: 6px;
+  padding: 12px 16px;
+}
+
+.spend-line__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.spend-line__children {
+  margin: 4px 0 0;
+  padding: 0 0 0 12px;
+  list-style: none;
+}
+
+/* Dashboard */
+.hero-figure {
+  font-size: 3rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.kpi {
+  display: grid;
+  gap: 4px;
+}
+
+.kpi__value {
+  font-size: 1.375rem;
+  font-weight: 700;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: end;
+}
+
+.filters .field {
+  flex: 1 1 140px;
+}
+
+/* While a report reloads, the previous one stays, dimmed: no jump, no flash. */
+.is-loading {
+  opacity: 0.6;
+  transition: opacity 0.2s;
 }

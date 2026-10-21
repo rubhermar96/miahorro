@@ -13,6 +13,7 @@ import {
   type SessionInfo,
   useSession,
 } from '../api/auth'
+import { EXPORT_JSON, EXPORT_ZIP } from '../api/reports'
 import { ErrorMessage } from '../components/ErrorMessage'
 import { PageHeader } from '../components/PageHeader'
 import { RecoveryCodes } from '../components/RecoveryCodes'
@@ -49,6 +50,18 @@ export function MorePage() {
         </section>
         <nav className="card card--flush" aria-label={t('more.title')}>
           <ul className="list">
+            <li>
+              <Link className="row" to="/informes">
+                <span className="row__title">{t('more.reports')}</span>
+                <span aria-hidden="true">›</span>
+              </Link>
+            </li>
+            <li>
+              <Link className="row" to="/inversiones">
+                <span className="row__title">{t('more.investments')}</span>
+                <span aria-hidden="true">›</span>
+              </Link>
+            </li>
             <li>
               <Link className="row" to="/importar">
                 <span className="row__title">{t('more.import')}</span>
@@ -87,6 +100,16 @@ export function MorePage() {
             </li>
           </ul>
         </nav>
+        <section className="card stack stack--tight" aria-labelledby="export-title">
+          <h2 id="export-title">{t('more.exportTitle')}</h2>
+          <p className="muted small">{t('more.exportHelp')}</p>
+          <a className="button button--secondary" href={EXPORT_JSON} download>
+            {t('more.exportJson')}
+          </a>
+          <a className="button button--secondary" href={EXPORT_ZIP} download>
+            {t('more.exportZip')}
+          </a>
+        </section>
         <PreferencesCard session={session} />
         <SecurityCard session={session} />
         {user.is_admin && (

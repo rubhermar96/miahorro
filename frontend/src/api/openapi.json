@@ -5166,6 +5166,298 @@
           }
         }
       }
+    },
+    "/api/dashboard": {
+      "get": {
+        "tags": [
+          "reports"
+        ],
+        "summary": "Dashboard",
+        "description": "How things stand today, at a glance.",
+        "operationId": "dashboard_api_dashboard_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reports/net-worth": {
+      "get": {
+        "tags": [
+          "reports"
+        ],
+        "summary": "Net Worth Report",
+        "description": "Net worth at the end of each month: by default the last twelve, from the first day\nthere is data.",
+        "operationId": "net_worth_report_api_reports_net_worth_get",
+        "parameters": [
+          {
+            "name": "start",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Start"
+            }
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "End"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NetWorthReport"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reports/cash-flow": {
+      "get": {
+        "tags": [
+          "reports"
+        ],
+        "summary": "Cash Flow Report",
+        "description": "Income, expenses and the share saved by financial month, by year or for the whole\nrange. By default, the last twelve financial months.",
+        "operationId": "cash_flow_report_api_reports_cash_flow_get",
+        "parameters": [
+          {
+            "name": "start",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Start"
+            }
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "End"
+            }
+          },
+          {
+            "name": "group",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "month",
+                "year",
+                "total"
+              ],
+              "type": "string",
+              "default": "month",
+              "title": "Group"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CashFlowReport"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reports/spending": {
+      "get": {
+        "tags": [
+          "reports"
+        ],
+        "summary": "Spending Report",
+        "description": "Where the money went, next to the previous period and the same dates a year before. By\ndefault, this financial month so far.",
+        "operationId": "spending_report_api_reports_spending_get",
+        "parameters": [
+          {
+            "name": "start",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Start"
+            }
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "End"
+            }
+          },
+          {
+            "name": "by",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "category",
+                "merchant",
+                "tag"
+              ],
+              "type": "string",
+              "default": "category",
+              "title": "By"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SpendingReport"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/export.json": {
+      "get": {
+        "tags": [
+          "reports"
+        ],
+        "summary": "Export Json",
+        "description": "All your data in one JSON file, with exact amounts.",
+        "operationId": "export_json_api_export_json_get",
+        "responses": {
+          "200": {
+            "description": "All your data",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/api/export.zip": {
+      "get": {
+        "tags": [
+          "reports"
+        ],
+        "summary": "Export Zip",
+        "description": "All your data as CSV files (one per table) in a ZIP, for a spreadsheet.",
+        "operationId": "export_zip_api_export_zip_get",
+        "responses": {
+          "200": {
+            "description": "A CSV per table",
+            "content": {
+              "application/zip": {}
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -6557,6 +6849,38 @@
         ],
         "title": "CardUpdate"
       },
+      "CashFlowReport": {
+        "properties": {
+          "periods": {
+            "items": {
+              "$ref": "#/components/schemas/PeriodOut"
+            },
+            "type": "array",
+            "title": "Periods"
+          },
+          "total": {
+            "$ref": "#/components/schemas/PeriodOut"
+          },
+          "savings_target": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Savings Target"
+          }
+        },
+        "type": "object",
+        "required": [
+          "periods",
+          "total",
+          "savings_target"
+        ],
+        "title": "CashFlowReport"
+      },
       "CategoryIn": {
         "properties": {
           "name": {
@@ -7183,6 +7507,73 @@
           "note"
         ],
         "title": "ContributionOut"
+      },
+      "DashboardOut": {
+        "properties": {
+          "today": {
+            "type": "string",
+            "format": "date",
+            "title": "Today"
+          },
+          "net_worth": {
+            "$ref": "#/components/schemas/NetWorthOut"
+          },
+          "previous": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/NetWorthOut"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "At the end of last month, to compare"
+          },
+          "available": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Available",
+            "description": "Everyday money, minus what goals hold in it",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "reserved": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Reserved",
+            "description": "Set aside for goals",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "month": {
+            "$ref": "#/components/schemas/PeriodOut",
+            "description": "This financial month so far"
+          },
+          "savings_target": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Savings Target"
+          }
+        },
+        "type": "object",
+        "required": [
+          "today",
+          "net_worth",
+          "previous",
+          "available",
+          "reserved",
+          "month",
+          "savings_target"
+        ],
+        "title": "DashboardOut"
       },
       "DateOrder": {
         "type": "string",
@@ -10732,6 +11123,113 @@
         ],
         "title": "MoveIn"
       },
+      "NetWorthOut": {
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date"
+          },
+          "accounts": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Accounts",
+            "description": "Accounts in the main currency",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "investments": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Investments",
+            "description": "Investments with a price",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "lent": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Lent",
+            "description": "What others owe you",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "debts": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Debts",
+            "description": "Capital left on your loans",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "total": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Total",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "other_currencies": {
+            "additionalProperties": {
+              "type": "string",
+              "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+              "examples": [
+                "-12.50"
+              ]
+            },
+            "type": "object",
+            "title": "Other Currencies",
+            "description": "Accounts in other currencies"
+          }
+        },
+        "type": "object",
+        "required": [
+          "date",
+          "accounts",
+          "investments",
+          "lent",
+          "debts",
+          "total",
+          "other_currencies"
+        ],
+        "title": "NetWorthOut"
+      },
+      "NetWorthReport": {
+        "properties": {
+          "start": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start",
+            "description": "First date with data; null without any"
+          },
+          "points": {
+            "items": {
+              "$ref": "#/components/schemas/NetWorthOut"
+            },
+            "type": "array",
+            "title": "Points",
+            "description": "End of each month, and the last date"
+          }
+        },
+        "type": "object",
+        "required": [
+          "start",
+          "points"
+        ],
+        "title": "NetWorthReport"
+      },
       "NewToken": {
         "properties": {
           "token": {
@@ -11391,6 +11889,67 @@
         "title": "Payment",
         "description": "What the Shortcut's \"Transaction\" automation knows about a payment."
       },
+      "PeriodOut": {
+        "properties": {
+          "start": {
+            "type": "string",
+            "format": "date",
+            "title": "Start"
+          },
+          "end": {
+            "type": "string",
+            "format": "date",
+            "title": "End"
+          },
+          "income": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Income",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "expenses": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Expenses",
+            "description": "Negative",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "saved": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Saved",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "rate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rate",
+            "description": "Percent of income saved; null without income"
+          }
+        },
+        "type": "object",
+        "required": [
+          "start",
+          "end",
+          "income",
+          "expenses",
+          "saved",
+          "rate"
+        ],
+        "title": "PeriodOut"
+      },
       "PersonalLoanIn": {
         "properties": {
           "offers": {
@@ -11948,6 +12507,26 @@
           "id"
         ],
         "title": "PriceOut"
+      },
+      "RangeOut": {
+        "properties": {
+          "start": {
+            "type": "string",
+            "format": "date",
+            "title": "Start"
+          },
+          "end": {
+            "type": "string",
+            "format": "date",
+            "title": "End"
+          }
+        },
+        "type": "object",
+        "required": [
+          "start",
+          "end"
+        ],
+        "title": "RangeOut"
       },
       "RateTier": {
         "properties": {
@@ -13569,6 +14148,143 @@
           "text"
         ],
         "title": "SkippedRowOut"
+      },
+      "SpendLineOut": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key",
+            "description": "Category id, merchant or tag"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "icon": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Icon"
+          },
+          "amount": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Amount",
+            "description": "Spent in the range, positive",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "previous": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Previous",
+            "description": "In the previous period",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "last_year": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Last Year",
+            "description": "Same dates a year earlier",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "children": {
+            "items": {
+              "$ref": "#/components/schemas/SpendLineOut"
+            },
+            "type": "array",
+            "title": "Children",
+            "description": "Subcategories"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "label",
+          "icon",
+          "amount",
+          "previous",
+          "last_year",
+          "children"
+        ],
+        "title": "SpendLineOut"
+      },
+      "SpendingBy": {
+        "type": "string",
+        "enum": [
+          "category",
+          "merchant",
+          "tag"
+        ]
+      },
+      "SpendingReport": {
+        "properties": {
+          "by": {
+            "$ref": "#/components/schemas/SpendingBy"
+          },
+          "current": {
+            "$ref": "#/components/schemas/RangeOut"
+          },
+          "previous": {
+            "$ref": "#/components/schemas/RangeOut"
+          },
+          "last_year": {
+            "$ref": "#/components/schemas/RangeOut"
+          },
+          "total": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Total",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "total_previous": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Total Previous",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "total_last_year": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Total Last Year",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/SpendLineOut"
+            },
+            "type": "array",
+            "title": "Lines"
+          }
+        },
+        "type": "object",
+        "required": [
+          "by",
+          "current",
+          "previous",
+          "last_year",
+          "total",
+          "total_previous",
+          "total_last_year",
+          "lines"
+        ],
+        "title": "SpendingReport"
       },
       "TagCount": {
         "properties": {

@@ -127,5 +127,35 @@ def sync_reference_values() -> None:
     typer.echo(f"Valores de referencia añadidos: {added}.")
 
 
+@cli.command("summary")
+def summary() -> None:
+    """Resumen para comparar dos bases (p. ej. producción y una copia restaurada): filas por
+    tabla y, por usuario, movimientos, saldo de las cuentas y patrimonio neto de hoy."""
+    from sqlalchemy import func, text
+
+    from app import clock
+    from app.db import Base
+    from app.models.transactions import Transaction
+    from app.networth import NetWorthBook
+
+    with _db() as db:
+        typer.echo("Tablas")
+        for table in sorted(Base.metadata.tables):
+            count = db.scalar(text(f'SELECT count(*) FROM "{table}"'))  # noqa: S608  # own names
+            typer.echo(f"  {table}: {count}")
+        typer.echo("Usuarios")
+        today = clock.today()
+        for user in db.scalars(select(User).order_by(User.email)):
+            movements = db.scalar(
+                select(func.count()).select_from(Transaction).where(Transaction.user_id == user.id)
+            )
+            worth = NetWorthBook(db, user, today).at(today)
+            typer.echo(
+                f"  {user.email}: {movements} movimientos · cuentas {worth.accounts:.2f} · "
+                f"inversiones {worth.investments:.2f} · préstamos {worth.debts:.2f} · "
+                f"patrimonio {worth.total:.2f}"
+            )
+
+
 if __name__ == "__main__":
     cli()

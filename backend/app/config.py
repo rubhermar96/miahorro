@@ -1,7 +1,7 @@
 from functools import lru_cache
 from typing import Literal, Self
 
-from pydantic import AnyHttpUrl, Field, PostgresDsn, SecretStr, model_validator
+from pydantic import AnyHttpUrl, Field, PostgresDsn, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 _DEFAULT_PORTS = {"http": 80, "https": 443}
@@ -34,10 +34,20 @@ class Settings(BaseSettings):
     registration_enabled: bool = True
     max_users: int = Field(default=20, ge=1)
 
+    # iCloud link of the shared Apple Pay Shortcut (RF-MOV-17): installing it only asks each
+    # person for their code. Empty until the Shortcut is shared; the app then shows the manual
+    # guide instead.
+    shortcut_url: AnyHttpUrl | None = None
+
     session_idle_days: int = Field(default=30, ge=1)
     session_max_days: int = Field(default=90, ge=1)
     login_max_attempts: int = Field(default=5, ge=1)
     login_lockout_minutes: int = Field(default=15, ge=1)
+
+    @field_validator("shortcut_url", mode="before")
+    @classmethod
+    def _empty_is_none(cls, value: object) -> object:
+        return None if value == "" else value
 
     @model_validator(mode="after")
     def _production_requires_https(self) -> Self:

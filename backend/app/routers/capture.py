@@ -78,6 +78,21 @@ class NewToken(BaseModel):
     url: str = Field(description="Where the Shortcut sends payments (path)")
 
 
+class ShortcutOut(BaseModel):
+    url: str | None = Field(description="iCloud link of the shared Shortcut, if there is one")
+    capture_url: str = Field(description="Where the Shortcut sends each payment")
+
+
+@router.get("/shortcut")
+def shortcut(user: CurrentUser, settings: AppSettings) -> ShortcutOut:
+    """How to connect an iPhone: the shared Shortcut to install, if the administrator has
+    published one, and the address payments go to."""
+    return ShortcutOut(
+        url=str(settings.shortcut_url) if settings.shortcut_url else None,
+        capture_url=f"{settings.public_origin}{CAPTURE_PATH}",
+    )
+
+
 @router.get("/tokens")
 def list_tokens(user: CurrentUser, db: DbSession) -> list[TokenOut]:
     query = owned(CaptureToken, user).where(CaptureToken.revoked_at.is_(None))

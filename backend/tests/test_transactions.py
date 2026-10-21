@@ -332,3 +332,23 @@ def test_each_movement_shows_the_balance_right_after_it(ana: TestClient) -> None
     # Filters do not change the balances: they come from the whole account.
     assert balances(account_id=account, q="cobro") == [("cobro", "150.00")]
     assert ("en la otra", "19.00") in balances()
+
+
+def test_sending_the_same_entry_again_does_not_duplicate_it(ana: TestClient, account: str) -> None:
+    ref = "6f0c3a52-8f7e-4a8e-9d55-0b7e3c1d2a10"
+    first = add(ana, account, "expense", "12.50", description="Café", client_ref=ref)
+    again = ana.post(
+        "/api/transactions",
+        json={
+            "account_id": account,
+            "date": "2026-10-10",
+            "kind": "expense",
+            "amount": "12.50",
+            "description": "Café",
+            "client_ref": ref,
+        },
+    )
+
+    assert again.status_code == 201
+    assert again.json()["id"] == first["id"]
+    assert balance(ana, account) == "987.50"

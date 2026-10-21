@@ -70,3 +70,9 @@ def test_development_also_accepts_the_vite_dev_server() -> None:
 
     assert settings.webauthn_origins == ["http://localhost:8080", "http://localhost:5173"]
     assert settings.session_cookie_name == "miahorro_session"
+
+
+def test_an_empty_shortcut_link_means_none() -> None:
+    assert make_settings(shortcut_url="").shortcut_url is None
+    link = make_settings(shortcut_url="https://www.icloud.com/shortcuts/abc").shortcut_url
+    assert str(link) == "https://www.icloud.com/shortcuts/abc"

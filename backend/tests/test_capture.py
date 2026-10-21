@@ -4,6 +4,7 @@ import json
 from typing import Any
 
 import pytest
+from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from tests.conftest import FakeClock, new_client
@@ -203,3 +204,15 @@ def test_tokens_and_cards_are_private(ana: TestClient, bea: TestClient, token: s
     assert bea.get("/api/capture/cards").json() == []
     token_id = ana.get("/api/capture/tokens").json()[0]["id"]
     assert bea.delete(f"/api/capture/tokens/{token_id}").status_code == 404
+
+
+def test_the_shared_shortcut_link_comes_from_the_settings(app: FastAPI, ana: TestClient) -> None:
+    assert ana.get("/api/capture/shortcut").json() == {
+        "url": None,
+        "capture_url": "http://localhost:8080/api/capture/payments",
+    }
+    app.state.settings.shortcut_url = "https://www.icloud.com/shortcuts/abc123"
+
+    assert ana.get("/api/capture/shortcut").json()["url"] == (
+        "https://www.icloud.com/shortcuts/abc123"
+    )

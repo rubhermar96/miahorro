@@ -53,7 +53,10 @@ ignore_missing_imports = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-ra --strict-markers"
-markers = ["db: test that needs a PostgreSQL database"]
+markers = [
+    "db: test that needs a PostgreSQL database",
+    "slow: loads a large volume of data (performance)",
+]
 
 [tool.coverage.run]
 source = ["app", "finance", "importers"]

@@ -2,7 +2,16 @@ import datetime as dt
 import uuid
 from decimal import Decimal
 
-from sqlalchemy import CheckConstraint, Date, ForeignKey, Index, String, Text, false
+from sqlalchemy import (
+    CheckConstraint,
+    Date,
+    ForeignKey,
+    Index,
+    String,
+    Text,
+    UniqueConstraint,
+    false,
+)
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -54,6 +63,9 @@ class Transaction(OwnedMixin, TimestampMixin, Base):
         ),
         Index("ix_transactions_user_id_date", "user_id", "date"),
         Index("ix_transactions_account_id_import_key", "account_id", "import_key"),
+        # Balances on a date add up one account's movements between two dates.
+        Index("ix_transactions_account_id_date", "account_id", "date"),
+        UniqueConstraint("user_id", "client_ref"),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
@@ -79,6 +91,9 @@ class Transaction(OwnedMixin, TimestampMixin, Base):
     import_key: Mapped[str | None] = mapped_column(String(64))
     # A captured payment stays pending until a bank statement confirms it.
     pending: Mapped[bool] = mapped_column(default=False, server_default=false())
+    # Chosen by the device that created it: a retry after a lost connection finds it instead
+    # of creating it twice (RNF-02, entries made offline).
+    client_ref: Mapped[uuid.UUID | None]
     # Import that merged a bank row into this movement, or turned it into a transfer leg, so
     # undoing that import can put it back as it was.
     merged_import_id: Mapped[uuid.UUID | None] = mapped_column(

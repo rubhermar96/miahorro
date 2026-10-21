@@ -109,3 +109,13 @@ def test_sync_reference_values_adds_only_what_is_missing() -> None:
     assert first.exit_code == 0
     assert f"añadidos: {len(SEED)}" in first.output
     assert "añadidos: 0" in again.output
+
+
+def test_summary_for_comparing_databases(app: FastAPI) -> None:
+    create_user(app, "ana@example.com", with_totp=True)
+
+    result = runner.invoke(cli, ["summary"])
+
+    assert result.exit_code == 0, result.output
+    assert "  users: 1" in result.output
+    assert "ana@example.com: 0 movimientos · cuentas 0.00" in result.output

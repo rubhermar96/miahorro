@@ -2,6 +2,7 @@
 
 import datetime as dt
 import uuid
+from collections.abc import Iterable
 from decimal import Decimal
 from typing import Literal, Self
 
@@ -14,7 +15,7 @@ from app.auth.deps import CurrentUser, DbSession
 from app.models.accounts import Account
 from app.models.transactions import Category, Transaction
 from app.models.user import User
-from app.ownership import get_owned_or_404
+from app.ownership import get_owned_or_404, owned
 from app.routers.money_types import Money
 from app.rules import load_rulebook
 
@@ -59,6 +60,11 @@ class TransactionIn(_Details):
     kind: EntryKind
     amount: Money = Field(description="Positive; the sign comes from kind")
     category_id: uuid.UUID | None = None
+    client_ref: uuid.UUID | None = Field(
+        default=None,
+        description="Chosen by the device: sending it again returns the movement already "
+        "created, so a retry after a lost connection never duplicates it",
+    )
 
     @model_validator(mode="after")
     def _non_zero(self) -> Self:
@@ -187,6 +193,10 @@ def _pair(db: DbSession, row: Transaction) -> list[Transaction]:
 
 @router.post("/transactions", status_code=status.HTTP_201_CREATED)
 def create_transaction(body: TransactionIn, user: CurrentUser, db: DbSession) -> TransactionOut:
+    if body.client_ref is not None:
+        sent = db.scalar(owned(Transaction, user).where(Transaction.client_ref == body.client_ref))
+        if sent is not None:
+            return TransactionOut.from_model(sent)
     usable_account(db, body.account_id, user)
     _check_category(db, body.category_id, body.kind, user)
     amount = _signed(body.kind, body.amount)
@@ -206,6 +216,7 @@ def create_transaction(body: TransactionIn, user: CurrentUser, db: DbSession) ->
         description=body.description,
         note=(body.note or "").strip() or None,
         tags=body.tags,
+        client_ref=body.client_ref,
     )
     db.add(row)
     db.flush()
@@ -480,10 +491,11 @@ def _filtered(
     return conditions
 
 
-def _running_balances(user: User) -> Subquery:
-    """Each movement with its account's balance right after it, in the order the list shows
-    them (reversed). The opening balance is an anchor (see app/ledger.py): the balance after a
-    movement is the anchor plus everything up to it, minus the history before the anchor."""
+def _running_balances(user: User, account_ids: Iterable[uuid.UUID]) -> Subquery:
+    """Each movement of these accounts with its account's balance right after it, in the order
+    the list shows them (reversed). The opening balance is an anchor (see app/ledger.py): the
+    balance after a movement is the anchor plus everything up to it, minus the history before
+    the anchor."""
     account = Transaction.account_id
     up_to_here = func.sum(Transaction.amount).over(
         partition_by=account,
@@ -507,7 +519,7 @@ def _running_balances(user: User) -> Subquery:
             (Account.opening_balance + up_to_here - before_anchor).label("balance_after"),
         )
         .join(Account, Account.id == account)
-        .where(Transaction.user_id == user.id)
+        .where(Transaction.user_id == user.id, account.in_(list(account_ids)))
         .subquery()
     )
 
@@ -527,21 +539,35 @@ def list_transactions(
     offset: int = Query(default=0, ge=0),
 ) -> TransactionPage:
     condition = and_(*_filtered(user, account_id, category_id, kind, tag, q, date_from, date_to))
-    running = _running_balances(user)
-    rows = db.execute(
-        select(Transaction, running.c.balance_after)
-        .join(running, running.c.id == Transaction.id)
-        .where(condition)
-        # Same moment (both legs of a transfer): the money leaving comes first.
-        .order_by(
-            Transaction.date.desc(),
-            Transaction.created_at.desc(),
-            Transaction.amount,
-            Transaction.id,
+    page = list(
+        db.scalars(
+            select(Transaction)
+            .where(condition)
+            # Same moment (both legs of a transfer): the money leaving comes first.
+            .order_by(
+                Transaction.date.desc(),
+                Transaction.created_at.desc(),
+                Transaction.amount,
+                Transaction.id,
+            )
+            .limit(limit)
+            .offset(offset)
         )
-        .limit(limit)
-        .offset(offset)
     )
+    # Running balances only for the accounts on this page, worked out in one pass and then
+    # picked by id: joining them to the list made PostgreSQL compare every pair of rows.
+    balances: dict[uuid.UUID, Decimal] = {}
+    if page:
+        running = _running_balances(user, {row.account_id for row in page})
+        balances = {
+            row_id: Decimal(balance)
+            for row_id, balance in db.execute(
+                select(running.c.id, running.c.balance_after).where(
+                    running.c.id.in_([row.id for row in page])
+                )
+            )
+        }
+    rows = [(row, balances.get(row.id)) for row in page]
     total, income, expenses = db.execute(
         select(
             func.count(),

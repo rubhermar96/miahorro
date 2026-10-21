@@ -14,16 +14,21 @@ import { GoalFormPage } from './pages/GoalFormPage'
 import { GoalPage } from './pages/GoalPage'
 import { HomePage } from './pages/HomePage'
 import { ImportPage } from './pages/ImportPage'
+import { InvestmentFormPage } from './pages/InvestmentFormPage'
+import { InvestmentPage } from './pages/InvestmentPage'
+import { InvestmentsPage } from './pages/InvestmentsPage'
 import { LoanFormPage } from './pages/LoanFormPage'
 import { LoanPage } from './pages/LoanPage'
 import { LoginPage } from './pages/LoginPage'
 import { MorePage } from './pages/MorePage'
 import { NotFoundPage } from './pages/NotFoundPage'
+import { OperationFormPage } from './pages/OperationFormPage'
 import { PlanPage } from './pages/PlanPage'
 import { QuickAddPage } from './pages/QuickAddPage'
 import { RecurringPage } from './pages/RecurringPage'
 import { ReviewPage } from './pages/ReviewPage'
 import { RulesPage } from './pages/RulesPage'
+import { TaxReportPage } from './pages/TaxReportPage'
 import { TransactionPage } from './pages/TransactionPage'
 import { TransactionsPage } from './pages/TransactionsPage'
 
@@ -54,6 +59,13 @@ export const routes: RouteObject[] = [
       { path: 'planificar/objetivos/nuevo', element: <GoalFormPage /> },
       { path: 'planificar/objetivos/:id', element: <GoalPage /> },
       { path: 'planificar/objetivos/:id/editar', element: <GoalFormPage /> },
+      { path: 'inversiones', element: <InvestmentsPage /> },
+      { path: 'inversiones/nueva', element: <InvestmentFormPage /> },
+      { path: 'inversiones/informe-fiscal', element: <TaxReportPage /> },
+      { path: 'inversiones/:id', element: <InvestmentPage /> },
+      { path: 'inversiones/:id/editar', element: <InvestmentFormPage /> },
+      { path: 'inversiones/:id/operaciones/nueva', element: <OperationFormPage /> },
+      { path: 'inversiones/:id/operaciones/:operationId', element: <OperationFormPage /> },
       { path: 'mas', element: <MorePage /> },
       { path: 'mas/categorias', element: <CategoriesPage /> },
       { path: 'mas/reglas', element: <RulesPage /> },

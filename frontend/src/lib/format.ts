@@ -103,3 +103,8 @@ export function formatShortDate(isoDate: string): string {
   const [year, month, day] = isoParts(isoDate)
   return SHORT_DATE_FORMAT.format(new Date(year, month - 1, day))
 }
+
+/** A change in percent with its sign: "+12,5 %", "-3 %". */
+export function formatSignedPercent(value: string): string {
+  return `${Number(value) > 0 ? '+' : ''}${formatRate(value)} %`
+}

@@ -53,7 +53,10 @@ export function TransactionList({
               const account = accountById.get(transaction.account_id)
               const category = categories.find((c) => c.id === transaction.category_id)
               const parent = categories.find((c) => c.id === category?.parent_id)
-              const isMove = transaction.kind === 'transfer' || transaction.kind === 'adjustment'
+              const isMove =
+                transaction.kind === 'transfer' ||
+                transaction.kind === 'adjustment' ||
+                transaction.kind === 'investment'
               const kindLabel = t(`transactions.kinds.${transaction.kind}`)
               // Without a concept, the category is the title and its main category the detail.
               const title = transaction.description || category?.name || kindLabel
@@ -73,7 +76,9 @@ export function TransactionList({
                       ? '⇄'
                       : transaction.kind === 'adjustment'
                         ? '≈'
-                        : categoryIcon(categories, transaction.category_id)}
+                        : transaction.kind === 'investment'
+                          ? '📈'
+                          : categoryIcon(categories, transaction.category_id)}
                   </span>
                   <span className="row__text">
                     <span className="row__title">{title}</span>

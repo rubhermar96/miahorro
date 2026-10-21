@@ -1351,7 +1351,8 @@
                     "expense",
                     "income",
                     "transfer",
-                    "adjustment"
+                    "adjustment",
+                    "investment"
                   ],
                   "type": "string"
                 },
@@ -4524,6 +4525,647 @@
           }
         }
       }
+    },
+    "/api/investments": {
+      "get": {
+        "tags": [
+          "investments"
+        ],
+        "summary": "List Investments",
+        "description": "With what each one holds and is worth today; the most valuable first.",
+        "operationId": "list_investments_api_investments_get",
+        "parameters": [
+          {
+            "name": "include_archived",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Include Archived"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/InvestmentOut"
+                  },
+                  "title": "Response List Investments Api Investments Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "investments"
+        ],
+        "summary": "Create Investment",
+        "operationId": "create_investment_api_investments_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvestmentFields"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvestmentDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/investments/{investment_id}": {
+      "get": {
+        "tags": [
+          "investments"
+        ],
+        "summary": "Read Investment",
+        "operationId": "read_investment_api_investments__investment_id__get",
+        "parameters": [
+          {
+            "name": "investment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Investment Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvestmentDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "investments"
+        ],
+        "summary": "Update Investment",
+        "operationId": "update_investment_api_investments__investment_id__patch",
+        "parameters": [
+          {
+            "name": "investment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Investment Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvestmentUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvestmentDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "investments"
+        ],
+        "summary": "Delete Investment",
+        "description": "Its operations and prices go with it, and so do the movements they made in accounts\nthat no bank statement has confirmed.",
+        "operationId": "delete_investment_api_investments__investment_id__delete",
+        "parameters": [
+          {
+            "name": "investment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Investment Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/investments/{investment_id}/operations": {
+      "get": {
+        "tags": [
+          "investments"
+        ],
+        "summary": "List Operations",
+        "description": "Its operations and the transfers it received, newest first.",
+        "operationId": "list_operations_api_investments__investment_id__operations_get",
+        "parameters": [
+          {
+            "name": "investment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Investment Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OperationOut"
+                  },
+                  "title": "Response List Operations Api Investments  Investment Id  Operations Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "investments"
+        ],
+        "summary": "Add Operation",
+        "operationId": "add_operation_api_investments__investment_id__operations_post",
+        "parameters": [
+          {
+            "name": "investment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Investment Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OperationIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/investments/{investment_id}/operations/{operation_id}": {
+      "put": {
+        "tags": [
+          "investments"
+        ],
+        "summary": "Replace Operation",
+        "operationId": "replace_operation_api_investments__investment_id__operations__operation_id__put",
+        "parameters": [
+          {
+            "name": "investment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Investment Id"
+            }
+          },
+          {
+            "name": "operation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Operation Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OperationIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "investments"
+        ],
+        "summary": "Delete Operation",
+        "operationId": "delete_operation_api_investments__investment_id__operations__operation_id__delete",
+        "parameters": [
+          {
+            "name": "investment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Investment Id"
+            }
+          },
+          {
+            "name": "operation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Operation Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/investments/{investment_id}/prices": {
+      "get": {
+        "tags": [
+          "investments"
+        ],
+        "summary": "List Prices",
+        "operationId": "list_prices_api_investments__investment_id__prices_get",
+        "parameters": [
+          {
+            "name": "investment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Investment Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PriceOut"
+                  },
+                  "title": "Response List Prices Api Investments  Investment Id  Prices Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "investments"
+        ],
+        "summary": "Set Price",
+        "description": "The price (valor liquidativo) of a day; typing it again for that day replaces it.",
+        "operationId": "set_price_api_investments__investment_id__prices_put",
+        "parameters": [
+          {
+            "name": "investment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Investment Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PriceIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PriceOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/investments/{investment_id}/prices/{price_id}": {
+      "delete": {
+        "tags": [
+          "investments"
+        ],
+        "summary": "Delete Price",
+        "operationId": "delete_price_api_investments__investment_id__prices__price_id__delete",
+        "parameters": [
+          {
+            "name": "investment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Investment Id"
+            }
+          },
+          {
+            "name": "price_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Price Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/portfolio": {
+      "get": {
+        "tags": [
+          "investments"
+        ],
+        "summary": "Portfolio",
+        "description": "The whole portfolio today: what it is worth, what it cost and this year's results.",
+        "operationId": "portfolio_api_portfolio_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PortfolioOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/portfolio/tax-report": {
+      "get": {
+        "tags": [
+          "investments"
+        ],
+        "summary": "Tax Report",
+        "description": "Sales by FIFO and dividends of a year, as they go in the tax return (base del ahorro),\nto check against the broker's tax report.",
+        "operationId": "tax_report_api_portfolio_tax_report_get",
+        "parameters": [
+          {
+            "name": "year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 2100,
+                  "minimum": 2000
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Year"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaxReportOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -6550,6 +7192,55 @@
           "mdy"
         ]
       },
+      "DividendOut": {
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Operation Id"
+          },
+          "investment_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Investment Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date"
+          },
+          "amount": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Amount",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "withholding": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Withholding",
+            "examples": [
+              "-12.50"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "operation_id",
+          "investment_id",
+          "name",
+          "date",
+          "amount",
+          "withholding"
+        ],
+        "title": "DividendOut"
+      },
       "EmergencyIn": {
         "properties": {
           "essential_monthly": {
@@ -7874,6 +8565,723 @@
         ],
         "title": "InstallmentOut"
       },
+      "InvestmentDetail": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "fund",
+              "etf",
+              "stock",
+              "pension_plan"
+            ],
+            "title": "Kind",
+            "default": "fund"
+          },
+          "isin": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 20
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Isin"
+          },
+          "ticker": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 16
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ticker"
+          },
+          "account_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Account Id",
+            "description": "Where it is held; its money comes from and goes there"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "archived": {
+            "type": "boolean",
+            "title": "Archived"
+          },
+          "units": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,6})?$",
+            "title": "Units",
+            "examples": [
+              "12.345678"
+            ]
+          },
+          "cost": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Cost",
+            "description": "Cost of what is held, purchase fees included",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "average_cost": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d+(\\.\\d{1,6})?$",
+                "examples": [
+                  "12.345678"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Average Cost",
+            "description": "Cost per unit"
+          },
+          "price": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d+(\\.\\d{1,6})?$",
+                "examples": [
+                  "12.345678"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price",
+            "description": "Latest price per unit"
+          },
+          "price_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price Date"
+          },
+          "price_source": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "manual",
+                  "operation"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price Source",
+            "description": "manual: typed in · operation: that of the latest purchase or sale"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+                "examples": [
+                  "-12.50"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value",
+            "description": "Null when there is no price yet"
+          },
+          "gain": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+                "examples": [
+                  "-12.50"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gain",
+            "description": "Value minus cost (unrealized)"
+          },
+          "gain_percent": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gain Percent"
+          },
+          "realized_total": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Realized Total",
+            "description": "FIFO gains and losses of every sale",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "realized_year": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Realized Year",
+            "description": "Those of this year",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "dividends_year": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Dividends Year",
+            "description": "Gross dividends this year",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "withholding_year": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Withholding Year",
+            "description": "Withheld this year on dividends and sales",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "lots": {
+            "items": {
+              "$ref": "#/components/schemas/LotOut"
+            },
+            "type": "array",
+            "title": "Lots",
+            "description": "What is held, oldest first (FIFO order)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "id",
+          "archived",
+          "units",
+          "cost",
+          "average_cost",
+          "price",
+          "price_date",
+          "price_source",
+          "value",
+          "gain",
+          "gain_percent",
+          "realized_total",
+          "realized_year",
+          "dividends_year",
+          "withholding_year",
+          "lots"
+        ],
+        "title": "InvestmentDetail"
+      },
+      "InvestmentFields": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "fund",
+              "etf",
+              "stock",
+              "pension_plan"
+            ],
+            "title": "Kind",
+            "default": "fund"
+          },
+          "isin": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 20
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Isin"
+          },
+          "ticker": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 16
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ticker"
+          },
+          "account_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Account Id",
+            "description": "Where it is held; its money comes from and goes there"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "title": "InvestmentFields"
+      },
+      "InvestmentOut": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "fund",
+              "etf",
+              "stock",
+              "pension_plan"
+            ],
+            "title": "Kind",
+            "default": "fund"
+          },
+          "isin": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 20
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Isin"
+          },
+          "ticker": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 16
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ticker"
+          },
+          "account_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Account Id",
+            "description": "Where it is held; its money comes from and goes there"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "archived": {
+            "type": "boolean",
+            "title": "Archived"
+          },
+          "units": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,6})?$",
+            "title": "Units",
+            "examples": [
+              "12.345678"
+            ]
+          },
+          "cost": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Cost",
+            "description": "Cost of what is held, purchase fees included",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "average_cost": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d+(\\.\\d{1,6})?$",
+                "examples": [
+                  "12.345678"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Average Cost",
+            "description": "Cost per unit"
+          },
+          "price": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d+(\\.\\d{1,6})?$",
+                "examples": [
+                  "12.345678"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price",
+            "description": "Latest price per unit"
+          },
+          "price_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price Date"
+          },
+          "price_source": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "manual",
+                  "operation"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price Source",
+            "description": "manual: typed in · operation: that of the latest purchase or sale"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+                "examples": [
+                  "-12.50"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value",
+            "description": "Null when there is no price yet"
+          },
+          "gain": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+                "examples": [
+                  "-12.50"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gain",
+            "description": "Value minus cost (unrealized)"
+          },
+          "gain_percent": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gain Percent"
+          },
+          "realized_total": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Realized Total",
+            "description": "FIFO gains and losses of every sale",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "realized_year": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Realized Year",
+            "description": "Those of this year",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "dividends_year": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Dividends Year",
+            "description": "Gross dividends this year",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "withholding_year": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Withholding Year",
+            "description": "Withheld this year on dividends and sales",
+            "examples": [
+              "-12.50"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "id",
+          "archived",
+          "units",
+          "cost",
+          "average_cost",
+          "price",
+          "price_date",
+          "price_source",
+          "value",
+          "gain",
+          "gain_percent",
+          "realized_total",
+          "realized_year",
+          "dividends_year",
+          "withholding_year"
+        ],
+        "title": "InvestmentOut"
+      },
+      "InvestmentUpdate": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 80,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "kind": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "fund",
+                  "etf",
+                  "stock",
+                  "pension_plan"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kind"
+          },
+          "isin": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 20
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Isin"
+          },
+          "ticker": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 16
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ticker"
+          },
+          "account_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Account Id"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "archived": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Archived"
+          }
+        },
+        "type": "object",
+        "title": "InvestmentUpdate"
+      },
+      "KindTotal": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "fund",
+              "etf",
+              "stock",
+              "pension_plan"
+            ],
+            "title": "Kind"
+          },
+          "value": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Value",
+            "examples": [
+              "-12.50"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "value"
+        ],
+        "title": "KindTotal"
+      },
       "LineOut": {
         "properties": {
           "category_id": {
@@ -8949,6 +10357,38 @@
         ],
         "title": "LoginResult"
       },
+      "LotOut": {
+        "properties": {
+          "acquired": {
+            "type": "string",
+            "format": "date",
+            "title": "Acquired"
+          },
+          "units": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,6})?$",
+            "title": "Units",
+            "examples": [
+              "12.345678"
+            ]
+          },
+          "cost": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Cost",
+            "examples": [
+              "-12.50"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "acquired",
+          "units",
+          "cost"
+        ],
+        "title": "LotOut"
+      },
       "Mapping": {
         "properties": {
           "date": {
@@ -9364,6 +10804,361 @@
         ],
         "title": "OfferOut"
       },
+      "OperationIn": {
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "buy",
+              "sell",
+              "dividend",
+              "fee",
+              "split",
+              "transfer"
+            ],
+            "title": "Kind"
+          },
+          "units": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,6})?$",
+            "title": "Units",
+            "description": "Bought, sold or transferred out",
+            "default": "0",
+            "examples": [
+              "12.345678"
+            ]
+          },
+          "amount": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Amount",
+            "description": "Before fees: paid for a purchase, received for a sale; gross dividend; the fee itself; value of a transfer",
+            "default": "0",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "fee": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Fee",
+            "description": "Commission of a purchase or sale",
+            "default": "0",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "withholding": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Withholding",
+            "description": "Withheld on a sale or dividend",
+            "default": "0",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "split_from": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 10000.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Split From"
+          },
+          "split_to": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 10000.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Split To"
+          },
+          "target_investment_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Investment Id"
+          },
+          "target_units": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d+(\\.\\d{1,6})?$",
+                "examples": [
+                  "12.345678"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Units"
+          },
+          "cash_account_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cash Account Id",
+            "description": "Account the money comes from or goes to; none: no movement"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "type": "object",
+        "required": [
+          "date",
+          "kind"
+        ],
+        "title": "OperationIn"
+      },
+      "OperationOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "investment_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Investment Id"
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "buy",
+              "sell",
+              "dividend",
+              "fee",
+              "split",
+              "transfer"
+            ],
+            "title": "Kind"
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "out",
+              "in"
+            ],
+            "title": "Direction",
+            "description": "in: a transfer this investment received"
+          },
+          "units": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,6})?$",
+            "title": "Units",
+            "examples": [
+              "12.345678"
+            ]
+          },
+          "amount": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Amount",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "fee": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Fee",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "withholding": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Withholding",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "split_from": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Split From"
+          },
+          "split_to": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Split To"
+          },
+          "target_investment_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Investment Id"
+          },
+          "target_units": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d+(\\.\\d{1,6})?$",
+                "examples": [
+                  "12.345678"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Units"
+          },
+          "price": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d+(\\.\\d{1,6})?$",
+                "examples": [
+                  "12.345678"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price",
+            "description": "Amount over units, for purchases and sales"
+          },
+          "cash_account_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cash Account Id"
+          },
+          "transaction_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Transaction Id"
+          },
+          "gain": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+                "examples": [
+                  "-12.50"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gain",
+            "description": "Sales: FIFO gain or loss"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "investment_id",
+          "date",
+          "kind",
+          "direction",
+          "units",
+          "amount",
+          "fee",
+          "withholding",
+          "split_from",
+          "split_to",
+          "target_investment_id",
+          "target_units",
+          "price",
+          "cash_account_id",
+          "transaction_id",
+          "gain",
+          "note"
+        ],
+        "title": "OperationOut"
+      },
       "OptionKind": {
         "type": "string",
         "enum": [
@@ -9635,6 +11430,101 @@
           "cheapest"
         ],
         "title": "PersonalLoanOut"
+      },
+      "PortfolioOut": {
+        "properties": {
+          "value": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Value",
+            "description": "What everything with a price is worth today",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "cost": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Cost",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "gain": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Gain",
+            "description": "Unrealized, of what has a price",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "gain_percent": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gain Percent"
+          },
+          "unpriced": {
+            "type": "integer",
+            "title": "Unpriced",
+            "description": "Investments with units but no price yet"
+          },
+          "realized_year": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Realized Year",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "dividends_year": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Dividends Year",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "withholding_year": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Withholding Year",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "by_kind": {
+            "items": {
+              "$ref": "#/components/schemas/KindTotal"
+            },
+            "type": "array",
+            "title": "By Kind"
+          }
+        },
+        "type": "object",
+        "required": [
+          "value",
+          "cost",
+          "gain",
+          "gain_percent",
+          "unpriced",
+          "realized_year",
+          "dividends_year",
+          "withholding_year",
+          "year",
+          "by_kind"
+        ],
+        "title": "PortfolioOut"
       },
       "Pot": {
         "properties": {
@@ -10006,6 +11896,58 @@
           "transfer_account_id"
         ],
         "title": "PreviewRow"
+      },
+      "PriceIn": {
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date"
+          },
+          "price": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,6})?$",
+            "title": "Price",
+            "examples": [
+              "12.345678"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "date",
+          "price"
+        ],
+        "title": "PriceIn"
+      },
+      "PriceOut": {
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date"
+          },
+          "price": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,6})?$",
+            "title": "Price",
+            "examples": [
+              "12.345678"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "date",
+          "price",
+          "id"
+        ],
+        "title": "PriceOut"
       },
       "RateTier": {
         "properties": {
@@ -10878,6 +12820,165 @@
         ],
         "title": "RunningOut"
       },
+      "SaleOut": {
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Operation Id"
+          },
+          "investment_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Investment Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "fund",
+              "etf",
+              "stock",
+              "pension_plan"
+            ],
+            "title": "Kind"
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date"
+          },
+          "units": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,6})?$",
+            "title": "Units",
+            "examples": [
+              "12.345678"
+            ]
+          },
+          "proceeds": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Proceeds",
+            "description": "Received, net of the sale fee",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "cost": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Cost",
+            "description": "Acquisition cost of the units sold, by FIFO",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "gain": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Gain",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "withholding": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Withholding",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "taxable": {
+            "type": "boolean",
+            "title": "Taxable",
+            "description": "False for pension plans: taxed as work income"
+          },
+          "repurchase_warning": {
+            "type": "boolean",
+            "title": "Repurchase Warning",
+            "description": "A loss with a purchase of the same security close by (art. 33.5 LIRPF)"
+          },
+          "parts": {
+            "items": {
+              "$ref": "#/components/schemas/SalePart"
+            },
+            "type": "array",
+            "title": "Parts"
+          }
+        },
+        "type": "object",
+        "required": [
+          "operation_id",
+          "investment_id",
+          "name",
+          "kind",
+          "date",
+          "units",
+          "proceeds",
+          "cost",
+          "gain",
+          "withholding",
+          "taxable",
+          "repurchase_warning",
+          "parts"
+        ],
+        "title": "SaleOut"
+      },
+      "SalePart": {
+        "properties": {
+          "acquired": {
+            "type": "string",
+            "format": "date",
+            "title": "Acquired"
+          },
+          "units": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,6})?$",
+            "title": "Units",
+            "examples": [
+              "12.345678"
+            ]
+          },
+          "cost": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Cost",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "proceeds": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Proceeds",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "gain": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Gain",
+            "examples": [
+              "-12.50"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "acquired",
+          "units",
+          "cost",
+          "proceeds",
+          "gain"
+        ],
+        "title": "SalePart"
+      },
       "SavingsGoalIn": {
         "properties": {
           "target": {
@@ -11495,6 +13596,101 @@
           "end"
         ]
       },
+      "TaxReportOut": {
+        "properties": {
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "sales": {
+            "items": {
+              "$ref": "#/components/schemas/SaleOut"
+            },
+            "type": "array",
+            "title": "Sales"
+          },
+          "gains": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Gains",
+            "description": "Taxable sales with a gain, added up",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "losses": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Losses",
+            "description": "Taxable sales with a loss, added up (negative)",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "net": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Net",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "sale_withholding": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Sale Withholding",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "dividends": {
+            "items": {
+              "$ref": "#/components/schemas/DividendOut"
+            },
+            "type": "array",
+            "title": "Dividends"
+          },
+          "dividends_gross": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Dividends Gross",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "dividends_withholding": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Dividends Withholding",
+            "examples": [
+              "-12.50"
+            ]
+          },
+          "pension_rescues": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,2})?$",
+            "title": "Pension Rescues",
+            "description": "Received from pension plans (work income)",
+            "examples": [
+              "-12.50"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "year",
+          "sales",
+          "gains",
+          "losses",
+          "net",
+          "sale_withholding",
+          "dividends",
+          "dividends_gross",
+          "dividends_withholding",
+          "pension_rescues"
+        ],
+        "title": "TaxReportOut"
+      },
       "TemplateIn": {
         "properties": {
           "name": {
@@ -11741,7 +13937,8 @@
               "expense",
               "income",
               "transfer",
-              "adjustment"
+              "adjustment",
+              "investment"
             ],
             "title": "Kind"
           },

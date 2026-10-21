@@ -1517,6 +1517,168 @@ export interface paths {
         patch: operations["update_scenario_api_scenarios__scenario_id__patch"];
         trace?: never;
     };
+    "/api/investments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Investments
+         * @description With what each one holds and is worth today; the most valuable first.
+         */
+        get: operations["list_investments_api_investments_get"];
+        put?: never;
+        /** Create Investment */
+        post: operations["create_investment_api_investments_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/investments/{investment_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Investment */
+        get: operations["read_investment_api_investments__investment_id__get"];
+        put?: never;
+        post?: never;
+        /**
+         * Delete Investment
+         * @description Its operations and prices go with it, and so do the movements they made in accounts
+         *     that no bank statement has confirmed.
+         */
+        delete: operations["delete_investment_api_investments__investment_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update Investment */
+        patch: operations["update_investment_api_investments__investment_id__patch"];
+        trace?: never;
+    };
+    "/api/investments/{investment_id}/operations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Operations
+         * @description Its operations and the transfers it received, newest first.
+         */
+        get: operations["list_operations_api_investments__investment_id__operations_get"];
+        put?: never;
+        /** Add Operation */
+        post: operations["add_operation_api_investments__investment_id__operations_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/investments/{investment_id}/operations/{operation_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Replace Operation */
+        put: operations["replace_operation_api_investments__investment_id__operations__operation_id__put"];
+        post?: never;
+        /** Delete Operation */
+        delete: operations["delete_operation_api_investments__investment_id__operations__operation_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/investments/{investment_id}/prices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Prices */
+        get: operations["list_prices_api_investments__investment_id__prices_get"];
+        /**
+         * Set Price
+         * @description The price (valor liquidativo) of a day; typing it again for that day replaces it.
+         */
+        put: operations["set_price_api_investments__investment_id__prices_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/investments/{investment_id}/prices/{price_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Price */
+        delete: operations["delete_price_api_investments__investment_id__prices__price_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/portfolio": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Portfolio
+         * @description The whole portfolio today: what it is worth, what it cost and this year's results.
+         */
+        get: operations["portfolio_api_portfolio_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/portfolio/tax-report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Tax Report
+         * @description Sales by FIFO and dividends of a year, as they go in the tax return (base del ahorro),
+         *     to check against the broker's tax report.
+         */
+        get: operations["tax_report_api_portfolio_tax_report_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2408,6 +2570,36 @@ export interface components {
         };
         /** @enum {string} */
         DateOrder: "dmy" | "ymd" | "mdy";
+        /** DividendOut */
+        DividendOut: {
+            /**
+             * Operation Id
+             * Format: uuid
+             */
+            operation_id: string;
+            /**
+             * Investment Id
+             * Format: uuid
+             */
+            investment_id: string;
+            /** Name */
+            name: string;
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /**
+             * Amount
+             * @example -12.50
+             */
+            amount: string;
+            /**
+             * Withholding
+             * @example -12.50
+             */
+            withholding: string;
+        };
         /** EmergencyIn */
         EmergencyIn: {
             /**
@@ -2935,6 +3127,249 @@ export interface components {
              */
             review: boolean;
         };
+        /** InvestmentDetail */
+        InvestmentDetail: {
+            /** Name */
+            name: string;
+            /**
+             * Kind
+             * @default fund
+             * @enum {string}
+             */
+            kind: "fund" | "etf" | "stock" | "pension_plan";
+            /** Isin */
+            isin?: string | null;
+            /** Ticker */
+            ticker?: string | null;
+            /**
+             * Account Id
+             * @description Where it is held; its money comes from and goes there
+             */
+            account_id?: string | null;
+            /** Note */
+            note?: string | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Archived */
+            archived: boolean;
+            /**
+             * Units
+             * @example 12.345678
+             */
+            units: string;
+            /**
+             * Cost
+             * @description Cost of what is held, purchase fees included
+             * @example -12.50
+             */
+            cost: string;
+            /**
+             * Average Cost
+             * @description Cost per unit
+             */
+            average_cost: string | null;
+            /**
+             * Price
+             * @description Latest price per unit
+             */
+            price: string | null;
+            /** Price Date */
+            price_date: string | null;
+            /**
+             * Price Source
+             * @description manual: typed in · operation: that of the latest purchase or sale
+             */
+            price_source: ("manual" | "operation") | null;
+            /**
+             * Value
+             * @description Null when there is no price yet
+             */
+            value: string | null;
+            /**
+             * Gain
+             * @description Value minus cost (unrealized)
+             */
+            gain: string | null;
+            /** Gain Percent */
+            gain_percent: string | null;
+            /**
+             * Realized Total
+             * @description FIFO gains and losses of every sale
+             * @example -12.50
+             */
+            realized_total: string;
+            /**
+             * Realized Year
+             * @description Those of this year
+             * @example -12.50
+             */
+            realized_year: string;
+            /**
+             * Dividends Year
+             * @description Gross dividends this year
+             * @example -12.50
+             */
+            dividends_year: string;
+            /**
+             * Withholding Year
+             * @description Withheld this year on dividends and sales
+             * @example -12.50
+             */
+            withholding_year: string;
+            /**
+             * Lots
+             * @description What is held, oldest first (FIFO order)
+             */
+            lots: components["schemas"]["LotOut"][];
+        };
+        /** InvestmentFields */
+        InvestmentFields: {
+            /** Name */
+            name: string;
+            /**
+             * Kind
+             * @default fund
+             * @enum {string}
+             */
+            kind: "fund" | "etf" | "stock" | "pension_plan";
+            /** Isin */
+            isin?: string | null;
+            /** Ticker */
+            ticker?: string | null;
+            /**
+             * Account Id
+             * @description Where it is held; its money comes from and goes there
+             */
+            account_id?: string | null;
+            /** Note */
+            note?: string | null;
+        };
+        /** InvestmentOut */
+        InvestmentOut: {
+            /** Name */
+            name: string;
+            /**
+             * Kind
+             * @default fund
+             * @enum {string}
+             */
+            kind: "fund" | "etf" | "stock" | "pension_plan";
+            /** Isin */
+            isin?: string | null;
+            /** Ticker */
+            ticker?: string | null;
+            /**
+             * Account Id
+             * @description Where it is held; its money comes from and goes there
+             */
+            account_id?: string | null;
+            /** Note */
+            note?: string | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Archived */
+            archived: boolean;
+            /**
+             * Units
+             * @example 12.345678
+             */
+            units: string;
+            /**
+             * Cost
+             * @description Cost of what is held, purchase fees included
+             * @example -12.50
+             */
+            cost: string;
+            /**
+             * Average Cost
+             * @description Cost per unit
+             */
+            average_cost: string | null;
+            /**
+             * Price
+             * @description Latest price per unit
+             */
+            price: string | null;
+            /** Price Date */
+            price_date: string | null;
+            /**
+             * Price Source
+             * @description manual: typed in · operation: that of the latest purchase or sale
+             */
+            price_source: ("manual" | "operation") | null;
+            /**
+             * Value
+             * @description Null when there is no price yet
+             */
+            value: string | null;
+            /**
+             * Gain
+             * @description Value minus cost (unrealized)
+             */
+            gain: string | null;
+            /** Gain Percent */
+            gain_percent: string | null;
+            /**
+             * Realized Total
+             * @description FIFO gains and losses of every sale
+             * @example -12.50
+             */
+            realized_total: string;
+            /**
+             * Realized Year
+             * @description Those of this year
+             * @example -12.50
+             */
+            realized_year: string;
+            /**
+             * Dividends Year
+             * @description Gross dividends this year
+             * @example -12.50
+             */
+            dividends_year: string;
+            /**
+             * Withholding Year
+             * @description Withheld this year on dividends and sales
+             * @example -12.50
+             */
+            withholding_year: string;
+        };
+        /** InvestmentUpdate */
+        InvestmentUpdate: {
+            /** Name */
+            name?: string | null;
+            /** Kind */
+            kind?: ("fund" | "etf" | "stock" | "pension_plan") | null;
+            /** Isin */
+            isin?: string | null;
+            /** Ticker */
+            ticker?: string | null;
+            /** Account Id */
+            account_id?: string | null;
+            /** Note */
+            note?: string | null;
+            /** Archived */
+            archived?: boolean | null;
+        };
+        /** KindTotal */
+        KindTotal: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "fund" | "etf" | "stock" | "pension_plan";
+            /**
+             * Value
+             * @example -12.50
+             */
+            value: string;
+        };
         /** LineOut */
         LineOut: {
             /**
@@ -3347,6 +3782,24 @@ export interface components {
              */
             status: "authenticated" | "mfa_required" | "mfa_setup_required";
         };
+        /** LotOut */
+        LotOut: {
+            /**
+             * Acquired
+             * Format: date
+             */
+            acquired: string;
+            /**
+             * Units
+             * @example 12.345678
+             */
+            units: string;
+            /**
+             * Cost
+             * @example -12.50
+             */
+            cost: string;
+        };
         /**
          * Mapping
          * @description Where each field is, by column title, so the rows above the table may vary.
@@ -3524,6 +3977,135 @@ export interface components {
             /** Scenarios */
             scenarios: components["schemas"]["ScenarioOutcome"][];
         };
+        /** OperationIn */
+        OperationIn: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "buy" | "sell" | "dividend" | "fee" | "split" | "transfer";
+            /**
+             * Units
+             * @description Bought, sold or transferred out
+             * @default 0
+             * @example 12.345678
+             */
+            units: string;
+            /**
+             * Amount
+             * @description Before fees: paid for a purchase, received for a sale; gross dividend; the fee itself; value of a transfer
+             * @default 0
+             * @example -12.50
+             */
+            amount: string;
+            /**
+             * Fee
+             * @description Commission of a purchase or sale
+             * @default 0
+             * @example -12.50
+             */
+            fee: string;
+            /**
+             * Withholding
+             * @description Withheld on a sale or dividend
+             * @default 0
+             * @example -12.50
+             */
+            withholding: string;
+            /** Split From */
+            split_from?: number | null;
+            /** Split To */
+            split_to?: number | null;
+            /** Target Investment Id */
+            target_investment_id?: string | null;
+            /** Target Units */
+            target_units?: string | null;
+            /**
+             * Cash Account Id
+             * @description Account the money comes from or goes to; none: no movement
+             */
+            cash_account_id?: string | null;
+            /** Note */
+            note?: string | null;
+        };
+        /** OperationOut */
+        OperationOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Investment Id
+             * Format: uuid
+             */
+            investment_id: string;
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "buy" | "sell" | "dividend" | "fee" | "split" | "transfer";
+            /**
+             * Direction
+             * @description in: a transfer this investment received
+             * @enum {string}
+             */
+            direction: "out" | "in";
+            /**
+             * Units
+             * @example 12.345678
+             */
+            units: string;
+            /**
+             * Amount
+             * @example -12.50
+             */
+            amount: string;
+            /**
+             * Fee
+             * @example -12.50
+             */
+            fee: string;
+            /**
+             * Withholding
+             * @example -12.50
+             */
+            withholding: string;
+            /** Split From */
+            split_from: number | null;
+            /** Split To */
+            split_to: number | null;
+            /** Target Investment Id */
+            target_investment_id: string | null;
+            /** Target Units */
+            target_units: string | null;
+            /**
+             * Price
+             * @description Amount over units, for purchases and sales
+             */
+            price: string | null;
+            /** Cash Account Id */
+            cash_account_id: string | null;
+            /** Transaction Id */
+            transaction_id: string | null;
+            /**
+             * Gain
+             * @description Sales: FIFO gain or loss
+             */
+            gain: string | null;
+            /** Note */
+            note: string | null;
+        };
         /** @enum {string} */
         OptionKind: "cash" | "loan" | "pcp" | "renting";
         /** OutcomeOut */
@@ -3655,6 +4237,52 @@ export interface components {
              * @description Offer with the lowest total cost
              */
             cheapest: number;
+        };
+        /** PortfolioOut */
+        PortfolioOut: {
+            /**
+             * Value
+             * @description What everything with a price is worth today
+             * @example -12.50
+             */
+            value: string;
+            /**
+             * Cost
+             * @example -12.50
+             */
+            cost: string;
+            /**
+             * Gain
+             * @description Unrealized, of what has a price
+             * @example -12.50
+             */
+            gain: string;
+            /** Gain Percent */
+            gain_percent: string | null;
+            /**
+             * Unpriced
+             * @description Investments with units but no price yet
+             */
+            unpriced: number;
+            /**
+             * Realized Year
+             * @example -12.50
+             */
+            realized_year: string;
+            /**
+             * Dividends Year
+             * @example -12.50
+             */
+            dividends_year: string;
+            /**
+             * Withholding Year
+             * @example -12.50
+             */
+            withholding_year: string;
+            /** Year */
+            year: number;
+            /** By Kind */
+            by_kind: components["schemas"]["KindTotal"][];
         };
         /** Pot */
         Pot: {
@@ -3800,6 +4428,37 @@ export interface components {
              * @description transfer: the other account
              */
             transfer_account_id: string | null;
+        };
+        /** PriceIn */
+        PriceIn: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /**
+             * Price
+             * @example 12.345678
+             */
+            price: string;
+        };
+        /** PriceOut */
+        PriceOut: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /**
+             * Price
+             * @example 12.345678
+             */
+            price: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
         };
         /** RateTier */
         RateTier: {
@@ -4171,6 +4830,98 @@ export interface components {
              */
             total: string;
         };
+        /** SaleOut */
+        SaleOut: {
+            /**
+             * Operation Id
+             * Format: uuid
+             */
+            operation_id: string;
+            /**
+             * Investment Id
+             * Format: uuid
+             */
+            investment_id: string;
+            /** Name */
+            name: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "fund" | "etf" | "stock" | "pension_plan";
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /**
+             * Units
+             * @example 12.345678
+             */
+            units: string;
+            /**
+             * Proceeds
+             * @description Received, net of the sale fee
+             * @example -12.50
+             */
+            proceeds: string;
+            /**
+             * Cost
+             * @description Acquisition cost of the units sold, by FIFO
+             * @example -12.50
+             */
+            cost: string;
+            /**
+             * Gain
+             * @example -12.50
+             */
+            gain: string;
+            /**
+             * Withholding
+             * @example -12.50
+             */
+            withholding: string;
+            /**
+             * Taxable
+             * @description False for pension plans: taxed as work income
+             */
+            taxable: boolean;
+            /**
+             * Repurchase Warning
+             * @description A loss with a purchase of the same security close by (art. 33.5 LIRPF)
+             */
+            repurchase_warning: boolean;
+            /** Parts */
+            parts: components["schemas"]["SalePart"][];
+        };
+        /** SalePart */
+        SalePart: {
+            /**
+             * Acquired
+             * Format: date
+             */
+            acquired: string;
+            /**
+             * Units
+             * @example 12.345678
+             */
+            units: string;
+            /**
+             * Cost
+             * @example -12.50
+             */
+            cost: string;
+            /**
+             * Proceeds
+             * @example -12.50
+             */
+            proceeds: string;
+            /**
+             * Gain
+             * @example -12.50
+             */
+            gain: string;
+        };
         /** SavingsGoalIn */
         SavingsGoalIn: {
             /**
@@ -4416,6 +5167,53 @@ export interface components {
         };
         /** @enum {string} */
         TaxMode: "none" | "yearly" | "end";
+        /** TaxReportOut */
+        TaxReportOut: {
+            /** Year */
+            year: number;
+            /** Sales */
+            sales: components["schemas"]["SaleOut"][];
+            /**
+             * Gains
+             * @description Taxable sales with a gain, added up
+             * @example -12.50
+             */
+            gains: string;
+            /**
+             * Losses
+             * @description Taxable sales with a loss, added up (negative)
+             * @example -12.50
+             */
+            losses: string;
+            /**
+             * Net
+             * @example -12.50
+             */
+            net: string;
+            /**
+             * Sale Withholding
+             * @example -12.50
+             */
+            sale_withholding: string;
+            /** Dividends */
+            dividends: components["schemas"]["DividendOut"][];
+            /**
+             * Dividends Gross
+             * @example -12.50
+             */
+            dividends_gross: string;
+            /**
+             * Dividends Withholding
+             * @example -12.50
+             */
+            dividends_withholding: string;
+            /**
+             * Pension Rescues
+             * @description Received from pension plans (work income)
+             * @example -12.50
+             */
+            pension_rescues: string;
+        };
         /** TemplateIn */
         TemplateIn: {
             /** Name */
@@ -4547,7 +5345,7 @@ export interface components {
              * Kind
              * @enum {string}
              */
-            kind: "expense" | "income" | "transfer" | "adjustment";
+            kind: "expense" | "income" | "transfer" | "adjustment" | "investment";
             /**
              * Amount
              * @description Signed: negative leaves the account
@@ -5674,7 +6472,7 @@ export interface operations {
             query?: {
                 account_id?: string | null;
                 category_id?: string | null;
-                kind?: ("expense" | "income" | "transfer" | "adjustment") | null;
+                kind?: ("expense" | "income" | "transfer" | "adjustment" | "investment") | null;
                 tag?: string | null;
                 /** @description Text in concept or note */
                 q?: string | null;
@@ -7935,6 +8733,444 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ScenarioOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_investments_api_investments_get: {
+        parameters: {
+            query?: {
+                include_archived?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvestmentOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_investment_api_investments_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InvestmentFields"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvestmentDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_investment_api_investments__investment_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                investment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvestmentDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_investment_api_investments__investment_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                investment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_investment_api_investments__investment_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                investment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InvestmentUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvestmentDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_operations_api_investments__investment_id__operations_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                investment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OperationOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    add_operation_api_investments__investment_id__operations_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                investment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OperationIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OperationOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    replace_operation_api_investments__investment_id__operations__operation_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                investment_id: string;
+                operation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OperationIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OperationOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_operation_api_investments__investment_id__operations__operation_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                investment_id: string;
+                operation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_prices_api_investments__investment_id__prices_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                investment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PriceOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    set_price_api_investments__investment_id__prices_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                investment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PriceIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PriceOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_price_api_investments__investment_id__prices__price_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                investment_id: string;
+                price_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    portfolio_api_portfolio_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortfolioOut"];
+                };
+            };
+        };
+    };
+    tax_report_api_portfolio_tax_report_get: {
+        parameters: {
+            query?: {
+                year?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaxReportOut"];
                 };
             };
             /** @description Validation Error */

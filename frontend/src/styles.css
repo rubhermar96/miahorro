@@ -1235,3 +1235,18 @@ a.chip {
   position: sticky;
   left: 0;
 }
+
+/* Tax report: one sale per row, its result on the right. */
+.report-sale {
+  display: inline-flex;
+  width: calc(100% - 1.5em);
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  line-height: 1.4;
+  vertical-align: middle;
+}
+
+.field .link-button {
+  justify-self: start;
+}

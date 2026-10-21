@@ -29,7 +29,7 @@ const PARAMS: Record<keyof TransactionFilters, string> = {
   date_from: 'desde',
   date_to: 'hasta',
 }
-const KINDS = ['expense', 'income', 'transfer', 'adjustment'] as const
+const KINDS = ['expense', 'income', 'transfer', 'investment', 'adjustment'] as const
 
 function readFilters(params: URLSearchParams): TransactionFilters {
   const filters: Record<string, string> = {}

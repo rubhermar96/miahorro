@@ -4,6 +4,8 @@ import { Link } from 'react-router'
 import { useSession } from '../api/auth'
 import { useInbox, useUpcoming } from '../api/capture'
 import { ACCOUNT_KINDS, type Account, useAccounts } from '../api/finance'
+import { useInvestments, usePortfolio } from '../api/investments'
+import { InvestmentRow } from '../components/InvestmentRow'
 import { Money } from '../components/Money'
 import { PageHeader } from '../components/PageHeader'
 import { ServerStatusLine } from '../components/ServerStatusLine'
@@ -41,8 +43,15 @@ export function HomePage() {
   const upcoming = useUpcoming(30)
   const mainCurrency = session?.user.preferences.currency ?? 'EUR'
 
+  const portfolio = usePortfolio()
+  const investments = useInvestments()
   const list = accounts.data ?? []
   const [main, ...others] = totalsByCurrency(list, mainCurrency)
+  // The portfolio is valued in euros: it adds to the total when that is the main currency.
+  const invested = mainCurrency === 'EUR' ? (portfolio.data?.value ?? '0.00') : '0.00'
+  // Only what is still held: an emptied fund stays in the portfolio page, not here.
+  const held = (investments.data ?? []).filter((investment) => investment.units !== '0')
+  const hasInvestments = (investments.data?.length ?? 0) > 0
   const maturities = upcomingMaturities(list)
   const toReview = (inbox.data?.unconfirmed.length ?? 0) + (inbox.data?.overdue.length ?? 0)
   const nextUp = (upcoming.data ?? []).filter((item) => !item.overdue).slice(0, 5)
@@ -69,8 +78,16 @@ export function HomePage() {
           <section className="card" aria-labelledby="total-title">
             <h2 id="total-title">{t('home.totalTitle')}</h2>
             <p className="total">
-              <Money value={main[1]} currency={main[0]} />
+              <Money value={sumAmounts([main[1], invested])} currency={main[0]} />
             </p>
+            {invested !== '0.00' && (
+              <p className="muted small">
+                {t('home.split', {
+                  accounts: formatAmount(main[1], main[0]),
+                  investments: formatAmount(invested),
+                })}
+              </p>
+            )}
             {others.length > 0 && (
               <p className="muted small">
                 {t('home.otherCurrencies', {
@@ -161,6 +178,29 @@ export function HomePage() {
                 </ul>
               </section>
             ))}
+          </section>
+        )}
+
+        {list.length > 0 && (
+          <section className="stack stack--tight" aria-labelledby="home-investments-title">
+            <div className="section-title">
+              <h2 id="home-investments-title">{t('inv.title')}</h2>
+              <Link to={hasInvestments ? '/inversiones' : '/inversiones/nueva'}>
+                {hasInvestments ? t('home.portfolio') : t('inv.new')}
+              </Link>
+            </div>
+            {investments.isSuccess && !hasInvestments && (
+              <p className="card muted small">{t('home.noInvestments')}</p>
+            )}
+            {hasInvestments && (
+              <ul className="list card card--flush">
+                {held.slice(0, 5).map((investment) => (
+                  <li key={investment.id}>
+                    <InvestmentRow investment={investment} />
+                  </li>
+                ))}
+              </ul>
+            )}
           </section>
         )}
 

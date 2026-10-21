@@ -57,6 +57,8 @@ function TransactionForm({
   const queryClient = useQueryClient()
   const isEntry = transaction.kind === 'expense' || transaction.kind === 'income'
   const isAdjustment = transaction.kind === 'adjustment'
+  // Its amount and date belong to an investment operation: only the text changes here.
+  const isInvestment = transaction.kind === 'investment'
   const [kind, setKind] = useState(transaction.kind)
   const [amountText, setAmountText] = useState(amountToInput(transaction.amount, isAdjustment))
   const [accountId, setAccountId] = useState(transaction.account_id)
@@ -84,7 +86,8 @@ function TransactionForm({
     }
     setBusy(true)
     try {
-      const shared = { amount, date, description, note: note || null, tags: splitTags(tagsText) }
+      const text = { description, note: note || null, tags: splitTags(tagsText) }
+      const shared = isInvestment ? text : { ...text, amount, date }
       await financeApi.updateTransaction(
         transaction.id,
         isEntry
@@ -171,7 +174,9 @@ function TransactionForm({
             ))}
           </div>
         ) : (
-          <p className="notice small">{t('transactions.transferNote')}</p>
+          <p className="notice small">
+            {t(isInvestment ? 'transactions.investmentNote' : 'transactions.transferNote')}
+          </p>
         )}
 
         <label className="field">
@@ -179,6 +184,7 @@ function TransactionForm({
           <input
             inputMode="decimal"
             required
+            disabled={isInvestment}
             value={amountText}
             onChange={(event) => setAmountText(event.target.value)}
           />
@@ -220,6 +226,7 @@ function TransactionForm({
             <input
               type="date"
               required
+              disabled={isInvestment}
               value={date}
               onChange={(event) => setDate(event.target.value)}
             />

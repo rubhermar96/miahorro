@@ -11,7 +11,7 @@ from app.models.accounts import MONEY
 from app.models.base import OwnedMixin, TimestampMixin
 
 CATEGORY_KINDS = ("expense", "income")
-TRANSACTION_KINDS = ("expense", "income", "transfer", "adjustment")
+TRANSACTION_KINDS = ("expense", "income", "transfer", "adjustment", "investment")
 TRANSACTION_SOURCES = ("manual", "import", "capture")
 
 
@@ -36,6 +36,7 @@ class Transaction(OwnedMixin, TimestampMixin, Base):
 
     The amount carries the sign: negative leaves the account, positive enters it. A transfer
     between own accounts is two rows sharing `transfer_id`; it is neither income nor expense.
+    Neither is buying or selling an investment (kind `investment`): the money only changes form.
     """
 
     __tablename__ = "transactions"
@@ -45,7 +46,7 @@ class Transaction(OwnedMixin, TimestampMixin, Base):
         CheckConstraint(f"source IN {TRANSACTION_SOURCES}", name="source_valid"),
         CheckConstraint(
             "(kind = 'expense' AND amount < 0) OR (kind = 'income' AND amount > 0)"
-            " OR kind IN ('transfer', 'adjustment')",
+            " OR kind IN ('transfer', 'adjustment', 'investment')",
             name="sign_matches_kind",
         ),
         CheckConstraint(

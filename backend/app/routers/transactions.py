@@ -21,7 +21,7 @@ from app.rules import load_rulebook
 router = APIRouter(prefix="/api", tags=["transactions"])
 
 EntryKind = Literal["expense", "income"]
-TransactionKind = Literal["expense", "income", "transfer", "adjustment"]
+TransactionKind = Literal["expense", "income", "transfer", "adjustment", "investment"]
 
 _MAX_TAGS = 10
 
@@ -225,6 +225,17 @@ def update_transaction(
 ) -> TransactionOut:
     row = get_owned_or_404(db, Transaction, transaction_id, user)
     fields = body.model_fields_set
+
+    if row.kind == "investment":
+        if fields & {"account_id", "kind", "category_id", "date", "amount"}:
+            raise HTTPException(
+                status.HTTP_422_UNPROCESSABLE_CONTENT,
+                "Este movimiento sale de una operación de inversión: cambia la fecha o el "
+                "importe en la inversión. Aquí solo se cambia el texto.",
+            )
+        _apply_shared(row, body, keep_sign=True)
+        db.commit()
+        return TransactionOut.from_model(row)
 
     if row.kind in ("transfer", "adjustment"):
         if fields & {"account_id", "kind", "category_id"}:

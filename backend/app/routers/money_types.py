@@ -55,3 +55,30 @@ Rate = Annotated[
     PlainSerializer(lambda value: f"{value:.4f}", return_type=str, when_used="json"),
     WithJsonSchema({"type": "string", "pattern": r"^\d+(\.\d{1,4})?$", "examples": ["2.15"]}),
 ]
+
+_UNIT_STEP = Decimal("0.000001")
+_MAX_UNITS = Decimal("1e13")
+
+
+def _parse_units(value: Any) -> Decimal:
+    units = _exact(value, "La cantidad")
+    if units != units.quantize(_UNIT_STEP):
+        raise ValueError("La cantidad tiene como mucho seis decimales.")
+    if not Decimal(0) <= units < _MAX_UNITS:
+        raise ValueError("La cantidad no es válida.")
+    return units.quantize(_UNIT_STEP)
+
+
+def _show_units(value: Decimal) -> str:
+    """Six decimals at most, without trailing zeros: "12.5", "3"."""
+    text = f"{value.quantize(_UNIT_STEP):f}"
+    return text.rstrip("0").rstrip(".") if "." in text else text
+
+
+# Participaciones, shares and prices per unit: up to six decimals.
+Units = Annotated[
+    Decimal,
+    BeforeValidator(_parse_units),
+    PlainSerializer(_show_units, return_type=str, when_used="json"),
+    WithJsonSchema({"type": "string", "pattern": r"^\d+(\.\d{1,6})?$", "examples": ["12.345678"]}),
+]

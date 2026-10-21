@@ -7,26 +7,37 @@
 	}
 }
 
-(security_headers) {
+# For every response, the API's and the admin panel's too.
+(base_headers) {
 	header {
 		Strict-Transport-Security "max-age=31536000"
 		X-Content-Type-Options "nosniff"
 		X-Frame-Options "DENY"
 		Referrer-Policy "strict-origin-when-cross-origin"
 		Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
-		Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; manifest-src 'self'; worker-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'"
 		-Server
 	}
+}
+
+# The app itself: only its own scripts, styles and connections.
+(security_headers) {
+	import base_headers
+	header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; manifest-src 'self'; worker-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'"
 }
 
 :8080 {
 	encode zstd gzip
 
+	# Financial data stays out of the browser's HTTP cache; reading offline uses the service
+	# worker's own cache, which signing out deletes.
 	handle /api/* {
+		import base_headers
+		header Cache-Control "no-store"
 		reverse_proxy api:8000
 	}
 
 	handle /admin* {
+		import base_headers
 		reverse_proxy api:8000
 	}
 

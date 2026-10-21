@@ -8,6 +8,7 @@ import {
   type NewCaptureToken,
   useCaptureCards,
   useCaptureTokens,
+  useShortcut,
 } from '../api/capture'
 import { useAccounts } from '../api/finance'
 import { ErrorMessage } from '../components/ErrorMessage'
@@ -171,8 +172,58 @@ function NewTokenForm({ onCreated }: { onCreated: (created: NewCaptureToken) => 
   )
 }
 
-/** The token is shown only now: the guide uses it, with buttons to copy each value. */
+/** The token is shown only now. With a shared Shortcut, installing it and pasting the code is
+ * all it takes; otherwise the guide builds the Shortcut by hand. */
 function TokenCreated({ created, onDone }: { created: NewCaptureToken; onDone: () => void }) {
+  const shortcut = useShortcut()
+  if (shortcut.isPending) {
+    return null
+  }
+  return shortcut.data?.url ? (
+    <SharedShortcut created={created} link={shortcut.data.url} onDone={onDone} />
+  ) : (
+    <ManualGuide created={created} onDone={onDone} />
+  )
+}
+
+function SharedShortcut({
+  created,
+  link,
+  onDone,
+}: {
+  created: NewCaptureToken
+  link: string
+  onDone: () => void
+}) {
+  const { t } = useTranslation()
+  return (
+    <section className="card stack" aria-labelledby="guide-title">
+      <h2 id="guide-title">{t('capture.shared.title')}</h2>
+      <p className="notice small">{t('capture.onlyNow')}</p>
+      <ol className="guide stack stack--tight">
+        <li>
+          {t('capture.shared.step1')}
+          <CopyValue label={t('capture.shared.code')} value={created.secret} />
+        </li>
+        <li>
+          {t('capture.shared.step2')}
+          <a className="button" href={link} target="_blank" rel="noreferrer">
+            {t('capture.shared.install')}
+          </a>
+        </li>
+        <li>{t('capture.shared.step3')}</li>
+        <li>{t('capture.shared.step4')}</li>
+        <li>{t('capture.shared.step5')}</li>
+      </ol>
+      <p className="muted small">{t('capture.shared.note')}</p>
+      <button type="button" className="button button--secondary" onClick={onDone}>
+        {t('capture.done')}
+      </button>
+    </section>
+  )
+}
+
+function ManualGuide({ created, onDone }: { created: NewCaptureToken; onDone: () => void }) {
   const { t } = useTranslation()
   const url = new URL(created.url, window.location.origin).toString()
   const authorization = `Bearer ${created.secret}`

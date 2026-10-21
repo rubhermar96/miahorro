@@ -1,4 +1,4 @@
-import { screen, within } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -46,6 +46,7 @@ describe('quick add', () => {
       description: '',
       note: null,
       tags: [],
+      client_ref: expect.stringMatching(/^[0-9a-f-]{36}$/),
     })
     expect(await screen.findByText('Gasto de 12,50 € guardado.')).toBeInTheDocument()
     expect(screen.getByLabelText('Importe')).toHaveValue('')
@@ -133,5 +134,58 @@ describe('quick add', () => {
       'href',
       '/cuentas/nueva',
     )
+  })
+})
+
+describe('without connection', () => {
+  it('keeps the expense on the device and sends it when the connection is back', async () => {
+    const user = userEvent.setup()
+    api.on('POST /api/transactions', () => {
+      throw new TypeError('Failed to fetch')
+    })
+    renderApp('/anadir')
+
+    await user.type(await screen.findByLabelText('Importe'), '12,50')
+    await user.click(screen.getByRole('button', { name: /Supermercado/ }))
+    await user.click(screen.getByRole('button', { name: 'Guardar' }))
+
+    expect(await screen.findByText(/Sin conexión: 12,50 € queda guardado/)).toBeInTheDocument()
+    expect(screen.getByText('1 movimiento pendiente de enviar.')).toBeInTheDocument()
+    const ref = (api.callsTo('POST /api/transactions')[0]?.body as { client_ref: string })
+      .client_ref
+
+    api.on('POST /api/transactions', { status: 201, body: transaction() })
+    window.dispatchEvent(new Event('online'))
+
+    await waitFor(() =>
+      expect(screen.queryByText('1 movimiento pendiente de enviar.')).not.toBeInTheDocument(),
+    )
+    const sent = api.callsTo('POST /api/transactions').at(-1)?.body
+    expect(sent).toMatchObject({ amount: '12.50', category_id: 'groceries', client_ref: ref })
+  })
+
+  it('shows an entry the server refused, to discard it', async () => {
+    const user = userEvent.setup()
+    localStorage.setItem(
+      'miahorro.outbox',
+      JSON.stringify([
+        {
+          ref: '0b8f1c1e-3b2a-4c55-9d7e-1f2a3b4c5d6e',
+          createdAt: '2026-10-16T07:00:00Z',
+          body: { description: 'Café', amount: '2.00' },
+        },
+      ]),
+    )
+    api.on('POST /api/transactions', {
+      status: 409,
+      body: { error: { message: 'La cuenta está archivada.' } },
+    })
+    renderApp('/anadir')
+
+    expect(
+      await screen.findByText(/No se pudo guardar «Café»: La cuenta está archivada./),
+    ).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Descartar' }))
+    expect(localStorage.getItem('miahorro.outbox')).toBe('[]')
   })
 })

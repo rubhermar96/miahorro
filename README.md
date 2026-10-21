@@ -4,7 +4,8 @@ Plataforma de finanzas personales para España: cuentas, ingresos y gastos, pré
 
 - Qué hace y por qué: [docs/requisitos.md](docs/requisitos.md)
 - Orden de desarrollo: [docs/plan-mvp.md](docs/plan-mvp.md)
-- Despliegue en la VPS: [deploy/README.md](deploy/README.md)
+- Cómo se usa: [docs/uso.md](docs/uso.md)
+- Despliegue y operación (copias, simulacro de recuperación, comprobaciones): [deploy/README.md](deploy/README.md)
 
 ## Estructura
 

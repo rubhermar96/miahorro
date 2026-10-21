@@ -56,4 +56,9 @@ test('la API responde a través del proxy', async ({ request }) => {
   const health = await request.get('/api/health')
   expect(health.status()).toBe(200)
   expect(await health.json()).toMatchObject({ status: 'ok', database: 'ok' })
+  // Its answers carry the security headers too and never stay in the browser's cache.
+  const headers = health.headers()
+  expect(headers['x-content-type-options']).toBe('nosniff')
+  expect(headers['strict-transport-security']).toContain('max-age=')
+  expect(headers['cache-control']).toBe('no-store')
 })

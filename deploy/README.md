@@ -150,6 +150,42 @@ El panel `https://miahorro.octogas.es/admin` (solo administradores) permite ver 
 
 Restaurar de verdad, reemplazando los datos actuales: `./restore.sh <copia.dump.gpg>`. Antes de hacerlo, el script guarda una copia del estado actual.
 
+### Simulacro en otra máquina
+
+Comprueba que una copia sirve para levantar MiAhorro desde cero, en cualquier ordenador con Docker, `gpg` y este repositorio (en Windows, desde Git Bash). No toca producción ni deja nada instalado.
+
+```bash
+# 1. En la VPS: el resumen de producción y una copia recién hecha
+docker compose -f compose.prod.yaml exec api python -m app.cli summary > /tmp/resumen-produccion.txt
+./backup.sh
+
+# 2. Llévate la copia (.dump.gpg), el resumen y la clave de las copias (del gestor de contraseñas)
+# 3. En la otra máquina, desde la raíz del repositorio:
+./deploy/restore-elsewhere.sh miahorro-<fecha>.dump.gpg clave-copias.txt > resumen-restaurado.txt
+diff <(sed -n '/^Tablas/,/^Simulacro/p' resumen-restaurado.txt | sed '/^$/d;/^Simulacro/d') resumen-produccion.txt
+```
+
+El script restaura en una base temporal, aplica las migraciones del código actual (así se comprueba también que la copia sirve para la versión nueva) y muestra el mismo resumen: filas por tabla y, por usuario, movimientos, saldos y patrimonio. Si `diff` no muestra nada, todo cuadra.
+
+## Atajo de Apple Pay compartido
+
+Los pasos para crearlo están en [docs/uso.md](../docs/uso.md#atajo-compartido-solo-el-administrador-una-vez). Cuando tengas el enlace de iCloud:
+
+```bash
+# deploy/.env
+MIAHORRO_SHORTCUT_URL=https://www.icloud.com/shortcuts/...
+./deploy.sh
+```
+
+## Comprobaciones
+
+```bash
+curl -s http://127.0.0.1:8090/api/health                                     # {"status":"ok","database":"ok",...}
+docker compose -f compose.prod.yaml logs --tail 100 api                       # errores recientes
+docker compose -f compose.prod.yaml exec api python -m app.cli summary         # datos por usuario
+docker compose -f compose.prod.yaml exec api python -m app.cli sync-reference-values  # tablas de referencia
+```
+
 ## Despliegues siguientes
 
 ```bash

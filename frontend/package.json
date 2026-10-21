@@ -25,9 +25,12 @@
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-i18next": "^17.0.16",
-    "react-router": "^7.18.4"
+    "react-router": "^7.18.4",
+    "workbox-expiration": "^7.4.1",
+    "workbox-strategies": "^7.4.1"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.10.2",
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.64.1",
     "@testing-library/jest-dom": "^7.0.1",

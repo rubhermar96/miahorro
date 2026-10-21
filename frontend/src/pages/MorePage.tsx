@@ -14,6 +14,7 @@ import {
   useSession,
 } from '../api/auth'
 import { EXPORT_JSON, EXPORT_ZIP } from '../api/reports'
+import { forgetOfflineData } from '../lib/outbox'
 import { ErrorMessage } from '../components/ErrorMessage'
 import { PageHeader } from '../components/PageHeader'
 import { RecoveryCodes } from '../components/RecoveryCodes'
@@ -279,6 +280,7 @@ function SecurityCard({ session }: { session: SessionInfo }) {
 
   const signOut = async (everywhere: boolean) => {
     await (everywhere ? authApi.logoutEverywhere() : authApi.logout())
+    await forgetOfflineData()
     queryClient.setQueryData(SESSION_KEY, null)
     void navigate('/entrar', { replace: true })
   }

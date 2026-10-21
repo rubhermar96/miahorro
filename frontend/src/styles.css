@@ -1057,7 +1057,8 @@ li + li > .budget-line {
   padding: 0;
   border: 0;
   background: none;
-  color: var(--primary);
+  /* The stronger shade: it often sits on a tinted notice, where the plain one lacks contrast. */
+  color: var(--primary-strong);
   font: inherit;
   text-decoration: underline;
   cursor: pointer;
@@ -1449,4 +1450,19 @@ ul.legend {
 .is-loading {
   opacity: 0.6;
   transition: opacity 0.2s;
+}
+
+/* Offline status: above every page while it applies. */
+.offline {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  font-size: 0.875rem;
+}
+
+.offline p {
+  margin: 0;
 }

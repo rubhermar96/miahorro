@@ -183,6 +183,8 @@ export const es = {
     tagsHelp: 'Separadas por comas, por ejemplo: viaje-japón, regalos',
     save: 'Guardar',
     saved: '{{kind}} de {{amount}} guardado.',
+    savedOffline:
+      'Sin conexión: {{amount}} queda guardado en el móvil y se enviará en cuanto vuelva la conexión.',
     savedTransfer: 'Transferencia de {{amount}} guardada.',
     invalidAmount: 'Escribe un importe, por ejemplo 12,50.',
     needAccount: 'Antes de apuntar movimientos, crea al menos una cuenta.',
@@ -437,6 +439,14 @@ export const es = {
     subcategories_other: '{{count}} subcategorías',
     noSpending: 'No hay gastos en este periodo.',
     noTags: 'Ningún gasto de este periodo tiene etiquetas.',
+  },
+  offline: {
+    notConnected: 'Sin conexión: ves los últimos datos guardados en este dispositivo.',
+    pending_one: '{{count}} movimiento pendiente de enviar.',
+    pending_other: '{{count}} movimientos pendientes de enviar.',
+    sendNow: 'Enviar ahora',
+    refused: 'No se pudo guardar «{{what}}»: {{reason}}',
+    discard: 'Descartar',
   },
   plan: { title: 'Planificar' },
   calc: {
@@ -1147,6 +1157,19 @@ export const es = {
     copy: 'Copiar',
     copied: 'Copiado',
     done: 'Hecho',
+    shared: {
+      title: 'Instala el Atajo en el iPhone',
+      code: 'Tu código',
+      step1: 'Copia tu código: el Atajo te lo pedirá al instalarlo.',
+      step2: 'Instala el Atajo «MiAhorro» y pega el código cuando te lo pida:',
+      install: 'Instalar el Atajo',
+      step3:
+        'Abre la app Atajos → pestaña Automatización → Nueva automatización → «Transacción». Elige tus tarjetas y marca «Ejecutar inmediatamente».',
+      step4:
+        'Pulsa Siguiente → «Nueva automatización en blanco» → añade la acción «Ejecutar atajo» y elige «MiAhorro». La transacción se le pasa sola.',
+      step5: 'Paga algo con Apple Pay: en unos segundos aparece en Movimientos como «pendiente».',
+      note: 'Las automatizaciones no se pueden compartir: este paso lo hace cada persona en su iPhone. El Watch usa la misma automatización.',
+    },
   },
   recurring: {
     title: 'Recurrentes',

@@ -25,6 +25,15 @@ export function useCaptureTokens() {
   })
 }
 
+/** The shared Apple Pay Shortcut, if the administrator has published its iCloud link. */
+export function useShortcut() {
+  return useQuery({
+    queryKey: [...captureKeys.tokens, 'shortcut'],
+    queryFn: () => unwrap(api.GET('/api/capture/shortcut')),
+    staleTime: Infinity,
+  })
+}
+
 export function useCaptureCards() {
   return useQuery({
     queryKey: captureKeys.cards,

@@ -782,6 +782,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/capture/shortcut": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Shortcut
+         * @description How to connect an iPhone: the shared Shortcut to install, if the administrator has
+         *     published one, and the address payments go to.
+         */
+        get: operations["shortcut_api_capture_shortcut_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/capture/tokens": {
         parameters: {
             query?: never;
@@ -5359,6 +5380,19 @@ export interface components {
             level: "full" | "mfa_pending" | "mfa_setup";
             user: components["schemas"]["UserOut"];
         };
+        /** ShortcutOut */
+        ShortcutOut: {
+            /**
+             * Url
+             * @description iCloud link of the shared Shortcut, if there is one
+             */
+            url: string | null;
+            /**
+             * Capture Url
+             * @description Where the Shortcut sends each payment
+             */
+            capture_url: string;
+        };
         /** SimulationIn */
         SimulationIn: {
             /**
@@ -5646,6 +5680,11 @@ export interface components {
             amount: string;
             /** Category Id */
             category_id?: string | null;
+            /**
+             * Client Ref
+             * @description Chosen by the device: sending it again returns the movement already created, so a retry after a lost connection never duplicates it
+             */
+            client_ref?: string | null;
         };
         /** TransactionOut */
         TransactionOut: {
@@ -7460,6 +7499,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    shortcut_api_capture_shortcut_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShortcutOut"];
                 };
             };
         };

@@ -60,6 +60,10 @@ describe('capture', () => {
       status: 201,
       body: { token, secret: 'mia_AbCdSECRET', url: '/api/capture/payments' },
     })
+    api.on('GET /api/capture/shortcut', {
+      status: 200,
+      body: { url: null, capture_url: 'http://localhost:3000/api/capture/payments' },
+    })
     renderApp('/mas/captura')
 
     await user.clear(await screen.findByLabelText('Nombre'))
@@ -77,6 +81,36 @@ describe('capture', () => {
     expect(within(guide).getByLabelText('Authorization')).toHaveTextContent('Bearer mia_AbCdSECRET')
     await user.click(within(guide).getByRole('button', { name: 'Hecho' }))
     expect(screen.queryByText(/mia_AbCdSECRET/)).not.toBeInTheDocument()
+  })
+
+  it('with a shared Shortcut, installing it and pasting the code is enough', async () => {
+    const user = userEvent.setup()
+    const writeText = vi.fn().mockResolvedValue(undefined)
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
+    api.on('POST /api/capture/tokens', {
+      status: 201,
+      body: { token, secret: 'mia_AbCdSECRET', url: '/api/capture/payments' },
+    })
+    api.on('GET /api/capture/shortcut', {
+      status: 200,
+      body: {
+        url: 'https://www.icloud.com/shortcuts/abc123',
+        capture_url: 'https://miahorro.octogas.es/api/capture/payments',
+      },
+    })
+    renderApp('/mas/captura')
+
+    await user.click(await screen.findByRole('button', { name: 'Crear token y ver los pasos' }))
+
+    const guide = await screen.findByRole('region', { name: 'Instala el Atajo en el iPhone' })
+    expect(within(guide).getByRole('link', { name: 'Instalar el Atajo' })).toHaveAttribute(
+      'href',
+      'https://www.icloud.com/shortcuts/abc123',
+    )
+    expect(within(guide).getByLabelText('Tu código')).toHaveTextContent('mia_AbCdSECRET')
+    await user.click(within(guide).getByRole('button', { name: 'Copiar' }))
+    expect(writeText).toHaveBeenCalledWith('mia_AbCdSECRET')
+    expect(within(guide).getByText(/«Ejecutar atajo»/)).toBeInTheDocument()
   })
 
   it('revokes a token and maps a card to an account', async () => {

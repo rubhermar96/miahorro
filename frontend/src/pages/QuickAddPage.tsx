@@ -17,6 +17,7 @@ import { parseAmountInput } from '../lib/amount'
 import { messageOf } from '../lib/errors'
 import { formatAmount, todayIso } from '../lib/format'
 import { splitTags } from '../lib/tags'
+import { enqueue, isOffline } from '../lib/outbox'
 
 type Mode = 'expense' | 'income' | 'transfer'
 const MODES: Mode[] = ['expense', 'income', 'transfer']
@@ -121,13 +122,32 @@ function QuickAddForm({
         })
         setMessage(t('add.savedTransfer', { amount: formatAmount(amount, currency) }))
       } else {
-        await financeApi.createTransaction({
+        const entry = {
           ...details,
           account_id: accountId,
           kind: mode,
           amount,
           category_id: categoryId,
-        })
+        }
+        // A reference of this device: if the answer is lost and it goes again, it is not
+        // created twice. Without connection the entry waits here and goes later (RNF-02).
+        const ref = crypto.randomUUID()
+        try {
+          await financeApi.createTransaction({ ...entry, client_ref: ref })
+        } catch (err) {
+          if (!isOffline(err)) {
+            throw err
+          }
+          enqueue(entry, ref)
+          rememberAccount(accountId)
+          setMessage(t('add.savedOffline', { amount: formatAmount(amount, currency) }))
+          setAmountText('')
+          setCategoryId(null)
+          setDescription('')
+          setNote('')
+          setTagsText('')
+          return
+        }
         setMessage(
           t('add.saved', {
             kind: t(`transactions.kinds.${mode}`),

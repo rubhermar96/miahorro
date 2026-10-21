@@ -2281,6 +2281,28 @@
         }
       }
     },
+    "/api/capture/shortcut": {
+      "get": {
+        "tags": [
+          "capture"
+        ],
+        "summary": "Shortcut",
+        "description": "How to connect an iPhone: the shared Shortcut to install, if the administrator has\npublished one, and the address payments go to.",
+        "operationId": "shortcut_api_capture_shortcut_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShortcutOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/capture/tokens": {
       "get": {
         "tags": [
@@ -13979,6 +14001,33 @@
         ],
         "title": "SessionOut"
       },
+      "ShortcutOut": {
+        "properties": {
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url",
+            "description": "iCloud link of the shared Shortcut, if there is one"
+          },
+          "capture_url": {
+            "type": "string",
+            "title": "Capture Url",
+            "description": "Where the Shortcut sends each payment"
+          }
+        },
+        "type": "object",
+        "required": [
+          "url",
+          "capture_url"
+        ],
+        "title": "ShortcutOut"
+      },
       "SimulationIn": {
         "properties": {
           "date": {
@@ -14619,6 +14668,19 @@
               }
             ],
             "title": "Category Id"
+          },
+          "client_ref": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Client Ref",
+            "description": "Chosen by the device: sending it again returns the movement already created, so a retry after a lost connection never duplicates it"
           }
         },
         "type": "object",

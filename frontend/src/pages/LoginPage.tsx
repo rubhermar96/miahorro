@@ -36,10 +36,13 @@ export function LoginPage({ mode = 'login' }: { mode?: 'login' | 'register' }) {
   const next = safeNextPath(params.get('siguiente'))
   const { data: session, isPending } = useSession()
   const [recoveryCodes, setRecoveryCodes] = useState<string[] | null>(null)
+  // After setting up Face ID, the authenticator app is offered too: without it there is no way
+  // in from a computer or a device without that passkey.
+  const [offerApp, setOfferApp] = useState(false)
 
   const refreshSession = () => queryClient.invalidateQueries({ queryKey: SESSION_KEY })
 
-  const finished = session?.level === 'full' && !recoveryCodes
+  const finished = session?.level === 'full' && !recoveryCodes && !offerApp
   useEffect(() => {
     if (!finished) {
       return
@@ -63,12 +66,25 @@ export function LoginPage({ mode = 'login' }: { mode?: 'login' | 'register' }) {
   let step
   if (recoveryCodes) {
     step = <RecoveryCodes codes={recoveryCodes} onDone={() => setRecoveryCodes(null)} />
+  } else if (offerApp && session?.level === 'full') {
+    step = (
+      <AlsoAddAppStep
+        onConfirmed={(codes) => {
+          setOfferApp(false)
+          setRecoveryCodes(codes)
+        }}
+        onSkip={() => setOfferApp(false)}
+      />
+    )
   } else if (session?.level === 'mfa_pending') {
     step = <SecondStep session={session} onDone={refreshSession} />
   } else if (session?.level === 'mfa_setup') {
     step = (
       <ChooseSecondFactorStep
-        onPasskey={refreshSession}
+        onPasskey={async () => {
+          setOfferApp(true)
+          await refreshSession()
+        }}
         onTotp={async (codes) => {
           setRecoveryCodes(codes)
           await refreshSession()
@@ -364,6 +380,7 @@ function SecondStep({ session, onDone }: { session: SessionInfo; onDone: () => P
           </button>
         </form>
       )}
+      {!hasTotp && !useRecovery && <p className="notice small">{t('login.onlyFaceId')}</p>}
       <ErrorMessage message={error} />
       <div className="actions actions--spread">
         {canUseRecovery && (
@@ -381,6 +398,32 @@ function SecondStep({ session, onDone }: { session: SessionInfo; onDone: () => P
         )}
         <CancelButton onDone={onDone} />
       </div>
+    </section>
+  )
+}
+
+/** Right after setting up Face ID: the authenticator app as well, to sign in from a computer. */
+function AlsoAddAppStep({
+  onConfirmed,
+  onSkip,
+}: {
+  onConfirmed: (recoveryCodes: string[]) => void
+  onSkip: () => void
+}) {
+  const { t } = useTranslation()
+  return (
+    <section className="card stack">
+      <p className="saved">{t('setup.faceIdReady')}</p>
+      <p className="muted">{t('setup.alsoAppIntro')}</p>
+      <TotpSetupForm
+        title={t('setup.alsoAppTitle')}
+        onConfirmed={async (codes) => onConfirmed(codes)}
+        footer={
+          <button type="button" className="button button--ghost" onClick={onSkip}>
+            {t('setup.notNow')}
+          </button>
+        }
+      />
     </section>
   )
 }

@@ -95,6 +95,12 @@ export function HomePage() {
           <p className="greeting">{t('home.greeting', { name: session.user.display_name })}</p>
         )}
 
+        {session?.user.has_passkey && !session.user.has_totp && (
+          <Link className="card card--link notice" to="/mas">
+            {t('home.addCodeApp')}
+          </Link>
+        )}
+
         {accounts.isSuccess && list.length === 0 && (
           <section className="card stack">
             <h2>{t('home.noAccountsTitle')}</h2>

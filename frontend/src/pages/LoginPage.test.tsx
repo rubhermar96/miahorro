@@ -261,7 +261,7 @@ describe('Face ID first', () => {
     body: { level, user: { ...testUser, ...changes } },
   })
 
-  it('sets up Face ID in one tap on the first sign-in, without recovery codes', async () => {
+  it('sets up Face ID in one tap, then offers the code app for computers', async () => {
     const user = userEvent.setup()
     webauthn.supported = true
     webauthn.startRegistration.mockResolvedValue({ id: 'new', rawId: 'new' })
@@ -271,16 +271,28 @@ describe('Face ID first', () => {
       body: { challenge_id: 'c3', options: { challenge: 'reg' } },
     })
     api.on('POST /api/auth/passkeys/register', () => {
-      api.on('GET /api/auth/session', fullSession)
+      api.on('GET /api/auth/session', sessionWith('full', { has_totp: false, has_passkey: true }))
       return { status: 201, body: { id: 'p', name: 'Este dispositivo' } }
+    })
+    api.on('POST /api/auth/totp/setup', {
+      status: 200,
+      body: { secret: 'JBSWY3DPEHPK3PXP', otpauth_uri: 'otpauth://totp/x', qr_code: 'data:,' },
     })
     renderApp('/entrar')
 
     await user.click(await screen.findByRole('button', { name: 'Usar Face ID (recomendado)' }))
 
-    expect(await screen.findByText('Hola, Ana')).toBeInTheDocument()
     expect(webauthn.startRegistration).toHaveBeenCalledWith({ optionsJSON: { challenge: 'reg' } })
-    expect(api.callsTo('POST /api/auth/totp/setup')).toEqual([])
+    expect(await screen.findByText('Face ID listo.')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Añade también la app de códigos' })).toBeVisible()
+    await user.click(screen.getByRole('button', { name: 'Ahora no' }))
+
+    expect(await screen.findByText('Hola, Ana')).toBeInTheDocument()
+    // Until it is added, Home says how to sign in from a computer too.
+    expect(screen.getByRole('link', { name: /Añade la app de códigos/ })).toHaveAttribute(
+      'href',
+      '/mas',
+    )
   })
 
   it('lets users without Face ID choose an authenticator app instead', async () => {
@@ -321,6 +333,7 @@ describe('Face ID first', () => {
     renderApp('/entrar')
 
     expect(await screen.findByText(/escanea el código QR/)).toBeInTheDocument()
+    expect(screen.getByText(/Tu cuenta solo tiene Face ID/)).toBeInTheDocument()
     expect(screen.queryByLabelText('Código')).not.toBeInTheDocument()
     expect(
       screen.queryByRole('button', { name: 'Usar un código de recuperación' }),

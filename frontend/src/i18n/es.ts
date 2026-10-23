@@ -31,6 +31,8 @@ export const es = {
     toReview_other: '{{count}} cosas para revisar ›',
     upcomingTitle: 'Próximos 30 días',
     upcomingAll: 'Recurrentes',
+    addCodeApp:
+      'Ahora solo puedes entrar con Face ID. Añade la app de códigos en Más → Seguridad para entrar también desde el ordenador ›',
   },
   accounts: {
     newTitle: 'Nueva cuenta',
@@ -1040,6 +1042,8 @@ export const es = {
     code: 'Código',
     verify: 'Verificar',
     useRecovery: 'Usar un código de recuperación',
+    onlyFaceId:
+      'Tu cuenta solo tiene Face ID. Si estás en un ordenador sin él, entra desde el iPhone y añade la app de códigos en Más → Seguridad: después podrás entrar aquí con la contraseña y un código.',
     back: 'Volver',
     recoveryCode: 'Código de recuperación',
     cancel: 'Cancelar',
@@ -1076,6 +1080,11 @@ export const es = {
     addOnDevice: 'Añadir en este dispositivo',
     manual: 'Clave para añadirla a mano',
     confirm: 'Activar',
+    faceIdReady: 'Face ID listo.',
+    alsoAppTitle: 'Añade también la app de códigos',
+    alsoAppIntro:
+      'Con ella podrás entrar desde el ordenador o desde otro móvil con tu contraseña y un código, aunque no tengas Face ID a mano.',
+    notNow: 'Ahora no',
   },
   recoveryCodes: {
     title: 'Códigos de recuperación',

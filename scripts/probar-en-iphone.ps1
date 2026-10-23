@@ -25,8 +25,15 @@ if (-not (Test-Path $cloudflared)) {
 }
 
 function Test-DockerEngine {
-    cmd /c "docker version --format {{.Server.Version}} >nul 2>&1"
-    return ($LASTEXITCODE -eq 0)
+    # `docker version` hangs forever when Docker Desktop died half-way: 15 seconds at most.
+    $process = Start-Process -FilePath 'cmd.exe' -NoNewWindow -PassThru `
+        -ArgumentList '/c', 'docker version --format {{.Server.Version}} >nul 2>&1'
+    if (-not $process.WaitForExit(15000)) {
+        Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+        Get-Process docker -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+        return $false
+    }
+    return ($process.ExitCode -eq 0)
 }
 
 function Repair-DockerDesktop {
@@ -36,7 +43,10 @@ function Repair-DockerDesktop {
     Write-Host 'Docker no responde: reiniciando Docker Desktop...'
     # Every Docker process: one left running recreates the locked files before the restart.
     Get-Process | Where-Object { $_.ProcessName -match 'docker' } | Stop-Process -Force -ErrorAction SilentlyContinue
-    Start-Sleep -Seconds 3
+    for ($i = 0; $i -lt 10 -and (Get-Process | Where-Object { $_.ProcessName -match 'docker' }); $i++) {
+        Start-Sleep -Seconds 1
+    }
+    Start-Sleep -Seconds 2
     $stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
     foreach ($dir in @("$env:LOCALAPPDATA\Docker\run", "$env:LOCALAPPDATA\docker-secrets-engine")) {
         if (Test-Path $dir) {
